@@ -48,6 +48,7 @@ export class FirebaseDb {
         });
       }
       this.db = admin.firestore();
+      this.db.settings({ ignoreUndefinedProperties: true });
       console.log("[FirebaseDb] Admin SDK Initialized successfully.");
     } catch (error) {
       console.error("[FirebaseDb] Admin SDK Initialization failed:", error);

@@ -122,12 +122,19 @@ export default function NewsCard({ article, index }: NewsCardProps) {
             {article.title}
           </a>
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-            <span
-              className="font-pixel"
-              style={{ fontSize: "11px", color: "var(--pixel-blue)" }}
+            <a
+              href={article.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-pixel hover:underline flex items-center gap-1"
+              style={{
+                fontSize: "11px",
+                color: "var(--pixel-blue)",
+                textDecoration: "none",
+              }}
             >
-              {article.source}
-            </span>
+              <span>🔗 {article.source}</span>
+            </a>
             {dateFormatted && (
               <span
                 className="font-pixel"
@@ -214,28 +221,64 @@ export default function NewsCard({ article, index }: NewsCardProps) {
         )}
       </div>
 
-      {/* ── Keywords Footer ──────────────────────────────── */}
-      {article.keywords?.length > 0 && (
-        <div
-          className="px-4 py-2 flex flex-wrap gap-1.5"
-          style={{ borderTop: `1px solid ${severity.color}20` }}
-        >
-          {article.keywords.map((kw) => (
+      {/* ── Card Footer (Keywords & Source Link) ──────────── */}
+      <div
+        className="px-4 py-2 flex items-center justify-between flex-wrap gap-3"
+        style={{
+          borderTop: `1px solid ${severity.color}20`,
+          background: "rgba(10, 10, 26, 0.2)"
+        }}
+      >
+        {/* Keywords */}
+        <div className="flex flex-wrap gap-1.5">
+          {article.keywords && article.keywords.length > 0 ? (
+            article.keywords.map((kw) => (
+              <span
+                key={kw}
+                className="font-pixel px-2 py-0.5"
+                style={{
+                  fontSize: "10px",
+                  border: `1px solid var(--pixel-border)`,
+                  color: "#94a3b8",
+                  background: "rgba(58,58,110,0.3)",
+                }}
+              >
+                #{kw}
+              </span>
+            ))
+          ) : (
             <span
-              key={kw}
-              className="font-pixel px-2 py-0.5"
+              className="font-pixel text-slate-500"
               style={{
                 fontSize: "10px",
-                border: `1px solid var(--pixel-border)`,
-                color: "#94a3b8",
-                background: "rgba(58,58,110,0.3)",
               }}
             >
-              #{kw}
+              #no-keywords
             </span>
-          ))}
+          )}
         </div>
-      )}
+
+        {/* Source Link Button */}
+        <a
+          href={article.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-pixel flex items-center gap-1.5 hover:brightness-110 active:scale-95 transition-all"
+          style={{
+            fontSize: "10px",
+            border: `2px solid var(--pixel-blue)`,
+            color: "var(--pixel-dark)",
+            background: "var(--pixel-blue)",
+            boxShadow: `0 0 8px rgba(79, 195, 247, 0.4)`,
+            padding: "3px 10px",
+            textDecoration: "none",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          <span>🔗 ดูที่มาข่าว</span>
+        </a>
+      </div>
     </article>
   );
 }

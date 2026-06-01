@@ -16,10 +16,15 @@ import { generateArticleId, type NewsApiResponse, type NewsItem, type RawArticle
 // Opt out of Next.js static caching — always fetch fresh data
 export const dynamic = "force-dynamic";
 
+// Global variables for throttling RSS fetching and Gemini analysis in development mode
+let lastRevalidatedAt = 0; // Timestamp in milliseconds
+const REVALIDATION_THROTTLE_MS = 15 * 60 * 1000; // 15 minutes throttle by default
+
 export async function GET(_req: NextRequest): Promise<Response> {
   const fetchedAt = new Date().toISOString();
   const apiKey = process.env.GEMINI_API_KEY ?? "";
   const db = new FirebaseDb();
+  const forceRefresh = _req.nextUrl.searchParams.get("force") === "true";
 
   try {
     // ── Step 1: Check Cloud Firestore Cache first ────────────
@@ -29,9 +34,22 @@ export async function GET(_req: NextRequest): Promise<Response> {
       console.log(`[GET /api/news] SWR Cache Hit: Serving ${cachedArticles.length} articles instantly (under 100ms).`);
 
       // Trigger fresh RSS pull, deduplicate and analyze new items in background (NON-blocking)
-      triggerBackgroundUpdate(db, apiKey).catch((err) => {
-        console.error("[GET /api/news] Asynchronous revalidation failed:", err);
-      });
+      // Only do background RSS fetching/filtering in development mode (npm run dev)
+      if (process.env.NODE_ENV === "development") {
+        const now = Date.now();
+        if (forceRefresh || (now - lastRevalidatedAt > REVALIDATION_THROTTLE_MS)) {
+          lastRevalidatedAt = now;
+          console.log("[GET /api/news] Throttle passed or forced. Triggering background RSS & AI revalidation...");
+          triggerBackgroundUpdate(db, apiKey).catch((err) => {
+            console.error("[GET /api/news] Asynchronous revalidation failed:", err);
+          });
+        } else {
+          const secondsRemaining = Math.round((REVALIDATION_THROTTLE_MS - (now - lastRevalidatedAt)) / 1000);
+          console.log(`[GET /api/news] Throttling RSS background fetch: Next check allowed in ${secondsRemaining}s. (Use ?force=true to override)`);
+        }
+      } else {
+        console.log("[GET /api/news] Production mode: Bypassing background RSS fetch to conserve Gemini API quota.");
+      }
 
       const averageSeverity = computeAverage(cachedArticles.map((a) => a.severityScore));
       return Response.json({
@@ -43,6 +61,11 @@ export async function GET(_req: NextRequest): Promise<Response> {
     }
 
     // ── Step 2: Cache Miss (First run or empty DB) ───────────
+    if (process.env.NODE_ENV !== "development") {
+      console.log("[GET /api/news] SWR Cache Miss in Production: Serving empty articles since RSS fetch is dev-only.");
+      return Response.json(buildEmptyResponse(fetchedAt, "RSS fetch is disabled in production to conserve API quota. Please seed the database in development mode first."));
+    }
+
     console.log("[GET /api/news] SWR Cache Miss: Executing synchronous fetch, deduplication, and AI analysis...");
     
     const fetcher = new RssFetcher();
@@ -54,6 +77,7 @@ export async function GET(_req: NextRequest): Promise<Response> {
 
     // Deduplicate and process
     const articles = await processAndAnalyzeArticles(rawArticles, db, apiKey);
+    lastRevalidatedAt = Date.now(); // update throttle timestamp on successful fetch
     const averageSeverity = computeAverage(articles.map((a) => a.severityScore));
 
     const response: NewsApiResponse = {
