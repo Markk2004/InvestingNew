@@ -1,0 +1,241 @@
+"use client";
+
+// ─────────────────────────────────────────────────────────────
+//  NewsCard — Pixel Art 8-bit styled news article card
+//  Shows: severity score, sentiment, title, summary,
+//         short/long-term impact, keywords, source link
+// ─────────────────────────────────────────────────────────────
+
+import type { NewsItem } from "@/lib/types";
+import { getSeverityLevel, getSentimentEmoji } from "@/lib/types";
+import { useState } from "react";
+
+interface NewsCardProps {
+  article: NewsItem;
+  index: number;
+}
+
+const SEVERITY_CONFIG = {
+  low:      { color: "var(--pixel-green)",  label: "LOW",      bg: "rgba(105,255,71,0.06)" },
+  medium:   { color: "var(--pixel-yellow)", label: "MED",      bg: "rgba(255,215,64,0.06)" },
+  high:     { color: "var(--pixel-orange)", label: "HIGH",     bg: "rgba(255,171,64,0.08)" },
+  critical: { color: "var(--pixel-red)",    label: "CRITICAL", bg: "rgba(255,82,82,0.1)"   },
+};
+
+const SENTIMENT_CONFIG = {
+  bullish: { color: "var(--pixel-green)",  label: "BULLISH 📈" },
+  bearish: { color: "var(--pixel-red)",    label: "BEARISH 📉" },
+  neutral: { color: "#64748b",             label: "NEUTRAL ➡️" },
+};
+
+export default function NewsCard({ article, index }: NewsCardProps) {
+  const [expanded, setExpanded] = useState(false);
+
+  const level = getSeverityLevel(article.severityScore);
+  const severity = SEVERITY_CONFIG[level];
+  const sentiment = SENTIMENT_CONFIG[article.sentiment ?? "neutral"];
+  const sentimentEmoji = getSentimentEmoji(article.sentiment ?? "neutral");
+
+  const relativeTime = (() => {
+    if (!article.publishedAt) return "";
+    const now = new Date();
+    const pubDate = new Date(article.publishedAt);
+    const diffMs = now.getTime() - pubDate.getTime();
+    const absDiffMs = Math.max(0, diffMs);
+    const diffMins = Math.floor(absDiffMs / (1000 * 60));
+    const diffHours = Math.floor(absDiffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) {
+      return "เมื่อครู่นี้";
+    } else if (diffMins < 60) {
+      return `${diffMins} นาทีที่แล้ว`;
+    } else if (diffHours < 24) {
+      return `${diffHours} ชั่วโมงที่แล้ว`;
+    } else {
+      return `${diffDays} วันที่แล้ว`;
+    }
+  })();
+
+  const dateFormatted = article.publishedAt
+    ? new Intl.DateTimeFormat("th-TH", {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Bangkok",
+      }).format(new Date(article.publishedAt))
+    : "";
+
+  return (
+    <article
+      id={`news-card-${article.id}`}
+      className="animate-pixel-fade-in flex flex-col"
+      style={{
+        animationDelay: `${Math.min(index * 60, 500)}ms`,
+        animationFillMode: "both",
+        border: `2px solid ${severity.color}`,
+        background: `${severity.bg}`,
+        boxShadow: `0 0 12px ${severity.color}30, inset 0 0 0 1px ${severity.color}15`,
+      }}
+    >
+      {/* ── Card Header ─────────────────────────────────── */}
+      <div
+        className="flex items-start justify-between gap-3 px-4 py-3"
+        style={{ borderBottom: `1px solid ${severity.color}30` }}
+      >
+        {/* Score Badge */}
+        <div
+          className="flex-shrink-0 flex flex-col items-center justify-center font-pixel"
+          style={{
+            minWidth: "50px",
+            height: "50px",
+            border: `2px solid ${severity.color}`,
+            background: `${severity.color}15`,
+            boxShadow: `0 0 8px ${severity.color}50`,
+          }}
+        >
+          <span style={{ fontSize: "20px", color: severity.color, lineHeight: 1 }}>
+            {article.severityScore}
+          </span>
+          <span style={{ fontSize: "8px", color: severity.color, marginTop: 2 }}>
+            {severity.label}
+          </span>
+        </div>
+
+        {/* Title */}
+        <div className="flex-1 min-w-0">
+          <a
+            href={article.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline line-clamp-2 leading-snug"
+            style={{
+              fontSize: "15px",
+              color: "#ffffff",
+              fontFamily: "var(--font-mono), monospace",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            {article.title}
+          </a>
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <span
+              className="font-pixel"
+              style={{ fontSize: "11px", color: "var(--pixel-blue)" }}
+            >
+              {article.source}
+            </span>
+            {dateFormatted && (
+              <span
+                className="font-pixel"
+                style={{ fontSize: "11px", color: "#cbd5e1" }}
+              >
+                · 📅 {dateFormatted} ({relativeTime})
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Sentiment Badge */}
+        <div
+          className="flex-shrink-0 font-pixel px-2 py-1"
+          style={{
+            fontSize: "10px",
+            border: `1px solid ${sentiment.color}`,
+            color: sentiment.color,
+            whiteSpace: "nowrap",
+            background: `${sentiment.color}10`,
+          }}
+        >
+          {sentimentEmoji} {article.sentiment?.toUpperCase() ?? "NEUTRAL"}
+        </div>
+      </div>
+
+      {/* ── Summary ─────────────────────────────────────── */}
+      <div className="px-4 py-3 flex-1">
+        <p
+          style={{
+            fontSize: "14px",
+            color: "#e2e8f0",
+            lineHeight: 1.7,
+            fontFamily: "var(--font-mono), monospace",
+          }}
+        >
+          {article.summary}
+        </p>
+
+        {/* ── Expand/Collapse impact details ──────────── */}
+        {(article.shortTermImpact || article.longTermImpact) && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="mt-3 font-pixel hover:underline flex items-center gap-1"
+            style={{
+              fontSize: "11px",
+              color: "var(--pixel-yellow)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            {expanded ? "▲ ซ่อนรายละเอียดผลกระทบ" : "▼ ดูผลกระทบต่อผู้ลงทุนไทย"}
+          </button>
+        )}
+
+        {expanded && (
+          <div
+            className="mt-3 space-y-2 animate-pixel-fade-in"
+            style={{ borderLeft: `2px solid var(--pixel-border)`, paddingLeft: "12px" }}
+          >
+            {article.shortTermImpact && (
+              <div>
+                <p className="font-pixel" style={{ fontSize: "11px", color: "var(--pixel-yellow)", marginBottom: 4 }}>
+                  ⚡ ระยะสั้น (1-7 วัน)
+                </p>
+                <p style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: 1.6, fontFamily: "var(--font-mono), monospace" }}>
+                  {article.shortTermImpact}
+                </p>
+              </div>
+            )}
+            {article.longTermImpact && (
+              <div>
+                <p className="font-pixel" style={{ fontSize: "11px", color: "var(--pixel-blue)", marginBottom: 4 }}>
+                  📊 ระยะยาว (สัปดาห์-เดือน)
+                </p>
+                <p style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: 1.6, fontFamily: "var(--font-mono), monospace" }}>
+                  {article.longTermImpact}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Keywords Footer ──────────────────────────────── */}
+      {article.keywords?.length > 0 && (
+        <div
+          className="px-4 py-2 flex flex-wrap gap-1.5"
+          style={{ borderTop: `1px solid ${severity.color}20` }}
+        >
+          {article.keywords.map((kw) => (
+            <span
+              key={kw}
+              className="font-pixel px-2 py-0.5"
+              style={{
+                fontSize: "10px",
+                border: `1px solid var(--pixel-border)`,
+                color: "#94a3b8",
+                background: "rgba(58,58,110,0.3)",
+              }}
+            >
+              #{kw}
+            </span>
+          ))}
+        </div>
+      )}
+    </article>
+  );
+}
