@@ -5,6 +5,18 @@ import React from "react";
 export type CharacterState = "idle" | "working" | "shocked";
 export type CharacterType = "gemini" | "newinvester";
 
+export type HatStyle = "cap-blue" | "cap-red" | "tophat" | "wizard" | "none";
+export type ShirtStyle = "suit" | "tee-gray" | "hoodie-green" | "none";
+export type AccessoryStyle = "glasses" | "sunglasses" | "bow" | "none";
+export type EffectStyle = "sparkle" | "aura" | "none";
+
+export interface OutfitConfig {
+  hat?: HatStyle;
+  shirt?: ShirtStyle;
+  accessory?: AccessoryStyle;
+  effect?: EffectStyle;
+}
+
 export interface CharacterSpriteProps {
   character: CharacterType;
   state: CharacterState;
@@ -13,6 +25,7 @@ export interface CharacterSpriteProps {
   className?: string;
   style?: React.CSSProperties;
   flip?: boolean;
+  outfit?: OutfitConfig;
 }
 
 // ─── Dimensional Newinvester Pixel Character ──────────────────────────────────
@@ -22,10 +35,12 @@ function NewinvesterCharacter({
   state,
   isWalking,
   frame,
+  outfit = {},
 }: {
   state: CharacterState;
   isWalking: boolean;
   frame: number;
+  outfit?: OutfitConfig;
 }) {
   // ── Animation offsets ──────────────────────────────────────────────────────
   const isTyping     = state === "working" && !isWalking;
@@ -82,8 +97,8 @@ function NewinvesterCharacter({
   return (
     <svg
       viewBox="0 0 34 80"
-      width={W}
-      height={H}
+      width="100%"
+      height="100%"
       style={{ imageRendering: "pixelated", overflow: "visible" }}
     >
       {/* ── DROP SHADOW ── */}
@@ -344,6 +359,123 @@ function NewinvesterCharacter({
           ))}
         </g>
       )}
+
+      {/* ── OUTFIT OVERLAYS ── */}
+
+      {/* ── SHIRT OVERLAY ── */}
+      {outfit.shirt === "tee-gray" && (
+        <g>
+          {/* Gray casual tee over jacket */}
+          <rect x="6"  y={27 + bodyBob} width={22} height={19} fill="#4a5568" />
+          <rect x="6"  y={27 + bodyBob} width={22} height={2}  fill="#718096" opacity={0.8} />
+          <rect x="13" y={27 + bodyBob} width={8}  height={5}  fill="#e2e8f0" />
+          <rect x="0"  y={leftArmY  + bodyBob} width={6} height={armH} fill="#4a5568" />
+          <rect x="28" y={rightArmY + bodyBob} width={6} height={armH} fill="#4a5568" />
+        </g>
+      )}
+      {outfit.shirt === "hoodie-green" && (
+        <g>
+          {/* Green hoodie */}
+          <rect x="5"  y={26 + bodyBob} width={24} height={21} fill="#276749" />
+          <rect x="5"  y={26 + bodyBob} width={24} height={2}  fill="#38a169" opacity={0.8} />
+          {/* Hood */}
+          <rect x="8"  y={24 + bodyBob} width={18} height={5}  fill="#276749" />
+          <rect x="10" y={22 + bodyBob} width={14} height={4}  fill="#2f855a" />
+          {/* Pocket */}
+          <rect x="12" y={36 + bodyBob} width={10} height={6}  fill="#22543d" />
+          <rect x="0"  y={leftArmY  + bodyBob} width={6} height={armH} fill="#276749" />
+          <rect x="28" y={rightArmY + bodyBob} width={6} height={armH} fill="#276749" />
+        </g>
+      )}
+
+      {/* ── HAT OVERLAY ── */}
+      {outfit.hat === "tophat" && (
+        <g>
+          {/* Classic top hat — replaces cap */}
+          <rect x="6"  y={7  + bodyBob} width={22} height={2}  fill="#1a1a2e" />{/* brim */}
+          <rect x="5"  y={8  + bodyBob} width={24} height={2}  fill="#16213e" />{/* brim shadow */}
+          <rect x="9"  y={-4 + bodyBob} width={16} height={12} fill="#1a1a2e" />{/* crown */}
+          <rect x="9"  y={-4 + bodyBob} width={16} height={2}  fill="#2d2d4a" />{/* crown top */}
+          <rect x="9"  y={-4 + bodyBob} width={2}  height={12} fill="#2d2d4a" />{/* left edge */}
+          <rect x="23" y={-4 + bodyBob} width={2}  height={12} fill="#0d0d1a" />{/* right shadow */}
+          {/* Hat band */}
+          <rect x="9"  y={4  + bodyBob} width={16} height={2}  fill="#4c1d95" />
+          <rect x="10" y={4  + bodyBob} width={14} height={1}  fill="#7c3aed" opacity={0.7} />
+        </g>
+      )}
+      {outfit.hat === "cap-red" && (
+        <g>
+          {/* Red baseball cap */}
+          <rect x="8"  y={1  + bodyBob} width={18} height={7}  fill="#991b1b" />
+          <rect x="10" y={0  + bodyBob} width={14} height={2}  fill="#ef4444" />
+          <rect x="5"  y={7  + bodyBob} width={24} height={2}  fill="#991b1b" />
+          <rect x="5"  y={8  + bodyBob} width={24} height={1}  fill="#7f1d1d" />
+          {/* Logo on cap */}
+          <rect x="15" y={3  + bodyBob} width={4}  height={3}  fill="#ef4444" opacity={0.0} />
+          <rect x="16" y={3  + bodyBob} width={2}  height={3}  fill="#fca5a5" opacity={0.8} />
+        </g>
+      )}
+      {outfit.hat === "wizard" && (
+        <g>
+          {/* Wizard hat */}
+          <rect x="6"  y={7  + bodyBob} width={22} height={2}  fill="#4c1d95" />{/* wide brim */}
+          <rect x="5"  y={8  + bodyBob} width={24} height={2}  fill="#3b0764" />
+          {/* Tall conical crown — approximated with pixel steps */}
+          <rect x="12" y={0  + bodyBob} width={10} height={8}  fill="#4c1d95" />
+          <rect x="13" y={-7 + bodyBob} width={8}  height={8}  fill="#4c1d95" />
+          <rect x="15" y={-13+ bodyBob} width={4}  height={7}  fill="#4c1d95" />
+          <rect x="16" y={-17+ bodyBob} width={2}  height={5}  fill="#7c3aed" />
+          {/* Stars on hat */}
+          <rect x="13" y={2  + bodyBob} width={2}  height={2}  fill="#fbbf24" opacity={0.9} />
+          <rect x="18" y={-2 + bodyBob} width={2}  height={2}  fill="#a78bfa" opacity={0.9} />
+          <rect x="15" y={-10+ bodyBob} width={2}  height={2}  fill="#fbbf24" opacity={0.9} />
+        </g>
+      )}
+
+      {/* ── ACCESSORY OVERLAY ── */}
+      {outfit.accessory === "sunglasses" && (
+        <g>
+          {/* Gold-tinted shades */}
+          <rect x="9"  y={14 + bodyBob} width={7}  height={5}  fill="none" stroke="#d97706" strokeWidth="1.2" />
+          <rect x="18" y={14 + bodyBob} width={7}  height={5}  fill="none" stroke="#d97706" strokeWidth="1.2" />
+          <rect x="16" y={16 + bodyBob} width={2}  height={1.5} fill="#d97706" />
+          <rect x="7"  y={16 + bodyBob} width={2}  height={1}  fill="#d97706" />
+          <rect x="25" y={16 + bodyBob} width={2}  height={1}  fill="#d97706" />
+          {/* Dark tinted lenses */}
+          <rect x="9.5" y={14.5 + bodyBob} width={6} height={4} fill="#1a0a00" opacity={0.75} />
+          <rect x="18.5" y={14.5 + bodyBob} width={6} height={4} fill="#1a0a00" opacity={0.75} />
+          {/* Lens sheen */}
+          <rect x="11" y={15 + bodyBob} width={2} height={1} fill="#fbbf24" opacity={0.4} />
+          <rect x="20" y={15 + bodyBob} width={2} height={1} fill="#fbbf24" opacity={0.4} />
+        </g>
+      )}
+      {outfit.accessory === "bow" && (
+        <g>
+          {/* Bow tie at neck */}
+          <rect x="12" y={26 + bodyBob} width={10} height={3}  fill="#dc2626" />
+          <rect x="16" y={26 + bodyBob} width={2}  height={3}  fill="#991b1b" />
+          <rect x="12" y={26 + bodyBob} width={4}  height={3}  fill="#ef4444" opacity={0.6} />
+          <rect x="18" y={26 + bodyBob} width={4}  height={3}  fill="#ef4444" opacity={0.6} />
+        </g>
+      )}
+
+      {/* ── EFFECT OVERLAY ── */}
+      {outfit.effect === "aura" && (
+        <g opacity={0.5 + 0.2 * Math.sin(frame * 0.1)}>
+          <ellipse cx="17" cy={30 + bodyBob} rx={22} ry={40} fill="none" stroke="#7c3aed" strokeWidth="1.5" opacity={0.6} />
+          <ellipse cx="17" cy={30 + bodyBob} rx={18} ry={34} fill="none" stroke="#a78bfa" strokeWidth="1"   opacity={0.4} />
+          {[0,1,2,3,4,5].map(i => (
+            <circle
+              key={i}
+              cx={17 + Math.cos(frame * 0.06 + i * 1.05) * 22}
+              cy={30 + bodyBob + Math.sin(frame * 0.06 + i * 1.05) * 38}
+              r={1.5}
+              fill="#c4b5fd"
+              opacity={0.7}
+            />
+          ))}
+        </g>
+      )}
     </svg>
   );
 }
@@ -361,7 +493,7 @@ function GeminiWalking({ frame }: { frame: number }) {
   const armSwing = frame % 2 === 0 ? 1 : -1;
   const glow = frame % 2 === 0 ? "#60A5FA" : "#93C5FD";
   return (
-    <svg width="60" height="90" viewBox="0 0 40 60" style={{ imageRendering: "pixelated", filter: `drop-shadow(0 0 4px ${glow})` }}>
+    <svg width="100%" height="100%" viewBox="0 0 40 60" style={{ imageRendering: "pixelated", filter: `drop-shadow(0 0 4px ${glow})`, overflow: "visible" }}>
       {/* Antenna */}
       <rect x="17" y="0" width="6" height="5" fill="#7DD3FC" />
       <rect x="14" y="3" width="12" height="3" fill="#60A5FA" />
@@ -418,7 +550,7 @@ function GeminiTyping({ frame }: { frame: number }) {
   const armY = frame % 2 === 0 ? 0 : 2;
   const glow = frame % 2 === 0 ? "#60A5FA" : "#93C5FD";
   return (
-    <svg width="78" height="84" viewBox="0 0 52 56" style={{ imageRendering: "pixelated", filter: `drop-shadow(0 0 5px ${glow})` }}>
+    <svg width="100%" height="100%" viewBox="0 0 52 56" style={{ imageRendering: "pixelated", filter: `drop-shadow(0 0 5px ${glow})`, overflow: "visible" }}>
       {/* Antenna */}
       <rect x="22" y="0" width="8" height="4" fill="#7DD3FC" />
       <rect x="20" y="2" width="12" height="3" fill="#60A5FA" />
@@ -477,6 +609,7 @@ export default function CharacterSprite({
   className = "",
   style,
   flip = false,
+  outfit = {},
 }: CharacterSpriteProps) {
   const isShocked = state === "shocked";
 
@@ -493,6 +626,7 @@ export default function CharacterSprite({
         state={state}
         isWalking={isWalking}
         frame={frame}
+        outfit={outfit}
       />
     );
   }

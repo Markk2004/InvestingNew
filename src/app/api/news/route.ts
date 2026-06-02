@@ -128,10 +128,17 @@ async function processAndAnalyzeArticles(
   let newlyAnalyzedItems: NewsItem[] = [];
 
   if (newRawArticles.length > 0) {
+    // Limit to analyzing at most 5 new articles per refresh to guarantee fast responses (<2s)
+    const limit = 5;
+    const articlesToAnalyze = newRawArticles.slice(0, limit);
+    console.log(
+      `[News Orchestrator] Snap-refresh: Analyzing only the top ${articlesToAnalyze.length} of ${newRawArticles.length} new articles to reduce latency.`
+    );
+
     const analyzer = new GeminiAnalyzer(apiKey);
-    newlyAnalyzedItems = await analyzer.analyzeArticles(newRawArticles);
+    newlyAnalyzedItems = await analyzer.analyzeArticles(articlesToAnalyze);
     
-    // Save ALL newly analyzed news items to Firestore (so we don't re-analyze them next time!)
+    // Save newly analyzed news items to Firestore (so we don't re-analyze them next time!)
     await db.saveNewsItems(newlyAnalyzedItems);
   } else {
     console.log("[News Orchestrator] All fetched articles are already in cache. Bypassing Gemini API.");
@@ -139,8 +146,22 @@ async function processAndAnalyzeArticles(
     await db.cleanupOldNews(3);
   }
 
+  // Ensure un-analyzed articles are not completely dropped from the UI.
+  // We give them a temporary score of 5 so they pass the filter, and a pending status.
+  const unanalyzedItems: NewsItem[] = newRawArticles.slice(5).map(raw => ({
+    id: generateArticleId(raw.link),
+    title: raw.title,
+    link: raw.link,
+    publishedAt: raw.publishedAt,
+    source: raw.source,
+    severityScore: 5,
+    summary: "กำลังรอการวิเคราะห์จากระบบ... (Pending Analysis)",
+    keywords: ["Pending"],
+    sentiment: "neutral",
+  }));
+
   // Merge together and sort chronologically (newest first)
-  const merged = [...reusedNewsItems, ...newlyAnalyzedItems];
+  const merged = [...reusedNewsItems, ...newlyAnalyzedItems, ...unanalyzedItems];
 
   // Filter to keep only articles with severityScore >= 5
   const filtered = merged.filter((item) => item.severityScore >= 5);

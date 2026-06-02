@@ -247,3 +247,134 @@ body {
 .recharts-responsive-container {
   min-width: 0 !important;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Game Shell — Tab Animations
+───────────────────────────────────────────────────────────── */
+
+@keyframes tabGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 6px var(--pixel-blue),
+      0 0 14px rgba(79, 195, 247, 0.3),
+      inset 0 0 6px rgba(79, 195, 247, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 12px var(--pixel-blue),
+      0 0 28px rgba(79, 195, 247, 0.5),
+      inset 0 0 12px rgba(79, 195, 247, 0.2);
+  }
+}
+
+@keyframes tabGlowGreen {
+  0%, 100% {
+    box-shadow:
+      0 0 6px var(--pixel-green),
+      0 0 14px rgba(105, 255, 71, 0.3),
+      inset 0 0 6px rgba(105, 255, 71, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 12px var(--pixel-green),
+      0 0 28px rgba(105, 255, 71, 0.5),
+      inset 0 0 12px rgba(105, 255, 71, 0.2);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Portfolio Ticker — price flash on change
+───────────────────────────────────────────────────────────── */
+
+@keyframes portfolioTickUp {
+  0%   { color: var(--pixel-green); transform: translateY(0); }
+  30%  { color: #ffffff; transform: translateY(-2px); }
+  100% { color: var(--pixel-green); transform: translateY(0); }
+}
+
+@keyframes portfolioTickDown {
+  0%   { color: var(--pixel-red); transform: translateY(0); }
+  30%  { color: #ffffff; transform: translateY(2px); }
+  100% { color: var(--pixel-red); transform: translateY(0); }
+}
+
+.animate-tick-up {
+  animation: portfolioTickUp 0.4s ease-out;
+}
+.animate-tick-down {
+  animation: portfolioTickDown 0.4s ease-out;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Character Room — float + item hover
+───────────────────────────────────────────────────────────── */
+
+@keyframes characterFloat {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  33%       { transform: translateY(-8px) scale(1.01); }
+  66%       { transform: translateY(-4px) scale(1.005); }
+}
+
+@keyframes itemHover {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50%       { transform: scale(1.05); filter: brightness(1.3) drop-shadow(0 0 6px var(--pixel-yellow)); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-character-float {
+  animation: characterFloat 3.5s ease-in-out infinite;
+}
+
+.animate-item-hover:hover {
+  animation: itemHover 0.6s ease-in-out infinite;
+}
+
+.tab-active-blue {
+  animation: tabGlow 2s ease-in-out infinite;
+  border-color: var(--pixel-blue) !important;
+  color: var(--pixel-blue) !important;
+}
+
+.tab-active-green {
+  animation: tabGlowGreen 2s ease-in-out infinite;
+  border-color: var(--pixel-green) !important;
+  color: var(--pixel-green) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Top bar logo shimmer
+───────────────────────────────────────────────────────────── */
+
+.logo-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--pixel-blue) 0%,
+    #ffffff 40%,
+    var(--pixel-blue) 60%,
+    var(--pixel-purple) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Equip slot — selected glow
+───────────────────────────────────────────────────────────── */
+
+@keyframes equipPulse {
+  0%, 100% { box-shadow: 0 0 4px var(--pixel-yellow), inset 0 0 4px rgba(255,215,64,0.1); }
+  50%       { box-shadow: 0 0 12px var(--pixel-yellow), inset 0 0 8px rgba(255,215,64,0.2); }
+}
+
+.equip-selected {
+  animation: equipPulse 1.5s ease-in-out infinite;
+  border-color: var(--pixel-yellow) !important;
+  background: rgba(255, 215, 64, 0.08) !important;
+}

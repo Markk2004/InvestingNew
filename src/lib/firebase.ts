@@ -46,9 +46,11 @@ export class FirebaseDb {
         admin.initializeApp({
           credential: admin.credential.cert(config),
         });
+        this.db = admin.firestore();
+        this.db.settings({ ignoreUndefinedProperties: true });
+      } else {
+        this.db = admin.firestore();
       }
-      this.db = admin.firestore();
-      this.db.settings({ ignoreUndefinedProperties: true });
       console.log("[FirebaseDb] Admin SDK Initialized successfully.");
     } catch (error) {
       console.error("[FirebaseDb] Admin SDK Initialization failed:", error);

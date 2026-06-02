@@ -1,25 +1,12 @@
 // ─────────────────────────────────────────────────────────────
 //  Home Page — /
-//  Pixel Trade Night Office — canvas-based animated trading floor
+//  Pixel Office Tycoon Dashboard — Kairosoft-style 3-tab shell
 // ─────────────────────────────────────────────────────────────
 
 "use client";
 
-import PixelTradeNightOffice from "@/components/PixelTradeNightOffice";
+import GameShell from "@/components/GameShell";
 
 export default function HomePage() {
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#03080f",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}
-    >
-      <PixelTradeNightOffice />
-    </main>
-  );
+  return <GameShell />;
 }
