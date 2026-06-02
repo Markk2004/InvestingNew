@@ -146,9 +146,8 @@ export class FirebaseDb {
       const items: NewsItem[] = [];
 
       querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        // Remove metadata field 'savedAt' before returning to UI
-        const { savedAt, ...newsItem } = data;
+        const newsItem = { ...doc.data() };
+        delete (newsItem as Record<string, unknown>).savedAt;
         items.push(newsItem as NewsItem);
       });
 

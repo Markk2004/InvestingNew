@@ -40,7 +40,16 @@ export default function NewsDashboardPage() {
     mutate,
   } = useSWR<NewsApiResponse>("/api/news", fetcher, SWR_CONFIG);
 
-  const handleRefresh = () => mutate();
+  const handleRefresh = async () => {
+    try {
+      await mutate(
+        fetcher("/api/news?force=true"),
+        { revalidate: false }
+      );
+    } catch (err) {
+      console.error("Failed to force refresh news:", err);
+    }
+  };
 
   const hasError = !!error || (data?.error != null && data.articles.length === 0);
   const errorMessage = error?.message ?? data?.error;
