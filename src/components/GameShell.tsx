@@ -9,8 +9,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import OfficeTab from "@/components/OfficeTab";
 import CharacterTab from "@/components/CharacterTab";
+import RenovateTab from "@/components/RenovateTab";
+import { OfficeProvider } from "@/components/OfficeContext";
+import { OutfitConfig } from "@/components/CharacterSprite";
 
-type Tab = "office" | "character";
+type Tab = "office" | "character" | "renovate";
 
 // ── Pixel Company Logo (inline SVG) ───────────────────────────────────────────
 
@@ -189,15 +192,16 @@ function TickerTape() {
 export default function GameShell() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("office");
-  const [outfits, setOutfits] = useState<Record<string, any>>({
+  const [outfits, setOutfits] = useState<Record<string, OutfitConfig>>({
     Mark:        { hat: "cap-blue", shirt: "none", accessory: "glasses", effect: "none" },
     Gemini:      { hat: "none",     shirt: "tee-gray", accessory: "none", effect: "sparkle" },
     NewInvester: { hat: "cap-red",  shirt: "none", accessory: "sunglasses", effect: "none" },
   });
 
   return (
-    <div
-      style={{
+    <OfficeProvider>
+      <div
+        style={{
         display: "flex",
         flexDirection: "column",
         height: "100vh",
@@ -258,6 +262,14 @@ export default function GameShell() {
             glowColor="#c084fc"
           />
           <TabButton
+            id="renovate"
+            emoji="🏗️"
+            label="Renovate"
+            active={activeTab === "renovate"}
+            onClick={() => setActiveTab("renovate")}
+            glowColor="#fbbf24"
+          />
+          <TabButton
             id="news"
             emoji="📰"
             label="AnalysisNew"
@@ -300,6 +312,7 @@ export default function GameShell() {
       <main style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
         {activeTab === "office"    && <OfficeTab outfits={outfits} />}
         {activeTab === "character" && <CharacterTab outfits={outfits} setOutfits={setOutfits} />}
+        {activeTab === "renovate"  && <RenovateTab />}
       </main>
 
       {/* ── BOTTOM STATUS BAR ── */}
@@ -320,6 +333,8 @@ export default function GameShell() {
             ? "+ Click any work zone to send nearest agent there"
             : activeTab === "character"
             ? "🎮 Click items to equip — mix and match for bonus stats"
+            : activeTab === "renovate"
+            ? "🏗️ As CEO: pick flooring theme, buy furniture, and design your dream office"
             : ""}
         </span>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -348,6 +363,7 @@ export default function GameShell() {
           to   { transform: translateX(-50%); }
         }
       `}</style>
-    </div>
+      </div>
+    </OfficeProvider>
   );
 }

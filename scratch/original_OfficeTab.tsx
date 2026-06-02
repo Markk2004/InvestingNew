@@ -9,7 +9,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import CharacterSprite from "@/components/CharacterSprite";
-import { useOffice, CATALOG, PlacedItem, FloorTheme } from "@/components/OfficeContext";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type AgentAction = "idle" | "typing" | "walking" | "thinking";
@@ -53,23 +52,21 @@ const ZONES: Zone[] = [
   { label: "SEARCH", x: 800, y: 445, w: 65, h: 40 },
 ];
 
-
-
 // ── Drawing helpers ────────────────────────────────────────────────────────────
 function px(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, fill: string, alpha = 1) {
   ctx.globalAlpha = alpha; ctx.fillStyle = fill;
   ctx.fillRect(x, y, w, h); ctx.globalAlpha = 1;
 }
 
-function drawFloor(ctx: CanvasRenderingContext2D, theme: FloorTheme) {
-  px(ctx, 0, 0, W, H, theme.bg);
+function drawFloor(ctx: CanvasRenderingContext2D) {
+  px(ctx, 0, 0, W, H, "#04090f");
   for (let row = 0; row < 14; row++) {
     for (let col = 0; col < 18; col++) {
-      ctx.fillStyle = (row + col) % 2 === 0 ? theme.tile1 : theme.tile2;
+      ctx.fillStyle = (row + col) % 2 === 0 ? "#081422" : "#091626";
       ctx.fillRect(col * 52, 178 + row * 22, 52, 22);
     }
   }
-  ctx.strokeStyle = theme.border; ctx.lineWidth = 0.5;
+  ctx.strokeStyle = "#060f1e"; ctx.lineWidth = 0.5;
   for (let row = 0; row < 14; row++) { ctx.beginPath(); ctx.moveTo(0, 178 + row * 22); ctx.lineTo(W, 178 + row * 22); ctx.stroke(); }
   for (let col = 0; col < 18; col++) { ctx.beginPath(); ctx.moveTo(col * 52, 178); ctx.lineTo(col * 52, H); ctx.stroke(); }
 }
@@ -124,63 +121,46 @@ function drawMarketBoard(ctx: CanvasRenderingContext2D) {
   ctx.stroke();
 }
 
-// ── Chroma-key: strip white (#fff) background from sprite sheet ───────────────
-function createTransparentImage(src: HTMLImageElement): HTMLCanvasElement {
-  const c = document.createElement("canvas");
-  c.width = src.naturalWidth; c.height = src.naturalHeight;
-  const cx = c.getContext("2d")!;
-  cx.drawImage(src, 0, 0);
-  const d = cx.getImageData(0, 0, c.width, c.height);
-  for (let i = 0; i < d.data.length; i += 4) {
-    if (d.data[i] > 240 && d.data[i + 1] > 240 && d.data[i + 2] > 240) d.data[i + 3] = 0;
+function drawFurniture(ctx: CanvasRenderingContext2D) {
+  function desk(dx: number, dy: number, dw: number, dh: number, label: string) {
+    px(ctx, dx + 3, dy + dh, dw - 4, 6, "#071120");
+    px(ctx, dx, dy, dw, dh, "#0a1f3a"); px(ctx, dx, dy, dw, 3, "#1e3a5f");
+    ctx.fillStyle = "#1e3a5f"; ctx.font = "bold 7px monospace"; ctx.textAlign = "center";
+    ctx.fillText(label, dx + dw / 2, dy + dh / 2 + 2); ctx.textAlign = "left";
   }
-  cx.putImageData(d, 0, 0);
-  return c;
+  px(ctx, 168, 285, 160, 100, "#071828"); px(ctx, 168, 285, 160, 3, "#1e3a5f");
+  desk(185, 300, 126, 55, "R&D");
+  px(ctx, 155, 458, 150, 66, "#040e1c"); desk(165, 468, 60, 40, "TRADING"); desk(238, 468, 80, 40, "ANALYTICS");
+  const cX = 420, cY = 350;
+  px(ctx, cX, cY + 80, 200, 6, "#070f1e"); px(ctx, cX, cY, 200, 80, "#0d2a0a");
+  px(ctx, cX, cY, 200, 6, "#0f3d0c"); px(ctx, cX, cY, 6, 80, "#0f3d0c"); px(ctx, cX + 194, cY, 6, 80, "#0f3d0c");
+  px(ctx, 700, 265, 120, 80, "#030810"); px(ctx, 700, 265, 120, 3, "#1e3a5f");
+  ctx.fillStyle = "#1e3a5f"; ctx.font = "bold 8px monospace"; ctx.textAlign = "center";
+  ctx.fillText("DEALS", 760, 300); ctx.textAlign = "left";
+  px(ctx, 648, 450, 180, 80, "#040c18"); px(ctx, 648, 450, 180, 3, "#1e3a5f");
+  desk(460, 492, 110, 38, "SIGNALS");
+  px(ctx, 450, 482, 130, 60, "#030c12");
 }
 
-// ── Sprite-based furniture — scale chosen so desk ≈ character width (≈120px) ─
-// Sprite sheet key sprites (from find-boxes output):
-//   #7  desk+monitor  : src(388,10, 56×52)   → drawn at 2.15× → 120×112px
-//   #33 wide desk     : src(209,154, 62×36)  → drawn at 1.9×  → 118×68px
-//   #94 round rug     : src(273,385, 62×62)  → drawn at 2.2×  → 136×136px
-//   #87 sofa (3-seat) : src(400,352, 32×96)  → drawn at 2.2×  → 70×211px (tall sheet)
-function drawFurniture(
-  ctx: CanvasRenderingContext2D,
-  _frame: number,
-  img: HTMLCanvasElement | HTMLImageElement | null,
-  placed: PlacedItem[]
-) {
-  function spr(sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, scale: number, flip: boolean = false) {
-    if (img) {
-      ctx.imageSmoothingEnabled = false;
-      ctx.save();
-      if (flip) {
-        ctx.translate(dx + sw * scale, dy);
-        ctx.scale(-1, 1);
-        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, Math.round(sw * scale), Math.round(sh * scale));
-      } else {
-        ctx.drawImage(img, sx, sy, sw, sh, dx, dy, Math.round(sw * scale), Math.round(sh * scale));
-      }
-      ctx.restore();
+function drawMonitors(ctx: CanvasRenderingContext2D, frame: number) {
+  function monitor(mx: number, my: number, mw: number, mh: number, label?: string) {
+    px(ctx, mx - 4, my - 4, mw + 8, mh + 8, "#030810");
+    px(ctx, mx, my, mw, mh, "#040c18");
+    const sc = 0.8 + 0.2 * Math.sin(frame * 0.05 + mx * 0.01);
+    ctx.fillStyle = `rgba(4,18,40,${sc})`; ctx.fillRect(mx + 2, my + 2, mw - 4, mh - 4);
+    ctx.strokeStyle = "#22c55e"; ctx.lineWidth = 1; ctx.beginPath();
+    for (let p = 0; p < 8; p++) {
+      const px2 = mx + 4 + p * (mw - 8) / 7, py2 = my + mh - 8 - Math.sin(frame * 0.04 + p * 0.8 + mx * 0.005) * 8 - p;
+      if (p > 0) { ctx.lineTo(px2, py2); } else { ctx.moveTo(px2, py2); }
     }
+    ctx.stroke();
+    if (label) { ctx.fillStyle = "#5ba3f5"; ctx.font = "bold 6px monospace"; ctx.fillText(label, mx + 4, my + 12); }
+    px(ctx, mx + mw / 2 - 3, my + mh, 6, 8, "#030810"); px(ctx, mx + mw / 2 - 10, my + mh + 7, 20, 3, "#030810");
   }
-
-  // Dynamically draw placed items mapping Grid (20x12) -> OfficeTab Canvas
-  placed.forEach(p => {
-    const item = CATALOG.find(i => i.id === p.itemId);
-    if (!item) return;
-    const dx = p.gridX * 45;
-    const dy = 178 + p.gridY * 31.8;
-    // slightly scale up or down depending on item
-    const scale = item.category === "decor" ? 2.2 : 2.15;
-
-    // Draw carpet/shadow logic for specific items if desired, but sticking to sprites is easiest
-    spr(item.sx, item.sy, item.sw, item.sh, dx, dy, scale, p.flipped);
-  });
-
+  monitor(175, 455, 60, 40); monitor(248, 465, 72, 35);
+  monitor(496, 135, 80, 55, "REVIEW"); monitor(598, 135, 70, 50, "MACRO");
+  monitor(760, 148, 58, 42, "OPS"); monitor(862, 135, 60, 48, "FOCUS");
 }
-
-
 
 function drawZones(ctx: CanvasRenderingContext2D) {
   ZONES.forEach(z => {
@@ -349,11 +329,9 @@ function ShareLine({ share }: { share: ShareRow }) {
 
 export default function OfficeTab({ outfits = {} }: { outfits?: Record<string, unknown> }) {
   const router = useRouter();
-  const { placedItems, activeTheme } = useOffice();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const agentsRef = useRef<Agent[]>(INITIAL_AGENTS.map(a => ({ ...a })));
   const frameRef = useRef(0);
-  const furnitureImgRef = useRef<HTMLCanvasElement | HTMLImageElement | null>(null);
   const speedRef = useRef(1);
   const [speed, setSpeedState] = useState(1);
   const [balance, setBalance] = useState(70.80);
@@ -365,24 +343,10 @@ export default function OfficeTab({ outfits = {} }: { outfits?: Record<string, u
   const [agents, setAgents] = useState<Agent[]>(INITIAL_AGENTS.map(a => ({ ...a })));
   const [frame, setFrame] = useState(0);
 
-  const placedRef = useRef(placedItems);
-  const themeRef = useRef(activeTheme);
-
-  useEffect(() => { placedRef.current = placedItems; }, [placedItems]);
-  useEffect(() => { themeRef.current = activeTheme; }, [activeTheme]);
-
   const outfitsRef = useRef(outfits);
   useEffect(() => {
     outfitsRef.current = outfits;
   }, [outfits]);
-
-  // Load + chroma-key the furniture sprite sheet
-  useEffect(() => {
-    const img = new Image();
-    img.src = "/furniture.png";
-    img.crossOrigin = "anonymous";
-    img.onload = () => { furnitureImgRef.current = createTransparentImage(img); };
-  }, []);
 
   const setSpeed = (s: number) => { speedRef.current = s; setSpeedState(s); };
 
@@ -424,11 +388,12 @@ export default function OfficeTab({ outfits = {} }: { outfits?: Record<string, u
       }
       const f = frameRef.current;
       ctx.clearRect(0, 0, W, H);
-      drawFloor(ctx, themeRef.current);
+      drawFloor(ctx);
       drawWall(ctx, f);
       drawMarketBoard(ctx);
-      drawFurniture(ctx, f, furnitureImgRef.current, placedRef.current);
-
+      drawFurniture(ctx);
+      drawMonitors(ctx, f);
+      drawZones(ctx);
 
       // Sync React state with the animated positions and frame
       setAgents(agentsRef.current.map(a => ({ ...a })));
@@ -529,7 +494,7 @@ export default function OfficeTab({ outfits = {} }: { outfits?: Record<string, u
                   frame={frame}
                   outfit={outfit}
                   flip={flip}
-                  style={{ height: 80 }}
+                  style={{ height: 150 }}
                 />
               </div>
             );
