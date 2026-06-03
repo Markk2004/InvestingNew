@@ -12,6 +12,7 @@ export interface FurnitureItem {
   sx: number; sy: number; sw: number; sh: number;
   cols: number; rows: number;
   color: string;
+  sheet?: string;
 }
 
 export interface PlacedItem {
@@ -69,20 +70,36 @@ export const CATALOG: FurnitureItem[] = [
   { id: "wide-desk",    name: "Wide Desk",         emoji: "💼",  cost: 1200, category: "desk",   sx: 209, sy: 154, sw: 62, sh: 36, cols: 3, rows: 2, color: "#0a1f3a" },
   { id: "corner-desk",  name: "Corner Desk",       emoji: "📐",  cost: 1800, category: "desk",   sx: 273, sy: 154, sw: 62, sh: 36, cols: 4, rows: 2, color: "#0d2040" },
   // Chairs
-  { id: "sofa-3",       name: "3-Seat Sofa",       emoji: "🛋️",  cost: 3200, category: "lounge", sx: 337, sy: 385, sw: 46, sh: 62, cols: 3, rows: 2, color: "#1a1a2e" },
-  { id: "armchair",     name: "Armchair",           emoji: "🪑",  cost:  800, category: "chair",  sx: 0,   sy: 0,   sw: 48, sh: 48, cols: 2, rows: 2, color: "#2a1a3e" },
-  { id: "office-chair", name: "Office Chair",       emoji: "💺",  cost:  650, category: "chair",  sx: 48,  sy: 0,   sw: 32, sh: 48, cols: 1, rows: 2, color: "#1e2a3a" },
+  { id: "sofa-3",       name: "3-Seat Sofa",       emoji: "🛋️",  cost: 3200, category: "lounge", sx: 149, sy: 5,   sw: 70, sh: 41, cols: 3, rows: 2, color: "#1a1a2e" },
+  { id: "armchair",     name: "Armchair",           emoji: "🪑",  cost:  800, category: "chair",  sx: 5,   sy: 5,   sw: 38, sh: 41, cols: 2, rows: 2, color: "#2a1a3e" },
+  { id: "office-chair", name: "Office Chair",       emoji: "💺",  cost:  650, category: "chair",  sx: 312, sy: 87,  sw: 16, sh: 41, cols: 1, rows: 2, color: "#1e2a3a" },
   // Plants
-  { id: "plant-tall",   name: "Tall Plant",         emoji: "🌿",  cost:  420, category: "plant",  sx: 338, sy: 77, sw: 22, sh: 72, cols: 1, rows: 2, color: "#0f3d0c" },
-  { id: "plant-small",  name: "Desk Plant",         emoji: "🪴",  cost:  180, category: "plant",  sx: 360, sy: 99, sw: 22, sh: 40, cols: 1, rows: 1, color: "#1a5c14" },
+  { id: "plant-tall",   name: "Tall Plant",         emoji: "🌿",  cost:  420, category: "plant",  sx: 416, sy: 82,  sw: 16, sh: 45, cols: 1, rows: 2, color: "#0f3d0c" },
+  { id: "plant-small",  name: "Desk Plant",         emoji: "🪴",  cost:  180, category: "plant",  sx: 368, sy: 105, sw: 16, sh: 22, cols: 1, rows: 1, color: "#1a5c14" },
   // Tech
-  { id: "monitor-wall", name: "Wall Monitor",       emoji: "📺",  cost: 4500, category: "tech",   sx: 380, sy: 10, sw: 56, sh: 42, cols: 3, rows: 2, color: "#0a0a1a" },
-  { id: "server-rack",  name: "Server Rack",        emoji: "🖧",   cost: 6000, category: "tech",   sx: 209, sy: 231, sw: 46, sh: 78, cols: 2, rows: 3, color: "#030810" },
+  { id: "monitor-wall", name: "Wall Monitor",       emoji: "📺",  cost: 4500, category: "tech",   sx: 386, sy: 290, sw: 44, sh: 28, cols: 3, rows: 2, color: "#0a0a1a" },
+  { id: "server-rack",  name: "Server Rack",        emoji: "🖧",   cost: 6000, category: "tech",   sx: 227, sy: 261, sw: 29, sh: 74, cols: 2, rows: 3, color: "#030810" },
   // Decor
   { id: "rug-round",    name: "Round Rug",          emoji: "🎯",  cost:  900, category: "decor",  sx: 273, sy: 385, sw: 62, sh: 62, cols: 3, rows: 3, color: "#1a0030" },
-  { id: "painting",     name: "Abstract Art",       emoji: "🎨",  cost: 1500, category: "decor",  sx: 382, sy: 77, sw: 44, sh: 54, cols: 2, rows: 2, color: "#2a0a3e" },
-  { id: "cabinet",      name: "Filing Cabinet",     emoji: "🗄️",  cost:  720, category: "decor",  sx: 0,   sy: 231, sw: 46, sh: 78, cols: 2, rows: 2, color: "#0a1628" },
-  { id: "bookshelf",    name: "Bookshelf",          emoji: "📚",  cost: 1100, category: "decor",  sx: 158, sy: 77, sw: 56, sh: 90, cols: 2, rows: 3, color: "#0d1f35" },
+  { id: "painting",     name: "Abstract Art",       emoji: "🎨",  cost: 1500, category: "decor",  sx: 402, sy: 132, sw: 28, sh: 37, cols: 2, rows: 2, color: "#2a0a3e" },
+  { id: "cabinet",      name: "Filing Cabinet",     emoji: "🗄️",  cost:  720, category: "decor",  sx: 180, sy: 192, sw: 40, sh: 63, cols: 2, rows: 2, color: "#0a1628" },
+  { id: "bookshelf",    name: "Bookshelf",          emoji: "📚",  cost: 1100, category: "decor",  sx: 162, sy: 65,  sw: 44, sh: 62, cols: 2, rows: 3, color: "#0d1f35" },
+
+  // New items from /stylish_modularfurniture.png
+  { id: "mod-sofa",     name: "Modular Sofa",     emoji: "🛋️",  cost: 1600, category: "lounge", sx: 1,   sy: 3,   sw: 62, sh: 42, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "glass-cabinet",name: "Glass Cabinet",     emoji: "🗄️",  cost: 1800, category: "decor",  sx: 69,  sy: 3,   sw: 26, sh: 58, cols: 1, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "media-console",name: "Media Console",     emoji: "📺",  cost: 9500, category: "tech",   sx: 97,  sy: 3,   sw: 94, sh: 122,cols: 4, rows: 3, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "black-wardrobe",name: "Black Wardrobe",   emoji: "🚪",  cost: 2100, category: "decor",  sx: 210, sy: 0,   sw: 44, sh: 58, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "mod-armchair", name: "Modular Armchair",   emoji: "🪑",  cost: 950,  category: "chair",  sx: 272, sy: 0,   sw: 48, sh: 60, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "display-shelf",name: "Display Shelf",     emoji: "📚",  cost: 1400, category: "decor",  sx: 16,  sy: 98,  sw: 48, sh: 61, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "mod-bookshelf",name: "Modular Bookshelf", emoji: "📚",  cost: 2200, category: "decor",  sx: 144, sy: 128, sw: 48, sh: 69, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "mod-sideboard",name: "Modern Sideboard",   emoji: "💼",  cost: 2800, category: "desk",   sx: 80,  sy: 192, sw: 48, sh: 53, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+  { id: "sleek-desk",   name: "Sleek Desk",         emoji: "💼",  cost: 3200, category: "desk",   sx: 144, sy: 208, sw: 48, sh: 48, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_modularfurniture.png" },
+
+  // New items from /stylish_room_door_tiles.png
+  { id: "large-window", name: "Large Window",       emoji: "🪟",  cost: 1200, category: "decor",  sx: 416, sy: 29,  sw: 64, sh: 35, cols: 3, rows: 2, color: "#000000", sheet: "/stylish_room_door_tiles.png" },
+  { id: "pano-window",  name: "Panoramic Window",   emoji: "🪟",  cost: 3500, category: "decor",  sx: 416, sy: 96,  sw: 128,sh: 64, cols: 4, rows: 2, color: "#000000", sheet: "/stylish_room_door_tiles.png" },
+  { id: "glass-door",   name: "Glass Door",         emoji: "🚪",  cost: 2500, category: "decor",  sx: 186, sy: 160, sw: 38, sh: 64, cols: 2, rows: 2, color: "#000000", sheet: "/stylish_room_door_tiles.png" },
 ];
 
 // Initial layout (what the office looks like before you renovate)

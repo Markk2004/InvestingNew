@@ -70,6 +70,13 @@ export class GeminiAnalyzer {
           "[GeminiAnalyzer] Both primary and backup models failed:",
           backupError
         );
+        
+        // Detect Quota/Token limit
+        const errMsg = backupError instanceof Error ? backupError.message.toLowerCase() : String(backupError).toLowerCase();
+        if (errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("exhausted") || errMsg.includes("limit")) {
+          throw new Error("TOKEN_LIMIT_REACHED");
+        }
+
         // Graceful fallback — return articles with score 0
         return this.buildFallback(articles);
       }
@@ -86,7 +93,8 @@ export class GeminiAnalyzer {
       )
       .join("\n\n");
 
-    return `You are an expert financial risk analyst specializing in global markets with focus on impact for Thai retail investors holding US stocks (SET and NYSE).
+    return `You are an expert financial risk analyst specializing in global markets with focus on impact for retail investors holding US stocks (S&P 500, NYSE, NASDAQ) and Gold assets (XAU/USD).
+Focus your analysis heavily on how events related to War, Geopolitics, Donald Trump, or the US Federal Reserve (FED) directly impact US equity markets and Gold prices.
 
 Analyze the following news articles and return a structured JSON object.
 
@@ -95,14 +103,14 @@ For each article, provide:
   * 1-2: Normal background news, zero market impact
   * 3-4: Minor event, minimal impact, only sector-specific
   * 5-6: Moderate concern, some volatility expected, worth monitoring
-  * 7-8: High alert — significant market reaction likely, affects portfolios noticeably
+  * 7-8: High alert — significant market reaction likely, affects US stocks/gold portfolios noticeably
   * 9-10: EXTREME — policy shock, geopolitical crisis, systemic risk, major crash trigger
 - sentiment: MUST be exactly one of: "bullish", "bearish", or "neutral"
-  * "bullish" = positive signal, market likely to rise
-  * "bearish" = negative signal, market likely to fall or panic
+  * "bullish" = positive signal, market/gold likely to rise
+  * "bearish" = negative signal, market/gold likely to fall or panic
   * "neutral" = ambiguous or no clear directional bias
-- summary: concise 2-sentence explanation IN THAI LANGUAGE — must explain WHY this affects markets and HOW Thai retail investors holding US stocks should think about it
-- shortTermImpact: 1-sentence Thai language note on immediate (1-7 day) market reaction expectation
+- summary: concise 2-sentence explanation IN THAI LANGUAGE — must explain WHY this affects markets (especially related to War/Trump/FED if applicable) and HOW retail investors holding US stocks or Gold should think about it/prepare
+- shortTermImpact: 1-sentence Thai language note on immediate (1-7 day) market reaction expectation for US stocks/Gold
 - longTermImpact: 1-sentence Thai language note on longer-term (weeks/months) implications
 - keywords: array of 3-5 key entities, organizations, or policy areas (in English)
 

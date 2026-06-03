@@ -138,19 +138,13 @@ function createTransparentImage(src: HTMLImageElement): HTMLCanvasElement {
   return c;
 }
 
-// ── Sprite-based furniture — scale chosen so desk ≈ character width (≈120px) ─
-// Sprite sheet key sprites (from find-boxes output):
-//   #7  desk+monitor  : src(388,10, 56×52)   → drawn at 2.15× → 120×112px
-//   #33 wide desk     : src(209,154, 62×36)  → drawn at 1.9×  → 118×68px
-//   #94 round rug     : src(273,385, 62×62)  → drawn at 2.2×  → 136×136px
-//   #87 sofa (3-seat) : src(400,352, 32×96)  → drawn at 2.2×  → 70×211px (tall sheet)
 function drawFurniture(
   ctx: CanvasRenderingContext2D,
   _frame: number,
-  img: HTMLCanvasElement | HTMLImageElement | null,
+  sheets: Record<string, HTMLCanvasElement>,
   placed: PlacedItem[]
 ) {
-  function spr(sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, scale: number, flip: boolean = false) {
+  function spr(img: HTMLCanvasElement | null, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, scale: number, flip: boolean = false) {
     if (img) {
       ctx.imageSmoothingEnabled = false;
       ctx.save();
@@ -173,11 +167,11 @@ function drawFurniture(
     const dy = 178 + p.gridY * 31.8;
     // slightly scale up or down depending on item
     const scale = item.category === "decor" ? 2.2 : 2.15;
+    const imgPath = item.sheet || "/furniture.png";
+    const img = sheets[imgPath];
 
-    // Draw carpet/shadow logic for specific items if desired, but sticking to sprites is easiest
-    spr(item.sx, item.sy, item.sw, item.sh, dx, dy, scale, p.flipped);
+    spr(img, item.sx, item.sy, item.sw, item.sh, dx, dy, scale, p.flipped);
   });
-
 }
 
 
@@ -353,7 +347,7 @@ export default function OfficeTab({ outfits = {} }: { outfits?: Record<string, u
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const agentsRef = useRef<Agent[]>(INITIAL_AGENTS.map(a => ({ ...a })));
   const frameRef = useRef(0);
-  const furnitureImgRef = useRef<HTMLCanvasElement | HTMLImageElement | null>(null);
+  const sheetsRef = useRef<Record<string, HTMLCanvasElement>>({});
   const speedRef = useRef(1);
   const [speed, setSpeedState] = useState(1);
   const [balance, setBalance] = useState(70.80);
@@ -376,12 +370,15 @@ export default function OfficeTab({ outfits = {} }: { outfits?: Record<string, u
     outfitsRef.current = outfits;
   }, [outfits]);
 
-  // Load + chroma-key the furniture sprite sheet
+  // Load + chroma-key all furniture sprite sheets
   useEffect(() => {
-    const img = new Image();
-    img.src = "/furniture.png";
-    img.crossOrigin = "anonymous";
-    img.onload = () => { furnitureImgRef.current = createTransparentImage(img); };
+    const paths = ["/furniture.png", "/stylish_modularfurniture.png", "/stylish_room_door_tiles.png"];
+    paths.forEach(path => {
+      const img = new Image();
+      img.src = path;
+      img.crossOrigin = "anonymous";
+      img.onload = () => { sheetsRef.current[path] = createTransparentImage(img); };
+    });
   }, []);
 
   const setSpeed = (s: number) => { speedRef.current = s; setSpeedState(s); };
@@ -427,7 +424,7 @@ export default function OfficeTab({ outfits = {} }: { outfits?: Record<string, u
       drawFloor(ctx, themeRef.current);
       drawWall(ctx, f);
       drawMarketBoard(ctx);
-      drawFurniture(ctx, f, furnitureImgRef.current, placedRef.current);
+      drawFurniture(ctx, f, sheetsRef.current, placedRef.current);
 
 
       // Sync React state with the animated positions and frame

@@ -40,23 +40,26 @@ function OfficeGridCanvas({
   frame: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef = useRef<HTMLCanvasElement | null>(null);
+  const imgRef = useRef<Record<string, HTMLCanvasElement>>({});
 
   useEffect(() => {
-    const img = new Image();
-    img.src = "/furniture.png";
-    img.onload = () => {
-      const c = document.createElement("canvas");
-      c.width = img.naturalWidth; c.height = img.naturalHeight;
-      const cx = c.getContext("2d")!;
-      cx.drawImage(img, 0, 0);
-      const d = cx.getImageData(0, 0, c.width, c.height);
-      for (let i = 0; i < d.data.length; i += 4) {
-        if (d.data[i] > 230 && d.data[i+1] > 230 && d.data[i+2] > 230) d.data[i+3] = 0;
-      }
-      cx.putImageData(d, 0, 0);
-      imgRef.current = c;
-    };
+    const sheets = ["/furniture.png", "/stylish_modularfurniture.png", "/stylish_room_door_tiles.png"];
+    sheets.forEach((path) => {
+      const img = new Image();
+      img.src = path;
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        const cx = c.getContext("2d")!;
+        cx.drawImage(img, 0, 0);
+        const d = cx.getImageData(0, 0, c.width, c.height);
+        for (let i = 0; i < d.data.length; i += 4) {
+          if (d.data[i] > 230 && d.data[i+1] > 230 && d.data[i+2] > 230) d.data[i+3] = 0;
+        }
+        cx.putImageData(d, 0, 0);
+        imgRef.current[path] = c;
+      };
+    });
   }, []);
 
   useEffect(() => {
@@ -118,14 +121,24 @@ function OfficeGridCanvas({
       ctx.fillRect(px + 4, py + 4, pw, ph);
 
       // Draw sprite
-      if (imgRef.current) {
+      const imgPath = item.sheet || "/furniture.png";
+      const img = imgRef.current[imgPath];
+      if (img) {
         ctx.save();
+        const scaleX = pw / item.sw;
+        const scaleY = ph / item.sh;
+        const scale = Math.min(scaleX, scaleY);
+        const dw = item.sw * scale;
+        const dh = item.sh * scale;
+        const dx = px + (pw - dw) / 2;
+        const dy = py + (ph - dh); // align to bottom of the cell
+
         if (p.flipped) {
-          ctx.translate(px + pw, py);
+          ctx.translate(dx + dw, dy);
           ctx.scale(-1, 1);
-          ctx.drawImage(imgRef.current, item.sx, item.sy, item.sw, item.sh, 0, 0, pw, ph);
+          ctx.drawImage(img, item.sx, item.sy, item.sw, item.sh, 0, 0, dw, dh);
         } else {
-          ctx.drawImage(imgRef.current, item.sx, item.sy, item.sw, item.sh, px, py, pw, ph);
+          ctx.drawImage(img, item.sx, item.sy, item.sw, item.sh, dx, dy, dw, dh);
         }
         ctx.restore();
       } else {

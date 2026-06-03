@@ -38,22 +38,24 @@ export class RssFetcher {
   async fetchAllSources(): Promise<RawArticle[]> {
     console.log("[RssFetcher] Starting concurrent fetch from 2 specialized US news feeds...");
 
-    // 2 high-precision queries targeting Trump, FED, Politics, and Financial Markets
-    const query1 = "Trump OR FED OR Politics OR Economy";
-    const query2 = "(Trump OR FED) AND (Economy OR Finance OR Market)";
+    // 3 high-precision queries targeting the intersection of (Trump/FED/War/Politics) AND (US Stocks/Gold)
+    const query1 = "(Trump OR FED OR War OR Politics) AND (Stock OR Market OR Gold OR XAU OR S&P)";
+    const query2 = "(Trump OR FED OR Inflation OR Geopolitics) AND (Nasdaq OR NYSE OR Gold OR Economy)";
+    const queryTruth = "site:truthsocial.com (Trump OR FED OR War OR Politics) AND (Stock OR Market OR Gold OR Economy)";
 
-    // Fetch 25 items from each to ensure ample high-quality content remains after domain whitelisting
-    const [source1, source2] = await Promise.all([
+    // Fetch from all sources in parallel
+    const [source1, source2, sourceTruth] = await Promise.all([
       this.fetchGoogleNews(query1, 25),
-      this.fetchGoogleNews(query2, 25)
+      this.fetchGoogleNews(query2, 25),
+      this.fetchGoogleNews(queryTruth, 25)
     ]);
 
     console.log(
-      `[RssFetcher] Raw Fetch completed. (Source1: ${source1.length}, Source2: ${source2.length})`
+      `[RssFetcher] Raw Fetch completed. (Source1: ${source1.length}, Source2: ${source2.length}, TruthSocial: ${sourceTruth.length})`
     );
 
     // Merge all articles
-    const merged = [...source1, ...source2];
+    const merged = [...source1, ...source2, ...sourceTruth];
 
     // Apply strict quality, domain, and deduplication filters
     const seenUrls = new Set<string>();
@@ -144,7 +146,9 @@ export class RssFetcher {
       "bbc",
       "cnn",
       "guardian",
-      "time"
+      "time",
+      "truth social",
+      "truthsocial"
     ];
 
     const isSourceTrusted = TRUSTED_SOURCES.some(src => lowercaseSource.includes(src));
@@ -177,7 +181,9 @@ export class RssFetcher {
         "bbc.co.uk",
         "cnn.com",
         "theguardian.com",
-        "time.com"
+        "time.com",
+        // Truth Social whitelist
+        "truthsocial.com"
       ];
 
       return TRUSTED_DOMAINS.some(domain => 

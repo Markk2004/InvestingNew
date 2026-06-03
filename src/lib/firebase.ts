@@ -95,15 +95,18 @@ export class FirebaseDb {
 
   /**
    * Delete news items older than N days from Cloud Firestore to preserve storage.
+   * Pass days=0 to delete everything before the start of today, days=1 for start of yesterday, etc.
    */
-  async cleanupOldNews(days = 3): Promise<void> {
+  async cleanupOldNews(days = 1): Promise<void> {
     if (!this.isConfigured || !this.db) {
       return;
     }
 
     try {
+      // Compute start-of-day for the cutoff
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - days);
+      cutoffDate.setUTCHours(0, 0, 0, 0);
       const cutoffString = cutoffDate.toISOString();
 
       // Find documents published older than the cutoff
@@ -113,6 +116,7 @@ export class FirebaseDb {
         .get();
 
       if (querySnapshot.empty) {
+        console.log("[FirebaseDb] Auto-Cleanup: No old articles found to delete.");
         return;
       }
 
@@ -123,7 +127,7 @@ export class FirebaseDb {
 
       await batch.commit();
       console.log(
-        `[FirebaseDb] Auto-Cleanup: Successfully deleted ${querySnapshot.size} news items older than ${days} days.`
+        `[FirebaseDb] Auto-Cleanup: Deleted ${querySnapshot.size} news items (cutoff: ${cutoffString}).`
       );
     } catch (error) {
       console.error("[FirebaseDb] Auto-Cleanup failed:", error);
@@ -156,6 +160,45 @@ export class FirebaseDb {
       return items;
     } catch (error) {
       console.error("[FirebaseDb] Failed to retrieve news items:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Retrieve recent news items (published since start of X days ago UTC).
+   * Used for the daily news view (daysBack=1 keeps today and yesterday).
+   */
+  async getRecentNewsItems(limitCount = 50, daysBack = 1): Promise<NewsItem[]> {
+    if (!this.isConfigured || !this.db) {
+      return [];
+    }
+
+    try {
+      // Compute start-of-day UTC for the cutoff
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - daysBack);
+      cutoffDate.setUTCHours(0, 0, 0, 0);
+      const cutoffString = cutoffDate.toISOString();
+
+      const querySnapshot = await this.db
+        .collection("news")
+        .where("publishedAt", ">=", cutoffString)
+        .orderBy("publishedAt", "desc")
+        .limit(limitCount)
+        .get();
+
+      const items: NewsItem[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const newsItem = { ...doc.data() };
+        delete (newsItem as Record<string, unknown>).savedAt;
+        items.push(newsItem as NewsItem);
+      });
+
+      console.log(`[FirebaseDb] getRecentNewsItems: Found ${items.length} articles published since ${cutoffString}.`);
+      return items;
+    } catch (error) {
+      console.error("[FirebaseDb] Failed to retrieve recent news items:", error);
       return [];
     }
   }

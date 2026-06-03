@@ -24,17 +24,23 @@ export async function GET(_req: NextRequest): Promise<Response> {
   const db = new FirebaseDb();
   const forceRefresh = _req.nextUrl.searchParams.get("force") === "true";
 
+  // ── Always cleanup old news first (keep today and yesterday) ─────────
+  // This runs asynchronously so it doesn't block the response
+  db.cleanupOldNews(1).catch((e) =>
+    console.warn("[GET /api/news] Background cleanup failed:", e)
+  );
+
   try {
-    // ── Step 1: Check Cloud Firestore Cache first ────────────
+    // ── Step 1: Check Cloud Firestore for Recent articles ────────────
     if (!forceRefresh) {
-      // Retrieve up to 100 items from Firestore to have a good pool of analyzed articles
-      const cachedArticles = await db.getNewsItems(100);
+      // Retrieve recent analyzed articles from Firestore (today & yesterday)
+      const cachedArticles = await db.getRecentNewsItems(50, 1);
 
       if (cachedArticles.length > 0) {
         // Filter to only keep articles with severityScore >= 5
         const filteredArticles = cachedArticles.filter((a) => a.severityScore >= 5);
         console.log(
-          `[GET /api/news] SWR Cache Hit: Serving ${filteredArticles.length} filtered articles (from ${cachedArticles.length} total) instantly.`
+          `[GET /api/news] Cache Hit: Serving ${filteredArticles.length} filtered articles (from ${cachedArticles.length} total recent).`
         );
 
         const averageSeverity = computeAverage(filteredArticles.map((a) => a.severityScore));
@@ -105,8 +111,9 @@ async function processAndAnalyzeArticles(
   db: FirebaseDb,
   apiKey: string
 ): Promise<NewsItem[]> {
-  // Load existing news items from Firestore to check for duplicates
-  const existingItems = await db.getNewsItems(100);
+  // Load recent existing news items from Firestore to check for duplicates
+  // (Old news was cleaned up, so we only deduplicate against recent articles)
+  const existingItems = await db.getRecentNewsItems(50, 1);
   const existingMap = new Map(existingItems.map((item) => [item.id, item]));
 
   const newRawArticles: RawArticle[] = [];
@@ -128,11 +135,12 @@ async function processAndAnalyzeArticles(
   let newlyAnalyzedItems: NewsItem[] = [];
 
   if (newRawArticles.length > 0) {
-    // Limit to analyzing at most 5 new articles per refresh to guarantee fast responses (<2s)
-    const limit = 5;
+    // Analyze up to 8 new articles per refresh — balanced between speed and coverage
+    // At ~1-2s per article batch via Gemini, 8 articles ≈ 3-5s total latency
+    const limit = 8;
     const articlesToAnalyze = newRawArticles.slice(0, limit);
     console.log(
-      `[News Orchestrator] Snap-refresh: Analyzing only the top ${articlesToAnalyze.length} of ${newRawArticles.length} new articles to reduce latency.`
+      `[News Orchestrator] Daily Refresh: Analyzing ${articlesToAnalyze.length} of ${newRawArticles.length} new articles.`
     );
 
     const analyzer = new GeminiAnalyzer(apiKey);
@@ -141,14 +149,13 @@ async function processAndAnalyzeArticles(
     // Save newly analyzed news items to Firestore (so we don't re-analyze them next time!)
     await db.saveNewsItems(newlyAnalyzedItems);
   } else {
-    console.log("[News Orchestrator] All fetched articles are already in cache. Bypassing Gemini API.");
-    // Run cleanup of old news manually since saveNewsItems is bypassed
-    await db.cleanupOldNews(3);
+    console.log("[News Orchestrator] All fetched articles are already in cache for today. Bypassing Gemini API.");
   }
 
   // Ensure un-analyzed articles are not completely dropped from the UI.
   // We give them a temporary score of 5 so they pass the filter, and a pending status.
-  const unanalyzedItems: NewsItem[] = newRawArticles.slice(5).map(raw => ({
+  // These are the articles beyond the limit=8 that were skipped this cycle.
+  const unanalyzedItems: NewsItem[] = newRawArticles.slice(8).map(raw => ({
     id: generateArticleId(raw.link),
     title: raw.title,
     link: raw.link,

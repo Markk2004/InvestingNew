@@ -6,6 +6,7 @@
 
 "use client";
 
+import { useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import type { NewsApiResponse } from "@/lib/types";
@@ -24,14 +25,15 @@ const fetcher = (url: string): Promise<NewsApiResponse> =>
   });
 
 const SWR_CONFIG = {
-  refreshInterval: 5 * 60 * 1000,
+  refreshInterval: 10 * 60 * 1000, // 10 min — balanced for daily news cache
   revalidateOnFocus: false,
-  dedupingInterval: 60_000,
+  dedupingInterval: 5 * 60 * 1000, // 5 min dedup window
 } as const;
 
 // ── Page Component ───────────────────────────────────────────
 
 export default function NewsDashboardPage() {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const {
     data,
     error,
@@ -41,25 +43,68 @@ export default function NewsDashboardPage() {
   } = useSWR<NewsApiResponse>("/api/news", fetcher, SWR_CONFIG);
 
   const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
     try {
-      await mutate(
+      const result = await mutate(
         fetcher("/api/news?force=true"),
         { revalidate: false }
       );
+      
+      // Check if API indicates token limit reached
+      if (result?.error && result.error.includes("TOKEN_LIMIT_REACHED")) {
+        alert("Token ถึง limit แล้ว");
+      } else {
+        alert("นี่คือข่าวล่าสุดตอนนี้");
+      }
     } catch (err) {
       console.error("Failed to force refresh news:", err);
+      alert("เกิดข้อผิดพลาดในการดึงข้อมูล");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
   const hasError = !!error || (data?.error != null && data.articles.length === 0);
   const errorMessage = error?.message ?? data?.error;
-  const isUpdating = isLoading || isValidating;
+  const isUpdating = isLoading || isValidating || isRefreshing;
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen relative"
       style={{ background: "var(--pixel-dark)", color: "var(--foreground)" }}
     >
+      {/* ── Refresh Loading Overlay ────────────────────────── */}
+      {isRefreshing && (
+        <div 
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+          style={{
+            background: "rgba(13, 13, 43, 0.7)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <div className="flex flex-col items-center gap-4 p-8"
+            style={{
+               background: "rgba(13, 13, 43, 0.95)",
+               border: "2px solid var(--pixel-blue)",
+               boxShadow: "0 0 30px rgba(79, 195, 247, 0.2)"
+            }}
+          >
+            <div className="font-pixel text-xl animate-pulse" style={{ color: "var(--pixel-blue)" }}>
+              SCANNING GLOBAL NEWS...
+            </div>
+            <div className="font-pixel text-[10px] text-slate-400 tracking-widest">
+              PLEASE WAIT — ANALYZING MARKET IMPACT
+            </div>
+            <div className="flex gap-2 mt-4">
+              <div className="w-3 h-3 bg-[var(--pixel-blue)] animate-bounce" style={{ animationDelay: "0ms" }}></div>
+              <div className="w-3 h-3 bg-[var(--pixel-blue)] animate-bounce" style={{ animationDelay: "150ms" }}></div>
+              <div className="w-3 h-3 bg-[var(--pixel-blue)] animate-bounce" style={{ animationDelay: "300ms" }}></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Pixel HUD Header ───────────────────────────────── */}
       <Header
         fetchedAt={data?.fetchedAt}
@@ -146,6 +191,33 @@ export default function NewsDashboardPage() {
                 <span>{data.error} — แสดงข้อมูล cache ล่าสุด</span>
               </div>
             )}
+
+            {/* ── Today's Date Badge ────────────────────── */}
+            <div
+              className="flex items-center gap-3 px-4 py-2"
+              style={{
+                border: "1px solid rgba(79,195,247,0.2)",
+                background: "rgba(79,195,247,0.04)",
+              }}
+            >
+              <span className="font-pixel" style={{ fontSize: "11px", color: "var(--pixel-blue)" }}>
+                📅 ข่าวล่าสุด:
+              </span>
+              <span className="font-pixel" style={{ fontSize: "11px", color: "#94a3b8" }}>
+                {new Date().toLocaleDateString("th-TH", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+              <span
+                className="font-pixel ml-auto"
+                style={{ fontSize: "9px", color: "rgba(100,116,139,0.8)" }}
+              >
+                * โชว์ข่าวที่วิเคราะห์แล้วของวันนี้และเมื่อวาน
+              </span>
+            </div>
 
             {/* ── News Grid ─────────────────────────────── */}
             <NewsGrid articles={data.articles} />
