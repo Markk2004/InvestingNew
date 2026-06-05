@@ -33,16 +33,18 @@ export interface NewsItem {
   sentiment: Sentiment;     // Market direction: bullish | bearish | neutral
   shortTermImpact?: string; // Optional short-term impact note in Thai
   longTermImpact?: string;  // Optional long-term impact note in Thai
+  isPending?: boolean;      // True = waiting in queue, NOT yet analyzed by Gemini
 }
 
 /**
  * Top-level API response shape returned from /api/news.
  */
 export interface NewsApiResponse {
-  articles: NewsItem[];
-  averageSeverity: number;  // Mean of all severityScores
-  fetchedAt: string;        // ISO timestamp of this fetch
-  error?: string;           // Present only when something went wrong
+  articles: NewsItem[];        // Fully analyzed articles (severityScore >= 5)
+  pendingArticles?: NewsItem[]; // Articles waiting in queue (not yet analyzed)
+  averageSeverity: number;     // Mean of all severityScores
+  fetchedAt: string;           // ISO timestamp of this fetch
+  error?: string;              // Present only when something went wrong
 }
 
 /**

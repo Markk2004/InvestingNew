@@ -41,21 +41,22 @@ export class RssFetcher {
     // 3 high-precision queries targeting the intersection of (Trump/FED/War/Politics) AND (US Stocks/Gold)
     const query1 = "(Trump OR FED OR War OR Politics) AND (Stock OR Market OR Gold OR XAU OR S&P)";
     const query2 = "(Trump OR FED OR Inflation OR Geopolitics) AND (Nasdaq OR NYSE OR Gold OR Economy)";
-    const queryTruth = "site:truthsocial.com (Trump OR FED OR War OR Politics) AND (Stock OR Market OR Gold OR Economy)";
+    const queryForex = "site:forexfactory.com (Trump OR FED OR War OR Politics OR Gold OR Economy OR Inflation)";
 
     // Fetch from all sources in parallel
-    const [source1, source2, sourceTruth] = await Promise.all([
+    const [source1, source2, sourceForex, sourceTruth] = await Promise.all([
       this.fetchGoogleNews(query1, 25),
       this.fetchGoogleNews(query2, 25),
-      this.fetchGoogleNews(queryTruth, 25)
+      this.fetchGoogleNews(queryForex, 25),
+      this.fetchDirectRss("https://trumpstruth.org/feed", "Truth Social (@realDonaldTrump)", 10)
     ]);
 
     console.log(
-      `[RssFetcher] Raw Fetch completed. (Source1: ${source1.length}, Source2: ${source2.length}, TruthSocial: ${sourceTruth.length})`
+      `[RssFetcher] Raw Fetch completed. (Source1: ${source1.length}, Source2: ${source2.length}, ForexFactory: ${sourceForex.length}, TruthSocial: ${sourceTruth.length})`
     );
 
     // Merge all articles
-    const merged = [...source1, ...source2, ...sourceTruth];
+    const merged = [...source1, ...source2, ...sourceForex, ...sourceTruth];
 
     // Apply strict quality, domain, and deduplication filters
     const seenUrls = new Set<string>();
@@ -116,6 +117,21 @@ export class RssFetcher {
     }
   }
 
+  private async fetchDirectRss(url: string, sourceName: string, limitCount = 5): Promise<RawArticle[]> {
+    try {
+      const feed = await this.parser.parseURL(url);
+      return feed.items.slice(0, limitCount).map((item, index) => ({
+        title: item.title ?? `Article ${index + 1}`,
+        link: item.link ?? url,
+        publishedAt: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+        source: sourceName,
+      }));
+    } catch (error) {
+      console.error(`[RssFetcher] Failed to fetch direct RSS "${url}":`, error);
+      return [];
+    }
+  }
+
   // ── Private Filtering & Utility Helpers ─────────────────────────────────
 
   /** Check if the article source or link belongs to a trusted, reputable publisher */
@@ -148,7 +164,9 @@ export class RssFetcher {
       "guardian",
       "time",
       "truth social",
-      "truthsocial"
+      "truthsocial",
+      "forex factory",
+      "forexfactory"
     ];
 
     const isSourceTrusted = TRUSTED_SOURCES.some(src => lowercaseSource.includes(src));
@@ -182,8 +200,10 @@ export class RssFetcher {
         "cnn.com",
         "theguardian.com",
         "time.com",
+        "forexfactory.com",
         // Truth Social whitelist
-        "truthsocial.com"
+        "truthsocial.com",
+        "trumpstruth.org"
       ];
 
       return TRUSTED_DOMAINS.some(domain => 

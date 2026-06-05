@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import type { NewsApiResponse } from "@/lib/types";
@@ -30,10 +30,16 @@ const SWR_CONFIG = {
   dedupingInterval: 5 * 60 * 1000, // 5 min dedup window
 } as const;
 
-// ── Page Component ───────────────────────────────────────────
+// ── Toast Types ─────────────────────────────────────────────────────
+
+type ToastType = "success" | "error" | "warning";
+interface Toast { id: number; message: string; type: ToastType; }
+
+// ── Page Component ────────────────────────────────────────────
 
 export default function NewsDashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
   const {
     data,
     error,
@@ -41,6 +47,12 @@ export default function NewsDashboardPage() {
     isValidating,
     mutate,
   } = useSWR<NewsApiResponse>("/api/news", fetcher, SWR_CONFIG);
+
+  const showToast = useCallback((message: string, type: ToastType = "success") => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+  }, []);
 
   const handleRefresh = async () => {
     if (isRefreshing) return;
@@ -50,16 +62,18 @@ export default function NewsDashboardPage() {
         fetcher("/api/news?force=true"),
         { revalidate: false }
       );
-      
+
       // Check if API indicates token limit reached
       if (result?.error && result.error.includes("TOKEN_LIMIT_REACHED")) {
-        alert("Token ถึง limit แล้ว");
+        showToast("⚠️ Token ถึง limit แล้ว — โปรดรอสักครู่", "warning");
       } else {
-        alert("นี่คือข่าวล่าสุดตอนนี้");
+        const count = result?.articles?.length ?? 0;
+        const pending = result?.pendingArticles?.length ?? 0;
+        showToast(`✅ อัปเดตแล้ว: ${count} ข่าว${pending > 0 ? ` (+${pending} รอคิว)` : ""}`, "success");
       }
     } catch (err) {
       console.error("Failed to force refresh news:", err);
-      alert("เกิดข้อผิดพลาดในการดึงข้อมูล");
+      showToast("❌ เกิดข้อผิดพลาดในการดึงข้อมูล", "error");
     } finally {
       setIsRefreshing(false);
     }
@@ -74,6 +88,37 @@ export default function NewsDashboardPage() {
       className="min-h-screen relative"
       style={{ background: "var(--pixel-dark)", color: "var(--foreground)" }}
     >
+      {/* ── Toast Notifications ───────────────────────────── */}
+      <div className="fixed top-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className="font-pixel px-4 py-3 animate-pixel-fade-in"
+            style={{
+              fontSize: "12px",
+              background: "rgba(13,13,43,0.97)",
+              border: `2px solid ${
+                toast.type === "success"
+                  ? "var(--pixel-green)"
+                  : toast.type === "warning"
+                  ? "var(--pixel-yellow)"
+                  : "var(--pixel-red)"
+              }`,
+              color:
+                toast.type === "success"
+                  ? "var(--pixel-green)"
+                  : toast.type === "warning"
+                  ? "var(--pixel-yellow)"
+                  : "var(--pixel-red)",
+              boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+              minWidth: "240px",
+              maxWidth: "340px",
+            }}
+          >
+            {toast.message}
+          </div>
+        ))}
+      </div>
       {/* ── Refresh Loading Overlay ────────────────────────── */}
       {isRefreshing && (
         <div 
@@ -219,8 +264,80 @@ export default function NewsDashboardPage() {
               </span>
             </div>
 
-            {/* ── News Grid ─────────────────────────────── */}
+            {/* ── News Grid (Analyzed only) ─────────────── */}
             <NewsGrid articles={data.articles} />
+
+            {/* ── Pending Queue Section ───────────────────── */}
+            {data.pendingArticles && data.pendingArticles.length > 0 && (
+              <div className="space-y-3">
+                <div
+                  className="flex items-center gap-3 px-4 py-2"
+                  style={{
+                    border: "1px solid rgba(255,215,64,0.25)",
+                    background: "rgba(255,215,64,0.04)",
+                  }}
+                >
+                  <span
+                    className="font-pixel animate-pulse"
+                    style={{ fontSize: "11px", color: "var(--pixel-yellow)" }}
+                  >
+                    ⏳ ANALYSIS QUEUE
+                  </span>
+                  <span
+                    className="font-pixel"
+                    style={{ fontSize: "11px", color: "#94a3b8" }}
+                  >
+                    {data.pendingArticles.length} ข่าวรอคิววิเคราะห์ (จะถูกวิเคราะห์ในรอบถัดไป)
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {data.pendingArticles.map((article) => (
+                    <a
+                      key={article.id}
+                      href={article.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-4 py-2.5 hover:brightness-125 transition-all"
+                      style={{
+                        border: "1px solid rgba(255,215,64,0.2)",
+                        background: "rgba(255,215,64,0.03)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <span
+                        className="font-pixel flex-shrink-0"
+                        style={{
+                          fontSize: "9px",
+                          color: "var(--pixel-yellow)",
+                          border: "1px solid var(--pixel-yellow)",
+                          padding: "2px 5px",
+                        }}
+                      >
+                        PENDING
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "13px",
+                          color: "#94a3b8",
+                          fontFamily: "var(--font-mono), monospace",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {article.title}
+                      </span>
+                      <span
+                        className="font-pixel flex-shrink-0 ml-auto"
+                        style={{ fontSize: "10px", color: "#475569" }}
+                      >
+                        {article.source}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

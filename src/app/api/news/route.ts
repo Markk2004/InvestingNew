@@ -25,8 +25,9 @@ export async function GET(_req: NextRequest): Promise<Response> {
   const forceRefresh = _req.nextUrl.searchParams.get("force") === "true";
 
   // ── Always cleanup old news first (keep today and yesterday) ─────────
-  // This runs asynchronously so it doesn't block the response
-  db.cleanupOldNews(1).catch((e) =>
+  // Fire-and-forget: explicitly void the promise to signal intentional non-await.
+  // On serverless (Vercel), this runs best-effort before the response is sent.
+  void db.cleanupOldNews(1).catch((e) =>
     console.warn("[GET /api/news] Background cleanup failed:", e)
   );
 
@@ -37,15 +38,19 @@ export async function GET(_req: NextRequest): Promise<Response> {
       const cachedArticles = await db.getRecentNewsItems(50, 1);
 
       if (cachedArticles.length > 0) {
-        // Filter to only keep articles with severityScore >= 5
-        const filteredArticles = cachedArticles.filter((a) => a.severityScore >= 5);
+        // Separate pending articles from fully analyzed ones
+        const pendingArticles = cachedArticles.filter((a) => a.isPending === true);
+        const analyzedArticles = cachedArticles.filter(
+          (a) => !a.isPending && a.severityScore >= 5
+        );
         console.log(
-          `[GET /api/news] Cache Hit: Serving ${filteredArticles.length} filtered articles (from ${cachedArticles.length} total recent).`
+          `[GET /api/news] Cache Hit: ${analyzedArticles.length} analyzed, ${pendingArticles.length} pending (from ${cachedArticles.length} total recent).`
         );
 
-        const averageSeverity = computeAverage(filteredArticles.map((a) => a.severityScore));
+        const averageSeverity = computeAverage(analyzedArticles.map((a) => a.severityScore));
         return Response.json({
-          articles: filteredArticles.slice(0, 15), // Limit to 15 articles for UI layout
+          articles: analyzedArticles.slice(0, 15), // Limit to 15 analyzed articles for UI layout
+          pendingArticles: pendingArticles.slice(0, 10), // Separate pending queue (max 10)
           averageSeverity,
           fetchedAt,
           cached: true,
@@ -77,12 +82,13 @@ export async function GET(_req: NextRequest): Promise<Response> {
       return Response.json(buildEmptyResponse(fetchedAt, "RSS feed returned no articles"));
     }
 
-    // Process and analyze articles (saves newly analyzed ones to Firestore, filters to >= 5)
-    const articles = await processAndAnalyzeArticles(rawArticles, db, apiKey);
-    const averageSeverity = computeAverage(articles.map((a) => a.severityScore));
+    // Process and analyze articles — returns analyzed and pending separately
+    const { analyzed, pending } = await processAndAnalyzeArticles(rawArticles, db, apiKey);
+    const averageSeverity = computeAverage(analyzed.map((a) => a.severityScore));
 
     const response: NewsApiResponse = {
-      articles: articles.slice(0, 15), // Limit to 15 articles for UI layout
+      articles: analyzed.slice(0, 15), // Limit to 15 fully analyzed articles
+      pendingArticles: pending.slice(0, 10), // Pending articles shown separately
       averageSeverity,
       fetchedAt,
     };
@@ -103,79 +109,97 @@ export async function GET(_req: NextRequest): Promise<Response> {
 
 /**
  * Deduplicates raw articles against existing database entries.
- * Reuses existing NewsItems (guaranteeing stable scores), and sends 
- * only NEW ones to the Gemini API. Saves only new ones and purges old entries.
+ * Returns analyzed and pending articles in separate lists so the UI can
+ * display them independently — fixing the "pending pollutes top-15" bug.
+ * Also saves pending article IDs to Firestore so they won't be re-queued
+ * on the next refresh — fixing the "duplicate analysis loop" bug.
  */
 async function processAndAnalyzeArticles(
   rawArticles: RawArticle[],
   db: FirebaseDb,
   apiKey: string
-): Promise<NewsItem[]> {
-  // Load recent existing news items from Firestore to check for duplicates
-  // (Old news was cleaned up, so we only deduplicate against recent articles)
-  const existingItems = await db.getRecentNewsItems(50, 1);
+): Promise<{ analyzed: NewsItem[]; pending: NewsItem[] }> {
+  // Load recent existing news items from Firestore (includes previously saved pending stubs)
+  const existingItems = await db.getRecentNewsItems(100, 1);
   const existingMap = new Map(existingItems.map((item) => [item.id, item]));
 
   const newRawArticles: RawArticle[] = [];
-  const reusedNewsItems: NewsItem[] = [];
+  const reusedAnalyzedItems: NewsItem[] = [];
+  const reusedPendingItems: NewsItem[] = [];
 
   rawArticles.forEach((raw) => {
     const id = generateArticleId(raw.link);
-    if (existingMap.has(id)) {
-      reusedNewsItems.push(existingMap.get(id)!);
+    const existing = existingMap.get(id);
+    if (existing) {
+      // Article already in DB — check if it's still pending or fully analyzed
+      if (existing.isPending) {
+        reusedPendingItems.push(existing);
+      } else {
+        reusedAnalyzedItems.push(existing);
+      }
     } else {
       newRawArticles.push(raw);
     }
   });
 
   console.log(
-    `[News Orchestrator] Deduplication: ${reusedNewsItems.length} articles already analyzed. ${newRawArticles.length} new articles to analyze.`
+    `[News Orchestrator] Deduplication: ${reusedAnalyzedItems.length} analyzed, ${reusedPendingItems.length} pending (reused), ${newRawArticles.length} brand-new articles.`
   );
 
   let newlyAnalyzedItems: NewsItem[] = [];
+  let newPendingItems: NewsItem[] = [];
 
   if (newRawArticles.length > 0) {
     // Analyze up to 8 new articles per refresh — balanced between speed and coverage
-    // At ~1-2s per article batch via Gemini, 8 articles ≈ 3-5s total latency
     const limit = 8;
     const articlesToAnalyze = newRawArticles.slice(0, limit);
+    const articlesToQueue = newRawArticles.slice(limit);
+
     console.log(
-      `[News Orchestrator] Daily Refresh: Analyzing ${articlesToAnalyze.length} of ${newRawArticles.length} new articles.`
+      `[News Orchestrator] Analyzing ${articlesToAnalyze.length} articles, queuing ${articlesToQueue.length} as pending.`
     );
 
     const analyzer = new GeminiAnalyzer(apiKey);
     newlyAnalyzedItems = await analyzer.analyzeArticles(articlesToAnalyze);
-    
-    // Save newly analyzed news items to Firestore (so we don't re-analyze them next time!)
+
+    // Save newly analyzed items to Firestore
     await db.saveNewsItems(newlyAnalyzedItems);
+
+    // ── FIX: Save pending article STUBS to Firestore ──────────────────────
+    // This prevents duplicate analysis on the next refresh. These stubs will
+    // be detected via existingMap and returned as pending instead of being
+    // treated as brand-new and re-queued again.
+    newPendingItems = articlesToQueue.map((raw) => ({
+      id: generateArticleId(raw.link),
+      title: raw.title,
+      link: raw.link,
+      publishedAt: raw.publishedAt,
+      source: raw.source,
+      severityScore: 0,
+      summary: "กำลังรอการวิเคราะห์จากระบบ... (Pending Analysis)",
+      keywords: [],
+      sentiment: "neutral" as const,
+      isPending: true,
+    }));
+
+    if (newPendingItems.length > 0) {
+      // Save pending stubs to DB so they're tracked and not re-queued next time
+      await db.saveNewsItems(newPendingItems);
+      console.log(`[News Orchestrator] Saved ${newPendingItems.length} pending stubs to Firestore.`);
+    }
   } else {
-    console.log("[News Orchestrator] All fetched articles are already in cache for today. Bypassing Gemini API.");
+    console.log("[News Orchestrator] All fetched articles are already tracked. Bypassing Gemini API.");
   }
 
-  // Ensure un-analyzed articles are not completely dropped from the UI.
-  // We give them a temporary score of 5 so they pass the filter, and a pending status.
-  // These are the articles beyond the limit=8 that were skipped this cycle.
-  const unanalyzedItems: NewsItem[] = newRawArticles.slice(8).map(raw => ({
-    id: generateArticleId(raw.link),
-    title: raw.title,
-    link: raw.link,
-    publishedAt: raw.publishedAt,
-    source: raw.source,
-    severityScore: 5,
-    summary: "กำลังรอการวิเคราะห์จากระบบ... (Pending Analysis)",
-    keywords: ["Pending"],
-    sentiment: "neutral",
-  }));
+  // ── Merge and return separately ─────────────────────────────────────────
+  const allAnalyzed = [...reusedAnalyzedItems, ...newlyAnalyzedItems]
+    .filter((item) => item.severityScore >= 5)
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-  // Merge together and sort chronologically (newest first)
-  const merged = [...reusedNewsItems, ...newlyAnalyzedItems, ...unanalyzedItems];
+  const allPending = [...reusedPendingItems, ...newPendingItems]
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-  // Filter to keep only articles with severityScore >= 5
-  const filtered = merged.filter((item) => item.severityScore >= 5);
-
-  return filtered.sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  );
+  return { analyzed: allAnalyzed, pending: allPending };
 }
 
 // ── Helper Functions ───────────────────────────────────────────
