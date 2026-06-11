@@ -70,6 +70,11 @@ export function renderDeskAgentAndSubClones({
 
   if (frames.length > 0) {
     const animSprite = new AnimatedSprite(frames);
+    (animSprite as any)._allTextures = {
+      D: frames,
+      L: textures[`${spriteNum}-L-1`] ? [textures[`${spriteNum}-L-1`]] : frames,
+      R: textures[`${spriteNum}-R-1`] ? [textures[`${spriteNum}-R-1`]] : frames,
+    };
     animSprite.anchor.set(0.5, 1);
     const scale = TARGET_CHAR_H / animSprite.texture.height;
     animSprite.scale.set(scale);

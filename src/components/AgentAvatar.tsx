@@ -28,7 +28,7 @@ export default function AgentAvatar({
         style={{ width: size, height: size }}
       >
         <img
-          src={`/sprites/${spriteNum}-D-1.svg`}
+          src={`/sprites/${spriteNum}-D-1.png`}
           alt={agent?.name ?? ""}
           className="h-full w-full object-cover object-bottom"
           style={{ imageRendering: "pixelated" }}

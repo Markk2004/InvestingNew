@@ -110,11 +110,40 @@ export function runOfficeTickerStep(ctx: OfficeTickerContext): void {
       ctx.ceoPosRef.current.y = Math.max(18, Math.min(ctx.totalHRef.current - 28, ctx.ceoPosRef.current.y + dy));
       ceo.position.set(ctx.ceoPosRef.current.x, ctx.ceoPosRef.current.y);
       ctx.followCeoInView();
+      
+      const animSprite = ceo.children.find((c: any) => c.label === "ceoAnimSprite") as any;
+      if (animSprite && animSprite.gotoAndStop) {
+        animSprite.scale.x = Math.abs(animSprite.scale.x);
+        const t = animSprite._allTextures;
+        
+        if (dx < 0 && t?.L) animSprite.textures = t.L;
+        else if (dx > 0 && t?.R) animSprite.textures = t.R;
+        else if (dy !== 0 && t?.D) animSprite.textures = t.D;
+        
+        if (animSprite.textures === t?.D) {
+          animSprite.gotoAndStop(Math.floor(tick / 8) % 3);
+          animSprite.rotation = 0;
+          animSprite.position.y = 0;
+        } else {
+          animSprite.gotoAndStop(0);
+          animSprite.rotation = Math.sin(tick * 0.4) * 0.08;
+          animSprite.position.y = -Math.abs(Math.sin(tick * 0.4)) * 4;
+        }
+      }
+    } else {
+      const animSprite = ceo.children.find((c: any) => c.label === "ceoAnimSprite") as any;
+      if (animSprite && animSprite.gotoAndStop) {
+        const t = animSprite._allTextures;
+        if (t?.D) animSprite.textures = t.D;
+        animSprite.gotoAndStop(0);
+        animSprite.rotation = 0;
+        animSprite.position.y = 0;
+      }
     }
 
     const crown = ctx.crownRef.current;
     if (crown) {
-      crown.position.y = -CEO_SIZE / 2 + 2 + Math.sin(tick * 0.06) * 2;
+      crown.position.y = -TARGET_CHAR_H - 2 + Math.sin(tick * 0.06) * 2;
       crown.rotation = Math.sin(tick * 0.03) * 0.06;
     }
   }
@@ -246,9 +275,53 @@ export function runOfficeTickerStep(ctx: OfficeTickerContext): void {
       } else {
         sp._wanderTimer = 0; // Turn around
       }
+
+      const animSprite = sprite.children.find(c => (c as any).gotoAndStop) as any;
+      if (animSprite && animSprite.gotoAndStop) {
+        animSprite.scale.x = Math.abs(animSprite.scale.x);
+        const t = animSprite._allTextures;
+        
+        if (sp._wanderDx < 0 && t?.L) animSprite.textures = t.L;
+        else if (sp._wanderDx > 0 && t?.R) animSprite.textures = t.R;
+        else if (sp._wanderDy !== 0 && t?.D) animSprite.textures = t.D;
+
+        if (sp._wanderDx || sp._wanderDy) {
+           if (animSprite.textures === t?.D) {
+             animSprite.gotoAndStop(Math.floor(tick / 12) % 3);
+             animSprite.rotation = 0;
+             animSprite.position.y = 0;
+           } else {
+             animSprite.gotoAndStop(0);
+             animSprite.rotation = Math.sin(tick * 0.3) * 0.08;
+             animSprite.position.y = -Math.abs(Math.sin(tick * 0.3)) * 4;
+           }
+        } else {
+           if (t?.D) animSprite.textures = t.D;
+           animSprite.gotoAndStop(0);
+           animSprite.rotation = 0;
+           animSprite.position.y = 0;
+        }
+      }
     } else {
       sprite.position.x = baseX;
       sprite.position.y = baseY;
+      const animSprite = sprite.children.find(c => (c as any).gotoAndStop) as any;
+      if (animSprite && animSprite.gotoAndStop) {
+        animSprite.scale.x = Math.abs(animSprite.scale.x);
+        const t = animSprite._allTextures;
+        if (t?.D && animSprite.textures !== t.D) {
+          animSprite.textures = t.D;
+        }
+        animSprite.rotation = 0;
+        animSprite.position.y = 0;
+
+        // Just keep working animation based on tick or stand still if offline
+        if (status === "working") {
+           animSprite.gotoAndStop(Math.floor(tick / 18) % 3);
+        } else {
+           animSprite.gotoAndStop(0);
+        }
+      }
     }
 
     if (status === "working") {

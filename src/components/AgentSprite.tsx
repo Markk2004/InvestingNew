@@ -78,7 +78,7 @@ export default function AgentSprite({
       )}
 
       <img
-        src={`/sprites/${spriteNum}-D-${frame}.svg`}
+        src={`/sprites/${spriteNum}-D-${frame}.png`}
         alt={name ?? "agent"}
         className={isWorking ? "office-agent-sprite-working" : ""}
         style={{

@@ -110,7 +110,7 @@ export function useOfficePixiRuntime({
         for (const frame of [1, 2, 3]) {
           const key = `${spriteNum}-D-${frame}`;
           loads.push(
-            Assets.load<Texture>(`/sprites/${key}.svg`)
+            Assets.load<Texture>(`/sprites/${key}.png`)
               .then((texture) => {
                 textures[key] = texture;
               })
@@ -121,7 +121,7 @@ export function useOfficePixiRuntime({
         for (const direction of ["L", "R"]) {
           const key = `${spriteNum}-${direction}-1`;
           loads.push(
-            Assets.load<Texture>(`/sprites/${key}.svg`)
+            Assets.load<Texture>(`/sprites/${key}.png`)
               .then((texture) => {
                 textures[key] = texture;
               })
@@ -131,7 +131,7 @@ export function useOfficePixiRuntime({
       }
 
       loads.push(
-        Assets.load<Texture>("/sprites/ceo-lobster.svg")
+        Assets.load<Texture>("/sprites/ceo-lobster.png")
           .then((texture) => {
             textures.ceo = texture;
           })

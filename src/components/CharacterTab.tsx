@@ -152,7 +152,7 @@ export default function CharacterTab({ spriteOverrides, setSpriteOverrides }: Ch
                   }}
                 >
                   <img
-                    src={`/sprites/${num}-D-1.svg`}
+                    src={`/sprites/${num}-D-1.png`}
                     alt={`Sprite ${num}`}
                     style={{ height: 52, imageRendering: "pixelated" }}
                   />
