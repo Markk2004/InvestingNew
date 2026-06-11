@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import type { NewsApiResponse } from "@/lib/types";
@@ -40,6 +40,18 @@ interface Toast { id: number; message: string; type: ToastType; }
 export default function NewsDashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [formattedDate, setFormattedDate] = useState<string>("");
+
+  useEffect(() => {
+    setFormattedDate(
+      new Date().toLocaleDateString("th-TH", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    );
+  }, []);
   const {
     data,
     error,
@@ -249,12 +261,7 @@ export default function NewsDashboardPage() {
                 📅 ข่าวล่าสุด:
               </span>
               <span className="font-pixel" style={{ fontSize: "11px", color: "#94a3b8" }}>
-                {new Date().toLocaleDateString("th-TH", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {formattedDate}
               </span>
               <span
                 className="font-pixel ml-auto"

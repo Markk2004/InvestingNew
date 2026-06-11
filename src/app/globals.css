@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
@@ -25,6 +26,36 @@
   --color-foreground: var(--foreground);
   --font-pixel: var(--font-pixel);
   --font-mono: var(--font-mono);
+
+  /* New OfficeView Theme Colors */
+  --color-surface: #fcf9ef;
+  --color-on-surface: #1c1c16;
+  --color-surface-variant: #e5e2d9;
+  --color-on-surface-variant: #434653;
+  --color-surface-container: #f1eee4;
+  --color-surface-container-low: #f7f4e9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #ebe8de;
+  --color-surface-container-highest: #e5e2d9;
+  --color-surface-dim: #dddad0;
+  --color-surface-bright: #fcf9ef;
+  --color-primary: #2356bc;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #4270d7;
+  --color-on-primary-container: #fefcff;
+  --color-secondary: #326a3c;
+  --color-on-secondary: #ffffff;
+  --color-outline: #737784;
+  --color-outline-variant: #c3c6d5;
+
+  /* Fonts */
+  --font-body-md: 'Manrope', sans-serif;
+  --font-headline-lg: 'Space Grotesk', sans-serif;
+  --font-display-pixel: 'Space Grotesk', sans-serif;
+  --font-label-sm: 'Manrope', sans-serif;
+  
+  --spacing-gutter: 1rem;
+  --spacing-container-padding: 1.5rem;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -377,4 +408,34 @@ body {
   animation: equipPulse 1.5s ease-in-out infinite;
   border-color: var(--pixel-yellow) !important;
   background: rgba(255, 215, 64, 0.08) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   OfficeView specific classes
+───────────────────────────────────────────────────────────── */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.room-glow {
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.1);
+}
+
+.hover-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-4px) scale(1.02); }
+  100% { transform: translateY(0px) scale(1); }
 }

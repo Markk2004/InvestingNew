@@ -6,14 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sprites": "node scripts/generate-sprites.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@tailwindcss/container-queries": "^0.1.1",
     "firebase": "^12.14.0",
     "firebase-admin": "^13.10.0",
     "lucide-react": "^1.17.0",
     "next": "16.2.6",
+    "pixi.js": "^8.19.0",
     "pngjs": "^7.0.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
