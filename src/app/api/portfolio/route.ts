@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-//  API Route — GET /api/news
+//  API Route — GET /api/portfolio
 //  Proxies requests to the Laravel backend running on MySQL.
 // ─────────────────────────────────────────────────────────────
 
@@ -8,12 +8,10 @@ import type { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest): Promise<Response> {
-  const fetchedAt = new Date().toISOString();
-  const forceRefresh = req.nextUrl.searchParams.get("force") === "true";
-  const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/api'}/news${forceRefresh ? '?force=true' : ''}`;
+  const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/api'}/portfolio`;
 
   try {
-    console.log(`[GET /api/news] Proxying request to Laravel backend: ${backendUrl}`);
+    console.log(`[GET /api/portfolio] Proxying request to Laravel backend: ${backendUrl}`);
     const response = await fetch(backendUrl, {
       method: "GET",
       headers: {
@@ -30,14 +28,13 @@ export async function GET(req: NextRequest): Promise<Response> {
     const data = await response.json();
     return Response.json(data);
   } catch (error) {
-    console.error("[GET /api/news] Proxy error:", error);
+    console.error("[GET /api/portfolio] Proxy error:", error);
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
     return Response.json({
-      articles: [],
-      averageSeverity: 0,
-      fetchedAt,
+      active_shares: 0,
+      average_cost: 0,
+      cash_balance: 0,
       error: `[Laravel Backend Proxy Error] ${errorMessage}`,
-    });
+    }, { status: 200 });
   }
 }
-

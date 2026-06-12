@@ -84,10 +84,23 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
   );
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [balance, setBalance] = useState(70.8);
+  const [avgCost, setAvgCost] = useState(55.07);
   const [clock, setClock] = useState("");
   const [shares, setShares] = useState<ShareRow[]>(
     INITIAL_PORTFOLIO.map((s) => ({ ...s, prevPrice: s.price })),
   );
+
+  useEffect(() => {
+    fetch("/api/portfolio")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) {
+          if (typeof data.cash_balance === "number") setBalance(data.cash_balance);
+          if (typeof data.average_cost === "number") setAvgCost(data.average_cost);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch portfolio from backend:", err));
+  }, []);
 
   useEffect(() => {
     setAgents(
@@ -123,7 +136,6 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
   }, []);
 
   const workingCount = agents.filter((a) => a.status === "working").length;
-  const avgCost = 55.07;
   const totalPnl = shares.reduce((acc, s) => acc + (s.price - s.cost) * s.qty, 0);
 
   return (
