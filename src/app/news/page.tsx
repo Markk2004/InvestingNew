@@ -66,6 +66,15 @@ export default function NewsDashboardPage() {
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
   }, []);
 
+  // Show toast if background fetch hits token limit
+  useEffect(() => {
+    if (data?.error && data.error.includes("TOKEN_LIMIT_REACHED")) {
+      showToast("⚠️ Token ถึง limit แล้ว — ไม่สามารถดึงข่าวใหม่ได้ทั้งหมดในขณะนี้", "warning");
+    } else if (data?.error && data.error.includes("INVALID_API_KEY")) {
+      showToast("❌ API Key ของ Gemini ไม่ถูกต้องหรือหมดอายุ", "error");
+    }
+  }, [data?.error, showToast]);
+
   const handleRefresh = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -77,7 +86,9 @@ export default function NewsDashboardPage() {
 
       // Check if API indicates token limit reached
       if (result?.error && result.error.includes("TOKEN_LIMIT_REACHED")) {
-        showToast("⚠️ Token ถึง limit แล้ว — โปรดรอสักครู่", "warning");
+        showToast("⚠️ Token ถึง limit แล้ว — ไม่สามารถดึงข่าวใหม่ได้ทั้งหมดในขณะนี้", "warning");
+      } else if (result?.error && result.error.includes("INVALID_API_KEY")) {
+        showToast("❌ API Key ของ Gemini ไม่ถูกต้องหรือหมดอายุ", "error");
       } else {
         const count = result?.articles?.length ?? 0;
         const pending = result?.pendingArticles?.length ?? 0;
