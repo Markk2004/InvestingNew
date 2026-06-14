@@ -1,60 +1,66 @@
-# Project Context: PixelTrade Night Office Simulation
+# Project Context: PixelTrade Night Office Simulation & Intelligence Center
 
-**Document Type:** Project Onboarding & System Architecture
+**Document Type:** Project Onboarding, Vision & Advanced System Architecture
 **Author:** Mxrk (CEO & Lead Workspace Designer)
-**Project:** Gamified Investment Dashboard (16-Bit Retro Style)
+**Project:** Gamified Investment Dashboard & Autonomous AI Workspace (16-Bit Retro Style)
 
 ---
 
 ## 🏢 วิสัยทัศน์และการออกแบบ (The Vision)
 
-ยินดีต้อนรับสู่ทีม! ผมตั้งใจสร้างโปรเจกต์นี้ขึ้นมาเพื่อฉีกกฎเกณฑ์เดิมๆ ของกระดานเทรดและแดชบอร์ดอ่านข่าวที่มักจะดูตึงเครียดและน่าเบื่อ ในฐานะที่ผมเชี่ยวชาญด้านการออกแบบพื้นที่ทำงาน (Workspace Design) ผมเชื่อว่าสภาพแวดล้อมที่ดีจะช่วยให้การวิเคราะห์ข้อมูลและการตัดสินใจลงทุนเฉียบคมขึ้น 
+PixelTrade ไม่ใช่แค่กระดานเทรดหรือแดชบอร์ดทั่วไป แต่คือ **"Autonomous Night Office"** ที่ผสานระหว่างความเงียบสงบของบรรยากาศทำงานรอบดึกในสไตล์ 16-Bit Pixel Art เข้ากับระบบประมวลผลข้อมูลระดับกองทุน (Institutional-Grade Intelligence) 
 
-โปรเจกต์นี้จึงถูกนำเสนอออกมาในรูปแบบ **"Night Office"** หรือออฟฟิศทำงานรอบดึกที่ให้ความรู้สึกอบอุ่น เงียบสงบ และมีสมาธิ ผ่านสไตล์ภาพ **16-Bit Pixel Art** มุมมองแบบ 3/4 Top-Down (Isometric) ที่มีแสงไฟสลัวๆ จากโคมไฟและหน้าจอมอนิเตอร์ ตัดกับแสงจันทร์และวิวตึกระฟ้าของเมืองยามค่ำคืน เราจะเปลี่ยนผู้ใช้งานให้กลายเป็นผู้จัดการออฟฟิศที่คอยมอนิเตอร์ข่าวสารและพอร์ตการลงทุนไปพร้อมๆ กับการดูแลพนักงานในออฟฟิศเสมือนจริงแห่งนี้
-
----
-
-## 💻 โครงสร้างระบบหลัก (Core Architecture)
-
-ระบบเว็บแอปพลิเคชันของเราจะแบ่งออกเป็น 3 เมนู (Tabs) หลัก เพื่อให้ผู้ใช้สลับการทำงานได้อย่างลื่นไหล:
-
-### 1. Office Overview (หน้าหลัก)
-ทำหน้าที่เป็นศูนย์กลาง (Hub) ของระบบ โดยจะแสดงภาพฉาก Night Office ที่ประกอบไปด้วย:
-*   **The Environment:** พื้นไม้สีเข้ม, โซฟาหนังสีเขียวสำหรับพักผ่อน, โต๊ะทำงานไม้, และกระถางต้นไม้ที่จัดวางอย่างลงตัว
-*   **The Staff:** มีตัวละครหลัก 3 ตัวคอยขับเคลื่อนออฟฟิศ
-    *   **Mxrk:** ตัวผมเองในฐานะบอส (สวมหมวกและชุดลำลอง)
-    *   **Gemini:** หุ่นยนต์ AI ผู้ช่วยอัจฉริยะ ลอยตัวอยู่ข้างโต๊ะทำงานเพื่อคอยประมวลผลข้อมูล
-    *   **NewInvester:** เทรดเดอร์ประจำออฟฟิศที่นั่งวิเคราะห์กราฟอยู่ที่หน้าจอ
-*   **Live Data Integration:** หน้าจอมอนิเตอร์ในฉากจะเชื่อมโยงกับข้อมูลพอร์ตการลงทุนจริงของผู้ใช้ โดยแสดงผลลัพธ์แบบเรียลไทม์
-
-### 2. Character (ระบบห้องแต่งตัว)
-ระบบจำลอง Paper Doll System สำหรับปรับแต่งตัวละครพนักงาน (Customization) 
-*   **Base Mannequin:** เริ่มต้นจากหุ่นจำลองเปล่าๆ ในสไตล์พิกเซล
-*   **Inventory Menu:** เมนูเลือกชิ้นส่วนเครื่องแต่งกาย (เสื้อ, กางเกง, หมวก, แว่นตา, อุปกรณ์เสริม)
-*   **Technical Implementation:** ใช้เทคนิคการซ้อนภาพ PNG โปร่งใส (Layering) ด้วยคำสั่ง `position: absolute` และ `z-index` ทับลงบนตัวละครหลัก เพื่อสร้างอิสระในการแต่งตัวและสะท้อนตัวตนของผู้ใช้งาน
-
-### 3. AnalysisNew (ศูนย์วิเคราะห์ข่าวกรอง)
-หัวใจสำคัญของแอปพลิเคชันในด้านการลงทุน (ซึ่งคุณจะเข้ามารับหน้าที่หลักในการพัฒนา Route นี้)
-*   **Data Aggregation:** ดึงฟีดข่าวสารการเมืองและเศรษฐกิจ (โดยเฉพาะ FED, นโยบายรัฐบาล, และความเคลื่อนไหวจาก Bloomberg หรือ X/Twitter) เข้ามาในระบบ
-*   **AI Sentiment Analysis:** ใช้ AI วิเคราะห์ความรุนแรงและผลกระทบของข่าวที่มีต่อตลาดทุน
-*   **Retro Terminal UI:** นำเสนอข่าวสารในรูปแบบหน้าจอ Terminal หรือหน้าต่างแจ้งเตือนสไตล์เกม RPG ยุคเก่า เพื่อให้สอดคล้องกับธีมหลักของเว็บไซต์
+เป้าหมายสูงสุดคือการเปลี่ยนหน้าจอแดชบอร์ดให้กลายเป็นสถานีควบคุมกลางที่ผู้ใช้สามารถบริหารพอร์ตการลงทุน มอนิเตอร์เหตุการณ์มหภาคระดับโลก และดูการทำงานของ AI Agents ที่สามารถเรียนรู้ พัฒนาตัวเอง และเก็บสะสมประสบการณ์ได้จริงเสมือนเป็นพนักงานในบริษัทควบคุมระบบ
 
 ---
 
-## 🎨 ไกด์ไลน์งานภาพและเทคนิค (Art & Tech Guidelines)
+## 💻 โครงสร้างระบบหลัก (Core Architecture & System Topology)
 
-เพื่อให้องค์ประกอบทุกอย่างผสานกันอย่างสมบูรณ์แบบ ขอให้ยึดหลักการพัฒนาดังนี้:
-*   **Strict Pixel Art:** ห้ามใช้อิมเมจแบบ Vector Smooth หรือ 3D Render ทุกองค์ประกอบต้องเป็น Pixel Art ที่มีความคมชัด (ใช้ CSS `image-rendering: pixelated;`)
-*   **Dimensionality:** วัตถุทุกชิ้นในฉาก (โต๊ะ, โซฟา) ต้องมีการเล่นแสงและเงาตกกระทบ (Cast Shadows / Edge Highlighting) เพื่อให้ฉาก 2D ดูมีมิติความลึก
-*   **CSS Animations:** ใช้ Keyframes และคำสั่ง `steps()` ในการทำอนิเมชันให้ตัวละครเดิน พิมพ์งาน หรือขยับตัว (Sprite Sheet Animation) หลีกเลี่ยงการใช้ Canvas Engine หนักๆ เพื่อรักษาประสิทธิภาพของ Next.js/React
+ระบบแอปพลิเคชันจะเชื่อมต่อผ่าน Next.js (Frontend), MySQL (Knowledge & XP Backend) และ External APIs (Telegram/Financial Data) โดยแบ่งออกเป็น 3 เมนูหลักที่มีการทำงานประสานกันดังนี้:
+
+### 1. Office Overview (ศูนย์ควบคุมการปฏิบัติการกลาง - Central Monitor)
+ทำหน้าที่เป็น **Master Monitor** ที่สะท้อนสถานะแบบเรียลไทม์ของระบบทั้งหมด ไม่ใช่เพียงแค่ภาพแอนิเมชันตกแต่ง:
+* **Live Data & Chart Integration:** มอนิเตอร์บนโต๊ะทำงานของตัวละครจะแสดงกราฟหุ้นและสถานะพอร์ตจริง ข้อมูลเปลี่ยนตามสภาวะตลาด
+* **Agent Activity Sync:** แอนิเมชันของพนักงาน (Staff) จะผูกกับ Background Jobs ในระบบ เช่น เมื่อ `Gemini` กำลังประมวลผลข่าวการประชุม FED แอนิเมชันในฉากจะเปลี่ยนเป็นสถานะกำลังวิเคราะห์ข้อมูลอย่างเร่งด่วน
+* **XP Display:** แสดงระดับเลเวลและแถบค่าประสบการณ์ (XP Bar) บนหัวหรือในสถานะของ Staff แต่ละตัว เพื่อบอกความเชี่ยวชาญปัจจุบัน
+
+### 2. AnalysisNew & Global Intelligence System (ศูนย์วิเคราะห์ข่าวกรองและสัญญานเทรด)
+ระบบวิเคราะห์ความเสี่ยงและจังหวะตลาดเชิงลึก ครอบคลุมปัจจัยมหภาค (Macroeconomics):
+* **Multi-Domain Analysis:** ดึงข้อมูลและวิเคราะห์ผลกระทบจาก ตลาดหุ้น, ดัชนีการเงิน, นโยบาย FED, การเมืองระหว่างประเทศ และความขัดแย้ง/สงครามภูมิรัฐศาสตร์
+* **Signal & Graph Rendering:** หน้าจอ Terminal สไตล์ Monospace ผสานกราฟเทคนิคัล เพื่อประเมินผลกระทบต่อสินทรัพย์ในพอร์ตโฟลิโอ
+* **Telegram Alert Pipeline:** เมื่อระบบตรวจพบข่าวสารระดับ Critical (เช่น FED ปรับดอกเบี้ยกระทันหัน, สัญญาณข่าวสงคราม) ระบบจะสั่งการให้ Bot ส่งสรุปบทวิเคราะห์เชิงลึก (Sentiment & Impact) เข้าสู่ **Telegram Channel** ของผู้ใช้โดยทันที เพื่อไม่ให้พลาดเหตุการณ์สำคัญแม้อยู่จัดหน้าจอ
+
+### 3. Knowledge Base & Customization (ห้องแต่งตัวและคลังสมองของระบบ)
+การบริหารจัดการตัวละครและคลังความรู้ที่ Agent สะสมมา:
+* **Character Paper Doll & XP System:** ระบบแต่งตัวละครพิกเซลซ้อนเลเยอร์ (Base, Shirt, Hat) ควบคู่กับการผูกค่าประสบการณ์ (XP) ทุกครั้งที่ Staff ทำงานสำเร็จ (เช่น วิเคราะห์ข่าวถูกต้อง, ทำกำไรให้พอร์ต) ค่า XP ในฐานข้อมูลจะเพิ่มขึ้น และส่งผลต่อประสิทธิภาพการทำงานในอนาคต
+* **System-Wide Knowledge Base UI:** หน้าต่างแสดงผล "คลังความรู้สาธารณะของระบบ" ที่ดึงข้อมูลมาจาก Backend เพื่อให้ผู้ใช้เปิดอ่านสิ่งที่ AI เรียนรู้มาได้ตลอดเวลา
 
 ---
 
-## 📊 ข้อมูลพอร์ตโฟลิโอปัจจุบัน (Current Portfolio Status)
+## 🧠 สถาปัตยกรรมการเรียนรู้ของ AI (Agent Memory System)
 
-ระบบ Overview และ AnalysisNew จะต้องเชื่อมโยงและคำนวณผลกระทบจากข่าวสารโดยอ้างอิงจากฐานข้อมูลพอร์ตการลงทุนปัจจุบันดังนี้:
-*   **Active Shares (จำนวนหุ้น):** 12
-*   **Average Cost (ต้นทุนเฉลี่ย):** $55.07
-*   **Available Balance (เงินสดคงเหลือ):** $70.80
+เพื่อให้ AI พัฒนาตัวเองได้เรื่อยๆ โดยไม่สูญเสียความจำเมื่อรีเฟรชหน้าจอ (State Loss) ระบบจะใช้สถาปัตยกรรมแบบ **Retrieval-Augmented Generation (RAG)**:
 
-ข้อมูลนี้คือโจทย์สำคัญที่เราต้องใช้ฟีเจอร์ข่าวกรองมาประเมินว่า กลยุทธ์ต่อไปของบริษัทควรจะนำเงินสดที่มีไปจัดสรรอย่างไรให้พอร์ตนี้กลับมาคุ้มทุนหรือทำกำไรได้
+---
+
+## Language
+
+**Agent Memory**:
+A retrieval-augmented generation (RAG) system using a MySQL database to inject historical context (e.g., past analyses, trade outcomes) into AI prompts.
+_Avoid_: Machine Learning Backend, Closed-Loop Feedback System, Model Training
+
+**Critical News**:
+A news event that passes a rule-based pre-filter (e.g., keywords) and is subsequently scored 8-10 for impact by the LLM, triggering an immediate Telegram alert.
+_Avoid_: Breaking News, Important Update
+
+**Agent XP**:
+A cosmetic progression metric representing an agent's tenure and the volume of tasks completed. It serves as a visual indicator of experience and can unlock cosmetic customizations (e.g., paper doll outfits), but does not alter the underlying AI logic or capabilities.
+_Avoid_: Machine Learning Training, Intelligence Level, Functional Unlock
+
+**Autonomous Execution**:
+A frontend-driven simulation loop where AI analysis, news fetching, and agent activities only run while the user has the dashboard open in their browser. If the browser is closed, all operations pause.
+_Avoid_: 24/7 Server Daemon, Backend Background Worker, Always-On Cron
+
+**Live Market Data**:
+Real-world financial and macroeconomic news fetched dynamically from external sources (e.g., RSS feeds, public APIs) to be summarized and analyzed by the Agent.
+_Avoid_: Simulated News, Mock Data, LLM Generated Events

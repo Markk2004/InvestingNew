@@ -276,6 +276,14 @@ export default function GameShell() {
             onClick={() => router.push("/news")}
             glowColor="#69ff47"
           />
+          <TabButton
+            id="charts"
+            emoji="📊"
+            label="Charts"
+            active={false}
+            onClick={() => router.push("/charts")}
+            glowColor="#f43f5e"
+          />
         </nav>
 
         {/* Divider */}
