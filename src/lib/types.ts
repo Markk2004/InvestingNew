@@ -45,6 +45,8 @@ export interface NewsApiResponse {
   averageSeverity: number;     // Mean of all severityScores
   fetchedAt: string;           // ISO timestamp of this fetch
   error?: string;              // Present only when something went wrong
+  currentPage?: number;        // Current page number (pagination)
+  totalPages?: number;         // Total number of pages (pagination)
 }
 
 /**

@@ -135,6 +135,27 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
     return () => clearInterval(iv);
   }, []);
 
+  const [unreadAgentIds, setUnreadAgentIds] = useState<Set<string>>(new Set());
+
+  // Check for pending news to trigger the NEW! emotion box on Gemini
+  useEffect(() => {
+    const checkNews = () => {
+      fetch("/api/news")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.pendingArticles && data.pendingArticles.length > 0) {
+            setUnreadAgentIds(new Set(["gemini"]));
+          } else {
+            setUnreadAgentIds(new Set());
+          }
+        })
+        .catch(() => {});
+    };
+    checkNews();
+    const iv = setInterval(checkNews, 15000); // Poll every 15s (only hits DB cache via backend)
+    return () => clearInterval(iv);
+  }, []);
+
   const workingCount = agents.filter((a) => a.status === "working").length;
   const totalPnl = shares.reduce((acc, s) => acc + (s.price - s.cost) * s.qty, 0);
 
@@ -146,6 +167,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
           agents={agents}
           selectedAgentId={selectedAgentId}
           onSelectAgent={(agent) => setSelectedAgentId(agent.id)}
+          unreadAgentIds={unreadAgentIds}
         />
       </div>
     </div>

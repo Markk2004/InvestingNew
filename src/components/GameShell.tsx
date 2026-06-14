@@ -9,10 +9,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import OfficeTab from "@/components/OfficeTab";
 import CharacterTab from "@/components/CharacterTab";
-import RenovateTab from "@/components/RenovateTab";
-import { OfficeProvider } from "@/components/OfficeContext";
 
-type Tab = "office" | "character" | "renovate";
+type Tab = "office" | "character";
 
 // ── Pixel Company Logo (inline SVG) ───────────────────────────────────────────
 
@@ -198,7 +196,6 @@ export default function GameShell() {
   });
 
   return (
-    <OfficeProvider>
       <div
         style={{
         display: "flex",
@@ -261,14 +258,6 @@ export default function GameShell() {
             glowColor="#c084fc"
           />
           <TabButton
-            id="renovate"
-            emoji="🏗️"
-            label="Renovate"
-            active={activeTab === "renovate"}
-            onClick={() => setActiveTab("renovate")}
-            glowColor="#fbbf24"
-          />
-          <TabButton
             id="news"
             emoji="📰"
             label="AnalysisNew"
@@ -321,7 +310,6 @@ export default function GameShell() {
         {activeTab === "character" && (
           <CharacterTab spriteOverrides={spriteOverrides} setSpriteOverrides={setSpriteOverrides} />
         )}
-        {activeTab === "renovate"  && <RenovateTab />}
       </main>
 
       {/* ── BOTTOM STATUS BAR ── */}
@@ -342,8 +330,6 @@ export default function GameShell() {
             ? "+ Click any work zone to send nearest agent there"
             : activeTab === "character"
             ? "🎮 Pick a claw-empire sprite for each staff member"
-            : activeTab === "renovate"
-            ? "🏗️ As CEO: pick flooring theme, buy furniture, and design your dream office"
             : ""}
         </span>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -373,6 +359,5 @@ export default function GameShell() {
         }
       `}</style>
       </div>
-    </OfficeProvider>
   );
 }

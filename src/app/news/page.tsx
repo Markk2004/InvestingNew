@@ -42,6 +42,8 @@ export default function NewsDashboardPage() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [formattedDate, setFormattedDate] = useState<string>("");
 
+  const [page, setPage] = useState<number>(1);
+
   useEffect(() => {
     setFormattedDate(
       new Date().toLocaleDateString("th-TH", {
@@ -58,7 +60,7 @@ export default function NewsDashboardPage() {
     isLoading,
     isValidating,
     mutate,
-  } = useSWR<NewsApiResponse>("/api/news", fetcher, SWR_CONFIG);
+  } = useSWR<NewsApiResponse>(`/api/news?page=${page}`, fetcher, SWR_CONFIG);
 
   const showToast = useCallback((message: string, type: ToastType = "success") => {
     const id = Date.now();
@@ -78,9 +80,10 @@ export default function NewsDashboardPage() {
   const handleRefresh = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
+    setPage(1);
     try {
       const result = await mutate(
-        fetcher("/api/news?force=true"),
+        fetcher("/api/news?force=true&page=1"),
         { revalidate: false }
       );
 
@@ -284,6 +287,45 @@ export default function NewsDashboardPage() {
 
             {/* ── News Grid (Analyzed only) ─────────────── */}
             <NewsGrid articles={data.articles} />
+
+            {/* ── Pagination UI ───────────────────────────── */}
+            {data.totalPages && data.totalPages > 1 && (
+              <div className="flex justify-center items-center gap-6 mt-8">
+                <button
+                  onClick={() => {
+                    setPage(p => Math.max(1, p - 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={page === 1}
+                  className="font-pixel px-4 py-2 hover:bg-[rgba(79,195,247,0.1)] active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                  style={{
+                    fontSize: "12px",
+                    border: "2px solid var(--pixel-blue)",
+                    color: "var(--pixel-blue)",
+                  }}
+                >
+                  ◀ PREV
+                </button>
+                <span className="font-pixel" style={{ fontSize: "12px", color: "var(--pixel-blue)" }}>
+                  PAGE {page} / {data.totalPages}
+                </span>
+                <button
+                  onClick={() => {
+                    setPage(p => Math.min(data.totalPages || 1, p + 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={page === data.totalPages}
+                  className="font-pixel px-4 py-2 hover:bg-[rgba(79,195,247,0.1)] active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                  style={{
+                    fontSize: "12px",
+                    border: "2px solid var(--pixel-blue)",
+                    color: "var(--pixel-blue)",
+                  }}
+                >
+                  NEXT ▶
+                </button>
+              </div>
+            )}
 
             {/* ── Pending Queue Section ───────────────────── */}
             {data.pendingArticles && data.pendingArticles.length > 0 && (

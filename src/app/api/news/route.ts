@@ -10,7 +10,14 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest): Promise<Response> {
   const fetchedAt = new Date().toISOString();
   const forceRefresh = req.nextUrl.searchParams.get("force") === "true";
-  const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/api'}/news${forceRefresh ? '?force=true' : ''}`;
+  const page = req.nextUrl.searchParams.get("page") || "1";
+  
+  const queryParams = new URLSearchParams();
+  if (forceRefresh) queryParams.append("force", "true");
+  if (page !== "1") queryParams.append("page", page);
+  const qs = queryParams.toString();
+  
+  const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/api'}/news${qs ? '?' + qs : ''}`;
 
   try {
     console.log(`[GET /api/news] Proxying request to Laravel backend: ${backendUrl}`);

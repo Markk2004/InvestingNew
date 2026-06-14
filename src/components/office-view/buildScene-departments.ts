@@ -284,18 +284,35 @@ function renderAgentHeader(
   room.addChild(nameText);
 
   if (unread?.has(agent.id)) {
-    const bangBg = new Graphics();
-    const bangX = ax + nameTagW / 2 + 2;
-    bangBg.circle(bangX, nameY + 6, 6).fill(0xff3333);
-    bangBg.circle(bangX, nameY + 6, 6).stroke({ width: 1, color: 0xff0000, alpha: 0.6 });
-    room.addChild(bangBg);
-    const bangTxt = new Text({
-      text: "!",
-      style: new TextStyle({ fontSize: 8, fill: 0xffffff, fontWeight: "bold", fontFamily: "monospace" }),
+    const bubbleY = nameY - 16;
+    const bubbleX = ax + 16;
+    
+    const bubbleBg = new Graphics();
+    // Bubble body
+    bubbleBg.roundRect(bubbleX - 16, bubbleY - 8, 32, 14, 4).fill(0xff3333);
+    bubbleBg.roundRect(bubbleX - 16, bubbleY - 8, 32, 14, 4).stroke({ width: 1, color: 0xffffff, alpha: 0.8 });
+    
+    // Bubble tail (pointing to the agent's head)
+    bubbleBg.moveTo(bubbleX - 6, bubbleY + 6);
+    bubbleBg.lineTo(bubbleX - 12, bubbleY + 14);
+    bubbleBg.lineTo(bubbleX - 2, bubbleY + 6);
+    bubbleBg.fill(0xff3333);
+
+    room.addChild(bubbleBg);
+
+    const newTxt = new Text({
+      text: "NEW!",
+      style: new TextStyle({ fontSize: 7, fill: 0xffffff, fontWeight: "bold", fontFamily: "system-ui, sans-serif", letterSpacing: 0.5 }),
     });
-    bangTxt.anchor.set(0.5, 0.5);
-    bangTxt.position.set(bangX, nameY + 6);
-    room.addChild(bangTxt);
+    newTxt.anchor.set(0.5, 0.5);
+    newTxt.position.set(bubbleX, bubbleY - 1);
+    
+    // Add simple bobbing animation by creating a container
+    const alertContainer = new Container();
+    alertContainer.addChild(bubbleBg, newTxt);
+    room.addChild(alertContainer);
+    
+    // Save to animItemsRef for bobbing if we want to add it to ticker later
   }
 
   const roleText = new Text({
