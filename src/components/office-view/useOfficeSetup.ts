@@ -12,6 +12,8 @@ interface UseOfficeSetupParams {
   tasks: Task[];
   subAgents: SubAgent[];
   unreadAgentIds?: Set<string>;
+  onSelectAgent?: (agent: Agent) => void;
+  onSelectDepartment?: (dept: Department) => void;
 }
 
 export function useOfficeSetup({
@@ -19,7 +21,9 @@ export function useOfficeSetup({
   agents,
   tasks,
   subAgents,
-  unreadAgentIds
+  unreadAgentIds,
+  onSelectAgent,
+  onSelectDepartment
 }: UseOfficeSetupParams) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
@@ -33,9 +37,11 @@ export function useOfficeSetup({
   const deliveriesRef = useRef<Delivery[]>([]);
   
   const cbRef = useRef({
-    onSelectAgent: () => {},
-    onSelectDepartment: () => {},
+    onSelectAgent: onSelectAgent || (() => {}),
+    onSelectDepartment: onSelectDepartment || (() => {}),
   });
+  cbRef.current.onSelectAgent = onSelectAgent || (() => {});
+  cbRef.current.onSelectDepartment = onSelectDepartment || (() => {});
 
   const dataRef = useRef<DataSnapshot>({
     departments,

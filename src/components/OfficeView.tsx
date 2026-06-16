@@ -20,7 +20,9 @@ const EMPTY_SUBAGENTS: any[] = [];
 export default function OfficeView({
   departments,
   agents,
-  unreadAgentIds
+  unreadAgentIds,
+  onSelectAgent,
+  onSelectDepartment
 }: OfficeViewProps) {
   const sortedDepts = useMemo(
     () => [...departments].sort((a, b) => a.sort_order - b.sort_order),
@@ -32,7 +34,9 @@ export default function OfficeView({
     agents,
     tasks: EMPTY_TASKS,
     subAgents: EMPTY_SUBAGENTS,
-    unreadAgentIds
+    unreadAgentIds,
+    onSelectAgent,
+    onSelectDepartment
   });
 
   const workingCount = agents.filter((a) => a.status === "working").length;

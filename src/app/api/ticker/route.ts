@@ -105,8 +105,22 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(activeResults);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching ticker data:", error);
+    try {
+      await fetch("http://localhost:8080/api/system/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "error",
+          message: error?.message || "Error fetching ticker data",
+          stack_trace: error?.stack || null,
+          url: "Next.js /api/ticker"
+        })
+      });
+    } catch (logErr) {
+      console.error("Failed to forward Next.js error to Laravel:", logErr);
+    }
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { Agent } from "@/lib/agents";
 import { PIXELTRADE_AGENTS, PIXELTRADE_DEPARTMENTS } from "@/lib/agents";
@@ -135,7 +135,16 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
     return () => clearInterval(iv);
   }, []);
 
-  const [unreadAgentIds, setUnreadAgentIds] = useState<Set<string>>(new Set());
+  const [hasPendingNews, setHasPendingNews] = useState(false);
+  const [unreadLogs, setUnreadLogs] = useState<any[]>([]);
+  const [techieModal, setTechieModal] = useState<{ open: boolean; log?: any } | null>(null);
+
+  const unreadAgentIds = useMemo(() => {
+    const s = new Set<string>();
+    if (hasPendingNews) s.add("gemini");
+    if (unreadLogs.length > 0) s.add("techie");
+    return s;
+  }, [hasPendingNews, unreadLogs]);
 
   // 1. Check for pending news to trigger the NEW! emotion box on Gemini
   useEffect(() => {
@@ -143,11 +152,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
       fetch("/api/news")
         .then((res) => res.json())
         .then((data) => {
-          if (data && data.pendingArticles && data.pendingArticles.length > 0) {
-            setUnreadAgentIds(new Set(["gemini"]));
-          } else {
-            setUnreadAgentIds(new Set());
-          }
+          setHasPendingNews(!!(data && data.pendingArticles && data.pendingArticles.length > 0));
         })
         .catch(() => {});
     };
@@ -155,6 +160,43 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
     const iv = setInterval(checkNews, 15000); // Poll every 15s (only hits DB cache via backend)
     return () => clearInterval(iv);
   }, []);
+
+  // 1b. Poll unread error logs to trigger Alert on Techie
+  useEffect(() => {
+    const checkLogs = () => {
+      fetch("http://localhost:8080/api/system/log/unread")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && Array.isArray(data.logs)) {
+            setUnreadLogs(data.logs);
+          }
+        })
+        .catch(() => {});
+    };
+    checkLogs();
+    const iv = setInterval(checkLogs, 10000); // Poll every 10s
+    return () => clearInterval(iv);
+  }, []);
+
+  const handleSelectAgent = (agent: Agent) => {
+    setSelectedAgentId(agent.id);
+    if (agent.id === "techie") {
+      setTechieModal({
+        open: true,
+        log: unreadLogs.length > 0 ? unreadLogs[0] : null,
+      });
+    }
+  };
+
+  const handleResolveLogs = async () => {
+    try {
+      await fetch("http://localhost:8080/api/system/log/unread"); // Marks them as read on Laravel
+      setUnreadLogs([]);
+      setTechieModal(null);
+    } catch (e) {
+      console.error("Failed to resolve logs:", e);
+    }
+  };
 
   // 2. Background Poller to process news automatically (Replaces Laravel Cron Job)
   useEffect(() => {
@@ -175,16 +217,152 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
   const totalPnl = shares.reduce((acc, s) => acc + (s.price - s.cost) * s.qty, 0);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden", position: "relative" }}>
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <OfficeView
           departments={PIXELTRADE_DEPARTMENTS}
           agents={agents}
           selectedAgentId={selectedAgentId}
-          onSelectAgent={(agent) => setSelectedAgentId(agent.id)}
+          onSelectAgent={handleSelectAgent}
           unreadAgentIds={unreadAgentIds}
         />
       </div>
+
+      {/* Retro dialogue box for Techie diagnostics */}
+      {techieModal && techieModal.open && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 480,
+            background: "#050b14",
+            border: `2px solid ${techieModal.log ? "#ef4444" : "#22c55e"}`,
+            borderRadius: 4,
+            padding: "14px 18px",
+            color: "white",
+            fontFamily: "monospace",
+            boxShadow: `0 8px 30px rgba(0,0,0,0.8), 0 0 15px ${techieModal.log ? "rgba(239,68,68,0.25)" : "rgba(34,197,94,0.15)"}`,
+            zIndex: 1000,
+          }}
+        >
+          {/* Header */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #0d2040", paddingBottom: 6, marginBottom: 10 }}>
+            <span style={{ fontSize: 20 }}>🛠️</span>
+            <div>
+              <div style={{ color: techieModal.log ? "#ef4444" : "#22c55e", fontWeight: "bold", fontSize: 11, letterSpacing: 1 }}>
+                {techieModal.log ? "TECHIE: SYSTEM ERROR ALERT! ⚠️" : "TECHIE: SYSTEM STATUS OK ✅"}
+              </div>
+              <div style={{ color: "#475569", fontSize: 8 }}>
+                SYSADMIN DIAGNOSTICS & LOG MONITOR
+              </div>
+            </div>
+            <button
+              onClick={() => setTechieModal(null)}
+              style={{
+                marginLeft: "auto",
+                background: "transparent",
+                border: "none",
+                color: "#475569",
+                fontSize: 14,
+                cursor: "pointer",
+                padding: "2px 6px",
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Body */}
+          {techieModal.log ? (
+            <div>
+              <div style={{ background: "#08101c", border: "1px solid #ef444420", padding: "8px 10px", borderRadius: 2, marginBottom: 10 }}>
+                <div style={{ color: "#fbbf24", fontSize: 8, textTransform: "uppercase", marginBottom: 2 }}>
+                  [Source]: {techieModal.log.url || "Unknown"}
+                </div>
+                <div style={{ color: "#fca5a5", fontSize: 10, fontWeight: "bold", wordBreak: "break-all" }}>
+                  {techieModal.log.message}
+                </div>
+                {techieModal.log.stack_trace && (
+                  <div
+                    style={{
+                      marginTop: 6,
+                      background: "#03080f",
+                      border: "1px solid #0d2040",
+                      padding: 5,
+                      maxHeight: 100,
+                      overflowY: "auto",
+                      fontSize: 8,
+                      color: "#64748b",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {techieModal.log.stack_trace}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button
+                  onClick={handleResolveLogs}
+                  style={{
+                    background: "#0d2e13",
+                    border: "1px solid #22c55e",
+                    color: "#22c55e",
+                    fontSize: 9,
+                    padding: "4px 12px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "#14532d")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "#0d2e13")}
+                >
+                  ✓ RESOLVE & CLEAR ERROR
+                </button>
+                <button
+                  onClick={() => setTechieModal(null)}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid #1e3a5f",
+                    color: "#475569",
+                    fontSize: 9,
+                    padding: "4px 12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  IGNORE
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ padding: "8px 0", color: "#4ade80", fontSize: 10, textAlign: "center", lineHeight: 1.6 }}>
+                "ระบบทั้งหมดทำงานเป็นปกติครับท่าน! ไม่มีข้อผิดพลาดที่ยังไม่ได้รับการแก้ไขในขณะนี้"
+                <div style={{ color: "#475569", fontSize: 7, marginTop: 2 }}>
+                  (System status: NORMAL. All services online. No unread logs.)
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
+                <button
+                  onClick={() => setTechieModal(null)}
+                  style={{
+                    background: "#071a30",
+                    border: "1px solid #1e3a5f",
+                    color: "#4fc3f7",
+                    fontSize: 9,
+                    padding: "4px 12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  CLOSE
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
