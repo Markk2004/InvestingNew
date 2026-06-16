@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import USMarketListPanel from "@/components/overview/USMarketListPanel";
+import SectorPerformancePanel from "@/components/overview/SectorPerformancePanel";
 import MarketTicker from "@/components/MarketTicker";
 
 function LiveClock() {
@@ -360,8 +361,18 @@ export default function OverviewPage() {
           gap: 12,
         }}
       >
-        {/* US Market List — main feature */}
-        <USMarketListPanel />
+        {/* Horizontal split for Market List & Sector Performance */}
+        <div style={{ display: "flex", flexDirection: "row", gap: 16, flex: 1, overflow: "hidden" }}>
+          {/* Left Column: US Market List */}
+          <div style={{ flex: 3, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <USMarketListPanel />
+          </div>
+
+          {/* Right Column: Sector Performance Tierlist */}
+          <div style={{ flex: 2, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <SectorPerformancePanel />
+          </div>
+        </div>
 
         {/* Market Breadth placeholder */}
         <BreadthPlaceholder />

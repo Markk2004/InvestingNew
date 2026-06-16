@@ -14,13 +14,18 @@ import Sparkline, { generateMockCloses } from "./Sparkline";
 const PAGE_SIZE = 25;
 
 const SECTOR_COLORS: Record<string, string> = {
-  Technology: "#4fc3f7",
-  Consumer: "#fbbf24",
-  Finance: "#22c55e",
-  Healthcare: "#f43f5e",
-  Energy: "#fb923c",
-  Media: "#a78bfa",
-  ETF: "#6ee7b7",
+  "Information Technology": "#4fc3f7",
+  "Communication Services": "#a78bfa",
+  "Consumer Discretionary": "#fbbf24",
+  "Consumer Staples": "#cbd5e1",
+  "Financials": "#22c55e",
+  "Healthcare": "#f43f5e",
+  "Energy": "#fb923c",
+  "Industrials": "#a7f3d0",
+  "Utilities": "#a3e635",
+  "Materials": "#f472b6",
+  "Real Estate": "#f472b6",
+  "Index / ETF": "#6ee7b7",
 };
 
 const SECTORS = ["All", ...Array.from(new Set(US_STOCKS.map((s) => s.sector)))];
