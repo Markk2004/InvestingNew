@@ -3,10 +3,11 @@
 // ─────────────────────────────────────────────────────────────
 //  FloatingChartManager — Manages all open chart windows
 //  Fixes: concurrent iframe loading, drawing persistence,
-//         cascading re-renders
+//         cascading re-renders, and global page transitions
 // ─────────────────────────────────────────────────────────────
 
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo, createContext, useContext, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import FloatingChartWindow, { ChartWindowState } from "./FloatingChartWindow";
 
 const WINDOWS_STORAGE_KEY = "invester_chart_windows_v1";
@@ -32,13 +33,14 @@ const INITIAL_POSITIONS = [
 
 export type OpenChartFn = (symbol: string) => void;
 
-interface ManagerReturn {
+interface ChartManagerContextType {
   windows: ChartWindowState[];
   openChart: OpenChartFn;
   closeChart: (id: string) => void;
-  ManagerUI: React.ReactNode;
   hasWindows: boolean;
 }
+
+const ChartManagerContext = createContext<ChartManagerContextType | null>(null);
 
 // ── Stable container_id mapping: symbol → container DOM id ──────────────────
 //  We use a symbol-keyed map so that even after reload, the same symbol
@@ -55,13 +57,14 @@ function getContainerId(symbol: string): string {
   return symbolToContainerId.get(key)!;
 }
 
-export function useChartManager(): ManagerReturn {
+export function ChartManagerProvider({ children }: { children: ReactNode }) {
   const [windows, setWindows] = useState<ChartWindowState[]>([]);
   const [maxZ, setMaxZ] = useState(100);
   // Set of window IDs that are allowed to render their iframe
   // (staggered unlock to prevent CDN flooding)
   const [readyIds, setReadyIds] = useState<Set<string>>(new Set());
   const isLoadedRef = useRef(false);
+  const pathname = usePathname();
 
   // ── Load from localStorage on mount ──────────────────────────────────────
   useEffect(() => {
@@ -74,8 +77,13 @@ export function useChartManager(): ManagerReturn {
           const zs = parsed.map((w) => w.zIndex ?? 100);
           setMaxZ(Math.max(...zs, 100));
 
-          // Stagger-unlock iframes one by one so CDN isn't hit all at once
-          parsed.forEach((w, i) => {
+          // Stagger-unlock iframes one by one so CDN isn't hit all at once.
+          // Prioritize active (non-closed) windows so they load first.
+          const active = parsed.filter((w) => !w.closed);
+          const closed = parsed.filter((w) => w.closed);
+          const sorted = [...active, ...closed];
+
+          sorted.forEach((w, i) => {
             setTimeout(() => {
               setReadyIds((prev) => new Set([...prev, w.id]));
             }, i * IFRAME_STAGGER_MS);
@@ -103,7 +111,7 @@ export function useChartManager(): ManagerReturn {
   const openChart = useCallback(
     (symbol: string) => {
       setWindows((prev) => {
-        // If already open → focus & un-minimize
+        // If already open (including closed/hidden) → focus, un-minimize, and un-close
         const existing = prev.find(
           (w) => w.symbol.toUpperCase() === symbol.toUpperCase()
         );
@@ -111,7 +119,9 @@ export function useChartManager(): ManagerReturn {
           const newZ = maxZ + 1;
           setMaxZ(newZ);
           return prev.map((w) =>
-            w.id === existing.id ? { ...w, zIndex: newZ, minimized: false } : w
+            w.id === existing.id
+              ? { ...w, zIndex: newZ, minimized: false, closed: false }
+              : w
           );
         }
 
@@ -131,6 +141,7 @@ export function useChartManager(): ManagerReturn {
           height: 420,
           zIndex: newZ,
           minimized: false,
+          closed: false,
         };
 
         // New window is immediately ready (not a restore batch)
@@ -144,12 +155,9 @@ export function useChartManager(): ManagerReturn {
 
   // ── Close ─────────────────────────────────────────────────────────────────
   const closeChart = useCallback((id: string) => {
-    setWindows((prev) => prev.filter((w) => w.id !== id));
-    setReadyIds((prev) => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
+    setWindows((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, closed: true } : w))
+    );
   }, []);
 
   // ── Focus ─────────────────────────────────────────────────────────────────
@@ -184,22 +192,28 @@ export function useChartManager(): ManagerReturn {
     const cellW = Math.floor(availW / layout.cols);
     const cellH = Math.floor(availH / layout.rows);
 
-    setWindows((prev) =>
-      prev.map((w, i) => ({
-        ...w,
-        x: (i % layout.cols) * cellW,
-        y: Math.floor(i / layout.cols) * cellH,
-        width: cellW - 4,
-        height: cellH - 4,
-        minimized: false,
-        zIndex: 100 + i,
-      }))
-    );
+    setWindows((prev) => {
+      const active = prev.filter((w) => !w.closed);
+      let activeIdx = 0;
+      return prev.map((w) => {
+        if (w.closed) return w;
+        const res = {
+          ...w,
+          x: (activeIdx % layout.cols) * cellW,
+          y: Math.floor(activeIdx / layout.cols) * cellH,
+          width: cellW - 4,
+          height: cellH - 4,
+          minimized: false,
+          zIndex: 100 + activeIdx,
+        };
+        activeIdx++;
+        return res;
+      });
+    });
   }, []);
 
   const closeAll = useCallback(() => {
-    setWindows([]);
-    setReadyIds(new Set());
+    setWindows((prev) => prev.map((w) => ({ ...w, closed: true })));
   }, []);
 
   // ── Toolbar & windows UI (memoized to avoid waterfall re-renders) ─────────
@@ -207,7 +221,7 @@ export function useChartManager(): ManagerReturn {
     () => (
       <>
         {/* Control toolbar */}
-        {windows.length > 0 && (
+        {windows.some((w) => !w.closed) && (
           <div
             style={{
               position: "absolute",
@@ -286,22 +300,29 @@ export function useChartManager(): ManagerReturn {
                 fontFamily: "monospace",
               }}
             >
-              {windows.length} OPEN
+              {windows.filter((w) => !w.closed).length} OPEN
             </span>
 
-            {/* Loading indicator: show queued count */}
-            {readyIds.size < windows.length && (
-              <span
-                style={{
-                  color: "#fbbf24",
-                  fontSize: 8,
-                  fontFamily: "monospace",
-                  animation: "pixelBlink 1s step-end infinite",
-                }}
-              >
-                ⏳ {windows.length - readyIds.size} LOADING…
-              </span>
-            )}
+            {/* Loading indicator: show queued count of active windows */}
+            {(() => {
+              const activeCount = windows.filter((w) => !w.closed).length;
+              const activeReadyCount = windows.filter((w) => !w.closed && readyIds.has(w.id)).length;
+              if (activeReadyCount < activeCount) {
+                return (
+                  <span
+                    style={{
+                      color: "#fbbf24",
+                      fontSize: 8,
+                      fontFamily: "monospace",
+                      animation: "pixelBlink 1s step-end infinite",
+                    }}
+                  >
+                    ⏳ {activeCount - activeReadyCount} LOADING…
+                  </span>
+                );
+              }
+              return null;
+            })()}
           </div>
         )}
 
@@ -323,11 +344,44 @@ export function useChartManager(): ManagerReturn {
     [windows, readyIds, tileWindows, closeAll, closeChart, focusChart, updateChart]
   );
 
-  return {
-    windows,
-    openChart,
-    closeChart,
-    ManagerUI,
-    hasWindows: windows.length > 0,
-  };
+  const isChartsPage = pathname === "/charts";
+
+  return (
+    <ChartManagerContext.Provider
+      value={{
+        windows: windows.filter((w) => !w.closed),
+        openChart,
+        closeChart,
+        hasWindows: windows.some((w) => !w.closed),
+      }}
+    >
+      {children}
+      <div
+        style={{
+          position: "fixed",
+          top: 48,
+          bottom: 28,
+          left: 0,
+          right: 0,
+          zIndex: isChartsPage ? 999 : -1,
+          pointerEvents: isChartsPage ? "auto" : "none",
+          visibility: isChartsPage ? "visible" : "hidden",
+          opacity: isChartsPage ? 1 : 0,
+          transition: "opacity 0.2s ease, visibility 0.2s ease",
+        }}
+      >
+        <div style={{ pointerEvents: isChartsPage ? "auto" : "none", width: "100%", height: "100%", position: "relative" }}>
+          {ManagerUI}
+        </div>
+      </div>
+    </ChartManagerContext.Provider>
+  );
+}
+
+export function useChartManager() {
+  const context = useContext(ChartManagerContext);
+  if (!context) {
+    throw new Error("useChartManager must be used within ChartManagerProvider");
+  }
+  return context;
 }

@@ -17,6 +17,7 @@ export interface ChartWindowState {
   height: number;
   zIndex: number;
   minimized: boolean;
+  closed?: boolean;
 }
 
 interface Props {
@@ -259,6 +260,10 @@ export default function FloatingChartWindow({
         height: win.minimized ? 44 : win.height,
         zIndex: win.zIndex,
         display: "flex",
+        visibility: win.closed ? "hidden" : "visible",
+        opacity: win.closed ? 0 : 1,
+        pointerEvents: win.closed ? "none" : "auto",
+        transform: win.closed ? "scale(0.8)" : "scale(1)",
         flexDirection: "column",
         background: "#060d1a",
         border: `2px solid ${titleColor}40`,
@@ -348,15 +353,21 @@ export default function FloatingChartWindow({
       </div>
 
       {/* ── Chart Body ───────────────────────────────────────────────────── */}
-      {!win.minimized && (
-        <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-          <MemoizedChart
-            symbol={tvSymbol}
-            containerId={containerId}
-            iframeReady={iframeReady}
-          />
-        </div>
-      )}
+      <div
+        style={{
+          flex: 1,
+          position: "relative",
+          overflow: "hidden",
+          visibility: win.minimized ? "hidden" : "visible",
+          opacity: win.minimized ? 0 : 1,
+        }}
+      >
+        <MemoizedChart
+          symbol={tvSymbol}
+          containerId={containerId}
+          iframeReady={iframeReady}
+        />
+      </div>
 
       {/* ── Resize Handle ────────────────────────────────────────────────── */}
       {!win.minimized && !isMaximized && (

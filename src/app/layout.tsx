@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   keywords: ["investing", "news", "AI", "Gemini", "finance", "market analysis"],
 };
 
+import { ChartManagerProvider } from "@/components/FloatingChartManager";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,7 +39,7 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-slate-950">
         <GlobalErrorHandler />
-        {children}
+        <ChartManagerProvider>{children}</ChartManagerProvider>
       </body>
     </html>
   );

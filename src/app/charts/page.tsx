@@ -45,7 +45,7 @@ function LiveClock() {
 function ChartsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { openChart, ManagerUI, hasWindows, windows } = useChartManager();
+  const { openChart, hasWindows, windows } = useChartManager();
 
   // Auto-open symbols from ?open= query param on mount
   useEffect(() => {
@@ -277,8 +277,7 @@ function ChartsInner() {
           }}
         />
 
-        {/* Floating chart windows + control toolbar */}
-        {ManagerUI}
+        {/* Floating chart windows + control toolbar are rendered globally by ChartManagerProvider */}
       </main>
 
       {/* ── FOOTER TICKER ── */}
