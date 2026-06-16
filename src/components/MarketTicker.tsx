@@ -3,7 +3,17 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 
-const fetcher = (url: string) => fetch(url).then(r => r.json());
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error("Failed to fetch market data");
+  }
+  const data = await res.json();
+  if (data && data.error) {
+    throw new Error(data.error);
+  }
+  return data;
+};
 
 interface Quote {
   symbol: string;
@@ -18,6 +28,7 @@ export default function MarketTicker() {
   });
 
   const isLoading = !quotes && !error;
+  const isArray = Array.isArray(quotes);
 
   return (
     <div className="w-full bg-[#030810] border-b border-[#1e3a5f] text-sm overflow-hidden h-8 flex items-center relative shadow-md">
@@ -25,7 +36,7 @@ export default function MarketTicker() {
       
       {isLoading ? (
         <div className="text-[#60a5fa] px-4 font-mono">LOADING MARKET DATA...</div>
-      ) : error ? (
+      ) : error || !isArray ? (
         <div className="text-red-500 px-4 font-mono">OFFLINE</div>
       ) : (
         <div 
@@ -33,7 +44,7 @@ export default function MarketTicker() {
           style={{ animation: "tickerScroll 40s linear infinite" }}
         >
           {/* Double the list for seamless looping */}
-          {[...(quotes || []), ...(quotes || [])].map((q, i) => {
+          {[...quotes, ...quotes].map((q, i) => {
             const isUp = q.change >= 0;
             return (
               <div key={`${q.symbol}-${i}`} className="inline-flex items-center px-6 font-mono">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, Share_Tech_Mono } from "next/font/google";
 import "./globals.css";
+import GlobalErrorHandler from "../components/GlobalErrorHandler";
 
 // Pixel art game font
 const pressStart = Press_Start_2P({
@@ -34,7 +35,10 @@ export default function RootLayout({
       lang="th"
       className={`${pressStart.variable} ${shareTechMono.variable} h-full`}
     >
-      <body className="min-h-full bg-slate-950">{children}</body>
+      <body className="min-h-full bg-slate-950">
+        <GlobalErrorHandler />
+        {children}
+      </body>
     </html>
   );
 }

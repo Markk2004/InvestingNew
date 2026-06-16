@@ -67,6 +67,16 @@ export const PIXELTRADE_AGENTS: Agent[] = [
     status: "working",
     personality: "COO & Operations Lead",
   },
+  {
+    id: "techie",
+    name: "Techie",
+    department_id: "executive",
+    role: "senior",
+    avatar_emoji: "🛠️",
+    sprite_number: 5,
+    status: "idle",
+    personality: "QA & SysAdmin — System health check expert",
+  },
 ];
 
 export type Task = any;

@@ -12,6 +12,7 @@ import CharacterTab from "@/components/CharacterTab";
 
 type Tab = "office" | "character";
 
+
 // ── Pixel Company Logo (inline SVG) ───────────────────────────────────────────
 
 function CompanyLogo() {
@@ -82,7 +83,7 @@ function LiveClock() {
 // ── Tab Button ─────────────────────────────────────────────────────────────────
 
 interface TabButtonProps {
-  id: Tab | "news";
+  id: Tab | "news" | "charts";
   label: string;
   emoji: string;
   active: boolean;
@@ -193,6 +194,7 @@ export default function GameShell() {
     mxrk: 1,
     gemini: 2,
     newinvester: 3,
+    techie: 5,
   });
 
   return (

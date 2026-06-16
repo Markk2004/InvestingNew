@@ -137,7 +137,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
 
   const [unreadAgentIds, setUnreadAgentIds] = useState<Set<string>>(new Set());
 
-  // Check for pending news to trigger the NEW! emotion box on Gemini
+  // 1. Check for pending news to trigger the NEW! emotion box on Gemini
   useEffect(() => {
     const checkNews = () => {
       fetch("/api/news")
@@ -153,6 +153,21 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
     };
     checkNews();
     const iv = setInterval(checkNews, 15000); // Poll every 15s (only hits DB cache via backend)
+    return () => clearInterval(iv);
+  }, []);
+
+  // 2. Background Poller to process news automatically (Replaces Laravel Cron Job)
+  useEffect(() => {
+    const processNewsBg = () => {
+      console.log("[Background Poller] Triggering news fetch and analysis...");
+      fetch("/api/news?force=true", { cache: "no-store" })
+        .then(res => res.json())
+        .then(data => console.log("[Background Poller] Completed:", data?.articles?.length || 0, "analyzed"))
+        .catch((e) => console.error("[Background Poller] Failed:", e));
+    };
+    
+    // Run every 5 minutes (300,000 ms)
+    const iv = setInterval(processNewsBg, 5 * 60 * 1000);
     return () => clearInterval(iv);
   }, []);
 

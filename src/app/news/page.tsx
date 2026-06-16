@@ -45,14 +45,17 @@ export default function NewsDashboardPage() {
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
-    setFormattedDate(
-      new Date().toLocaleDateString("th-TH", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    );
+    const timer = setTimeout(() => {
+      setFormattedDate(
+        new Date().toLocaleDateString("th-TH", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      );
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
   const {
     data,
@@ -63,18 +66,30 @@ export default function NewsDashboardPage() {
   } = useSWR<NewsApiResponse>(`/api/news?page=${page}`, fetcher, SWR_CONFIG);
 
   const showToast = useCallback((message: string, type: ToastType = "success") => {
-    const id = Date.now();
+    const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
   }, []);
 
   // Show toast if background fetch hits token limit
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (data?.error && data.error.includes("TOKEN_LIMIT_REACHED")) {
-      showToast("⚠️ Token ถึง limit แล้ว — ไม่สามารถดึงข่าวใหม่ได้ทั้งหมดในขณะนี้", "warning");
+      timer = setTimeout(() => {
+        showToast("⚠️ Token ถึง limit แล้ว — ไม่สามารถดึงข่าวใหม่ได้ทั้งหมดในขณะนี้", "warning");
+      }, 0);
+    } else if (data?.error && data.error.includes("INSUFFICIENT_BALANCE")) {
+      timer = setTimeout(() => {
+        showToast("❌ ยอดเงินในบัญชี DeepSeek ของคุณไม่เพียงพอ (Insufficient Balance)", "error");
+      }, 0);
     } else if (data?.error && data.error.includes("INVALID_API_KEY")) {
-      showToast("❌ API Key ของ Gemini ไม่ถูกต้องหรือหมดอายุ", "error");
+      timer = setTimeout(() => {
+        showToast("❌ API Key ของ DeepSeek ไม่ถูกต้องหรือหมดอายุ", "error");
+      }, 0);
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [data?.error, showToast]);
 
   const handleRefresh = async () => {
@@ -90,8 +105,10 @@ export default function NewsDashboardPage() {
       // Check if API indicates token limit reached
       if (result?.error && result.error.includes("TOKEN_LIMIT_REACHED")) {
         showToast("⚠️ Token ถึง limit แล้ว — ไม่สามารถดึงข่าวใหม่ได้ทั้งหมดในขณะนี้", "warning");
+      } else if (result?.error && result.error.includes("INSUFFICIENT_BALANCE")) {
+        showToast("❌ ยอดเงินในบัญชี DeepSeek ของคุณไม่เพียงพอ (Insufficient Balance)", "error");
       } else if (result?.error && result.error.includes("INVALID_API_KEY")) {
-        showToast("❌ API Key ของ Gemini ไม่ถูกต้องหรือหมดอายุ", "error");
+        showToast("❌ API Key ของ DeepSeek ไม่ถูกต้องหรือหมดอายุ", "error");
       } else {
         const count = result?.articles?.length ?? 0;
         const pending = result?.pendingArticles?.length ?? 0;
@@ -104,6 +121,15 @@ export default function NewsDashboardPage() {
       setIsRefreshing(false);
     }
   };
+
+  // Automatically trigger scan and analysis on mount (when entering the tab)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleRefresh();
+    }, 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const hasError = !!error || (data?.error != null && data.articles.length === 0);
   const errorMessage = error?.message ?? data?.error;
@@ -351,9 +377,9 @@ export default function NewsDashboardPage() {
                   </span>
                 </div>
                 <div className="flex flex-col gap-2">
-                  {data.pendingArticles.map((article) => (
+                  {data.pendingArticles.map((article, index) => (
                     <a
-                      key={article.id}
+                      key={`${article.id}-${index}`}
                       href={article.link}
                       target="_blank"
                       rel="noopener noreferrer"

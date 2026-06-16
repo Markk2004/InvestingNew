@@ -35,7 +35,7 @@ export default function NewsGrid({ articles }: NewsGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {articles.map((article, index) => (
-        <NewsCard key={article.id} article={article} index={index} />
+        <NewsCard key={`${article.id}-${index}`} article={article} index={index} />
       ))}
     </div>
   );
