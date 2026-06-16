@@ -224,7 +224,7 @@ export default function SectorPerformancePanel() {
             <span style={{ fontSize: 18 }}>🏆</span>
             <div>
               <div style={{ color: "#fbbf24", fontFamily: "monospace", fontSize: 12, fontWeight: "bold", letterSpacing: 1.5 }}>
-                SECTOR PERFORMANCE TIERLIST
+                SECTOR PERFORMANCE RANKING
               </div>
               <div style={{ color: "#1e3a5f", fontFamily: "monospace", fontSize: 9 }}>
                 11 GICS SECTORS · ESTIMATED MONEY FLOWS
@@ -263,31 +263,25 @@ export default function SectorPerformancePanel() {
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = stat.color)}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#0d2040")}
             >
-              {/* Rank Index */}
-              <div style={{ color: "#1e3a5f", fontSize: 11, fontFamily: "monospace", width: 16 }}>
-                {String(index + 1).padStart(2, "0")}
-              </div>
-
-              {/* Tier Badge */}
+              {/* Rank Badge (1 to Last) */}
               <div
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 2,
-                  background: `${tierColor}15`,
-                  border: `2px dashed ${tierColor}`,
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: isPositive ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+                  border: `1px solid ${isPositive ? "#22c55e" : "#ef4444"}40`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: tierColor,
+                  color: isPositive ? "#22c55e" : "#ef4444",
                   fontFamily: "monospace",
-                  fontSize: 16,
+                  fontSize: 11,
                   fontWeight: "bold",
-                  textShadow: `0 0 4px ${tierColor}50`,
                   flexShrink: 0,
                 }}
               >
-                {stat.tier}
+                {index + 1}
               </div>
 
               {/* Sector Name & Description */}
