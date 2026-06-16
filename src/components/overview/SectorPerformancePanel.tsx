@@ -242,9 +242,13 @@ export default function SectorPerformancePanel() {
       {/* Tierlist Content */}
       <div style={{ flex: 1, overflowY: "auto", padding: "8px 12px" }}>
         {sectorStats.map((stat, index) => {
-          const tierColor = getTierColor(stat.tier);
-          const isPositive = stat.avgChange >= 0;
-          const flowColor = isPositive ? "#22c55e" : "#ef4444";
+          const isFlat = Math.abs(stat.avgChange) < 0.01;
+          const isUp = stat.avgChange >= 0.01;
+          const isDown = stat.avgChange <= -0.01;
+
+          const arrow = isUp ? "▲" : isDown ? "▼" : "■";
+          const arrowColor = isUp ? "#22c55e" : isDown ? "#ef4444" : "#94a3b8";
+          const flowText = isUp ? "INFLOW" : isDown ? "OUTFLOW" : "STABLE";
 
           return (
             <div
@@ -269,12 +273,16 @@ export default function SectorPerformancePanel() {
                   width: 24,
                   height: 24,
                   borderRadius: "50%",
-                  background: isPositive ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-                  border: `1px solid ${isPositive ? "#22c55e" : "#ef4444"}40`,
+                  background: isUp 
+                    ? "rgba(34,197,94,0.08)" 
+                    : isDown 
+                    ? "rgba(239,68,68,0.08)" 
+                    : "rgba(148,163,184,0.08)",
+                  border: `1px solid ${isUp ? "#22c55e" : isDown ? "#ef4444" : "#94a3b8"}40`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: isPositive ? "#22c55e" : "#ef4444",
+                  color: isUp ? "#22c55e" : isDown ? "#ef4444" : "#94a3b8",
                   fontFamily: "monospace",
                   fontSize: 11,
                   fontWeight: "bold",
@@ -322,31 +330,36 @@ export default function SectorPerformancePanel() {
               <div style={{ textAlign: "right", flexShrink: 0 }}>
                 <div
                   style={{
-                    color: isPositive ? "#22c55e" : "#ef4444",
+                    color: arrowColor,
                     fontSize: 12,
                     fontFamily: "monospace",
                     fontWeight: "bold",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: 4,
                   }}
                 >
-                  {isPositive ? "+" : ""}
-                  {stat.avgChange.toFixed(2)}%
+                  <span>{arrow}</span>
+                  <span>
+                    {isUp ? "+" : ""}
+                    {stat.avgChange.toFixed(2)}%
+                  </span>
                 </div>
                 <div
                   style={{
-                    color: flowColor,
+                    color: arrowColor,
                     fontSize: 8,
                     fontFamily: "monospace",
                     marginTop: 2,
-                    background: `${flowColor}08`,
-                    border: `1px solid ${flowColor}20`,
+                    background: `${arrowColor}08`,
+                    border: `1px solid ${arrowColor}20`,
                     padding: "1px 4px",
                     borderRadius: 1,
                     display: "inline-block",
                   }}
                 >
-                  {isPositive ? "▲" : "▼"}{" "}
-                  {isPositive ? "INFLOW" : "OUTFLOW"}{" "}
-                  ${Math.abs(stat.moneyFlow).toFixed(1)}M
+                  {flowText} ${Math.abs(stat.moneyFlow).toFixed(1)}M
                 </div>
               </div>
             </div>
