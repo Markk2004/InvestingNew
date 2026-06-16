@@ -22,6 +22,7 @@ interface SectorStat {
   moneyFlow: number; // In millions
   tier: "S" | "A" | "B" | "C" | "D";
   color: string;
+  stocks: Array<{ symbol: string; changePercent: number }>;
 }
 
 const SECTOR_METADATA: Record<
@@ -167,6 +168,18 @@ export default function SectorPerformancePanel() {
       else if (avg >= -1.0) tier = "C";
       else tier = "D";
 
+      // Filter and sort the top 4 stocks in this sector by performance
+      const topStocks = US_STOCKS.filter((s) => s.sector === secName)
+        .map((stock) => {
+          const q = quotes[stock.symbol];
+          return {
+            symbol: stock.symbol,
+            changePercent: q ? q.changePercent : 0,
+          };
+        })
+        .sort((a, b) => b.changePercent - a.changePercent)
+        .slice(0, 4);
+
       stats.push({
         name: secName,
         thaiName: meta.thaiName,
@@ -175,6 +188,7 @@ export default function SectorPerformancePanel() {
         moneyFlow: flow,
         tier,
         color: meta.color,
+        stocks: topStocks,
       });
     });
 
@@ -323,6 +337,31 @@ export default function SectorPerformancePanel() {
                   title={stat.description}
                 >
                   {stat.description}
+                </div>
+
+                {/* Stock performance pills (Top 4) */}
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4 }}>
+                  {stat.stocks.map((stk) => {
+                    const isStkUp = stk.changePercent >= 0;
+                    const c = isStkUp ? "#22c55e" : "#ef4444";
+                    return (
+                      <span
+                        key={stk.symbol}
+                        style={{
+                          fontSize: 7,
+                          fontFamily: "monospace",
+                          background: `${c}08`,
+                          border: `1px solid ${c}20`,
+                          color: c,
+                          padding: "1px 4px",
+                          borderRadius: 2,
+                          display: "inline-block",
+                        }}
+                      >
+                        {stk.symbol} {isStkUp ? "+" : ""}{stk.changePercent.toFixed(1)}%
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
