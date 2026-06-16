@@ -43,7 +43,7 @@ export function useMeetingPresenceSync({
     const activeByAgent = new Map(rows.map((row) => [row.agent_id, row]));
 
     for (const row of rows) {
-      const seat = seats[row.seat_index % seats.length];
+      const seat = seats[(row.seat_index ?? 0) % seats.length];
       if (!seat) continue;
       const decision = resolveMeetingDecision(row.phase, row.decision);
 
@@ -363,7 +363,7 @@ export function useCeoOfficeCallAnimations({
         trackProcessedId(processedCeoOfficeRef.current, call.id);
         const line = pickLine(call);
         const decision = resolveMeetingDecision(call.phase, call.decision, line);
-        renderSpeechBubble(seat.x, seat.y, call.phase, line);
+        renderSpeechBubble(seat.x, seat.y, call.phase ?? "kickoff", line);
         if (call.phase === "review") {
           const attendee = deliveriesRef.current.find((delivery) => {
             return delivery.agentId === call.fromAgentId && delivery.holdAtSeat && !delivery.sprite.destroyed;

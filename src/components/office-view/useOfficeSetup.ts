@@ -11,9 +11,16 @@ interface UseOfficeSetupParams {
   agents: Agent[];
   tasks: Task[];
   subAgents: SubAgent[];
+  unreadAgentIds?: Set<string>;
 }
 
-export function useOfficeSetup({ departments, agents, tasks, subAgents }: UseOfficeSetupParams) {
+export function useOfficeSetup({
+  departments,
+  agents,
+  tasks,
+  subAgents,
+  unreadAgentIds
+}: UseOfficeSetupParams) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const texturesRef = useRef<Record<string, Texture>>({});
@@ -35,15 +42,15 @@ export function useOfficeSetup({ departments, agents, tasks, subAgents }: UseOff
     agents,
     tasks,
     subAgents,
-    unreadAgentIds: new Set(),
+    unreadAgentIds: unreadAgentIds ?? new Set(),
     meetingPresence: [],
   });
-  dataRef.current = { departments, agents, tasks, subAgents };
+  dataRef.current = { departments, agents, tasks, subAgents, unreadAgentIds };
 
   const [sceneRevision, setSceneRevision] = useState(0);
 
   const activeMeetingTaskIdRef = useRef<string | null>(null);
-  const meetingMinutesOpenRef = useRef<((taskId: string) => void) | undefined>();
+  const meetingMinutesOpenRef = useRef<((taskId: string) => void) | undefined>(undefined);
   const localeRef = useRef<"en" | "th" | "zh" | "ja" | "ko">("en");
   const themeRef = useRef<"light" | "dark">("dark");
 

@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import OfficeTab from "@/components/OfficeTab";
 import CharacterTab from "@/components/CharacterTab";
+import { useWatchlist } from "@/lib/useWatchlist";
 
 type Tab = "office" | "character";
 
@@ -83,7 +84,7 @@ function LiveClock() {
 // ── Tab Button ─────────────────────────────────────────────────────────────────
 
 interface TabButtonProps {
-  id: Tab | "news" | "charts";
+  id: Tab | "news" | "charts" | "overview" | "watchlist";
   label: string;
   emoji: string;
   active: boolean;
@@ -152,14 +153,60 @@ function TabButton({ label, emoji, active, onClick, glowColor = "#4fc3f7" }: Tab
 
 // ── Ticker Tape ────────────────────────────────────────────────────────────────
 
-const TICKERS = [
-  "AAPL ▲+1.2%", "NVDA ▲+2.1%", "MSFT ▲+0.9%", "GOOG ▼-0.4%",
-  "TSLA ▼-1.8%", "META ▲+0.5%", "AMD  ▲+1.3%", "INTC ▼-0.7%",
-  "PLTR ▲+3.2%", "COIN ▲+2.8%", "TSM  ▲+0.6%", "AMZN ▼-0.2%",
+// ── Ticker Tape ────────────────────────────────────────────────────────────────
+
+interface TickerData {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+}
+
+const DEFAULT_TICKERS: TickerData[] = [
+  { symbol: "AAPL", price: 180.25, change: 2.15, changePercent: 1.2 },
+  { symbol: "NVDA", price: 875.12, change: 18.02, changePercent: 2.1 },
+  { symbol: "MSFT", price: 421.90, change: 3.76, changePercent: 0.9 },
+  { symbol: "GOOG", price: 151.60, change: -0.61, changePercent: -0.4 },
+  { symbol: "TSLA", price: 171.05, change: -3.13, changePercent: -1.8 },
+  { symbol: "META", price: 505.35, change: 2.51, changePercent: 0.5 },
+  { symbol: "AMD", price: 178.50, change: 2.30, changePercent: 1.3 },
+  { symbol: "INTC", price: 34.20, change: -0.24, changePercent: -0.7 },
+  { symbol: "PLTR", price: 23.40, change: 0.73, changePercent: 3.2 },
+  { symbol: "COIN", price: 248.50, change: 6.76, changePercent: 2.8 },
+  { symbol: "TSM", price: 141.20, change: 0.84, changePercent: 0.6 },
+  { symbol: "AMZN", price: 174.80, change: -0.35, changePercent: -0.2 },
 ];
 
 function TickerTape() {
-  const text = TICKERS.join("  ·  ") + "  ·  " + TICKERS.join("  ·  ");
+  const [tickers, setTickers] = useState<TickerData[]>(DEFAULT_TICKERS);
+
+  useEffect(() => {
+    let active = true;
+    const fetchTickers = async () => {
+      try {
+        const symbols = DEFAULT_TICKERS.map(t => t.symbol).join(",");
+        const res = await fetch(`/api/ticker?symbols=${symbols}`);
+        if (!res.ok) throw new Error("HTTP error");
+        const data = await res.json();
+        if (active && Array.isArray(data) && data.length > 0) {
+          setTickers(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch tickers in GameShell:", err);
+      }
+    };
+
+    fetchTickers();
+    const interval = setInterval(fetchTickers, 60000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Double the tickers array for seamless looping scrolling
+  const displayTickers = [...tickers, ...tickers];
+
   return (
     <div
       style={{
@@ -167,21 +214,92 @@ function TickerTape() {
         flex: 1,
         position: "relative",
         mask: "linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)",
+        WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)",
       }}
     >
       <div
         style={{
           whiteSpace: "nowrap",
           animation: "tickerScroll 40s linear infinite",
-          color: "#3b82f6",
           fontSize: 8,
           fontFamily: "monospace",
           display: "inline-block",
         }}
       >
-        {text}
+        {displayTickers.map((t, idx) => {
+          const isUp = t.changePercent >= 0;
+          const color = isUp ? "#22c55e" : "#ef4444"; // Green or Red
+          const sign = isUp ? "▲" : "▼";
+          const pct = Math.abs(t.changePercent).toFixed(1);
+          return (
+            <span key={idx} style={{ marginRight: 24, display: "inline-flex", alignItems: "center" }}>
+              <span style={{ color: "#cce0ff", fontWeight: "bold", marginRight: 4 }}>{t.symbol}</span>
+              <span style={{ color: "#94a3b8", marginRight: 6 }}>{t.price ? t.price.toFixed(2) : "0.00"}</span>
+              <span style={{ color, display: "inline-flex", alignItems: "center" }}>
+                <span style={{ fontSize: 7, marginRight: 2 }}>{sign}</span>
+                <span>{pct}%</span>
+              </span>
+            </span>
+          );
+        })}
       </div>
     </div>
+  );
+}
+
+// ── Watchlist Tab Button (with live count badge) ───────────────────────────────
+
+function WatchlistTabButton() {
+  const router = useRouter();
+  const { items } = useWatchlist();
+  const glowColor = "#fbbf24";
+  return (
+    <button
+      onClick={() => router.push("/watchlist")}
+      style={{
+        background: "transparent",
+        border: `2px solid #1e2a3a`,
+        color: "#475569",
+        fontSize: 9,
+        padding: "6px 14px",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        fontFamily: "monospace",
+        letterSpacing: 1,
+        transition: "all 0.15s ease",
+        position: "relative",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.borderColor = `${glowColor}80`;
+        (e.currentTarget as HTMLButtonElement).style.color = `${glowColor}cc`;
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.borderColor = "#1e2a3a";
+        (e.currentTarget as HTMLButtonElement).style.color = "#475569";
+      }}
+    >
+      <span style={{ fontSize: 13 }}>⭐</span>
+      <span>Watchlist</span>
+      {items.length > 0 && (
+        <span
+          style={{
+            background: glowColor,
+            color: "#030810",
+            fontSize: 7,
+            fontWeight: "bold",
+            padding: "1px 5px",
+            borderRadius: 8,
+            lineHeight: 1.4,
+            minWidth: 16,
+            textAlign: "center",
+          }}
+        >
+          {items.length}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -275,6 +393,15 @@ export default function GameShell() {
             onClick={() => router.push("/charts")}
             glowColor="#f43f5e"
           />
+          <TabButton
+            id="overview"
+            emoji="📈"
+            label="Overview"
+            active={false}
+            onClick={() => router.push("/overview")}
+            glowColor="#4fc3f7"
+          />
+          <WatchlistTabButton />
         </nav>
 
         {/* Divider */}

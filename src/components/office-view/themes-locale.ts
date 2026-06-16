@@ -1,7 +1,8 @@
 import { type Graphics, type Text, TextStyle } from "pixi.js";
-import type { UiLanguage } from "../../i18n";
 import type { MeetingReviewDecision } from "@/lib/agents";
 import type { RoomTheme } from "./model";
+
+export type UiLanguage = "ko" | "en" | "ja" | "zh" | "th";
 
 const OFFICE_PASTEL_LIGHT = {
   creamWhite: 0xf8f3ec,
@@ -240,6 +241,24 @@ const LOCALE_TEXT = {
 };
 
 const BREAK_CHAT_MESSAGES: Record<SupportedLocale, string[]> = {
+  th: [
+    "ขอกาแฟอีกแก้ว~",
+    "วันนี้กินอะไรดีตอนเที่ยง?",
+    "ง่วงจัง...",
+    "เสาร์อาทิตย์นี้มีแผนไปไหนไหม?",
+    "โปรเจกต์นี้หินมาก 555",
+    "ลาเต้ร้อนดีที่สุด!",
+    "วันนี้อากาศดีจัง~",
+    "เกลียดโอทีจัง...",
+    "อยากกินอะไรอร่อยๆ",
+    "พักสักแป๊บเถอะ~",
+    "5555",
+    "ขนมมาแล้ว!",
+    "ขออีก 5 นาทีนะ~",
+    "สู้ๆ ลุยเลย!",
+    "กำลังชาร์จพลัง...",
+    "อยากกลับบ้านแล้ว~",
+  ],
   ko: [
     "커피 한 잔 더~",
     "오늘 점심 뭐 먹지?",
@@ -314,8 +333,11 @@ const BREAK_CHAT_MESSAGES: Record<SupportedLocale, string[]> = {
   ],
 };
 
-function pickLocale<T>(locale: SupportedLocale, map: Record<SupportedLocale, T>): T {
-  return map[locale] ?? map.ko;
+function pickLocale<T>(
+  locale: SupportedLocale,
+  map: Record<"ko" | "en" | "ja" | "zh", T> & Partial<Record<SupportedLocale, T>>
+): T {
+  return (map[locale as keyof typeof map] ?? map.ko) as T;
 }
 
 function inferReviewDecision(line?: string | null): MeetingReviewDecision {
@@ -339,7 +361,7 @@ function inferReviewDecision(line?: string | null): MeetingReviewDecision {
 }
 
 function resolveMeetingDecision(
-  phase: "kickoff" | "review",
+  phase: "kickoff" | "review" | undefined,
   decision?: MeetingReviewDecision | null,
   line?: string,
 ): MeetingReviewDecision | undefined {
@@ -349,7 +371,7 @@ function resolveMeetingDecision(
 
 function getMeetingBadgeStyle(
   locale: SupportedLocale,
-  phase: "kickoff" | "review",
+  phase: "kickoff" | "review" | undefined,
   decision?: MeetingReviewDecision,
 ): { fill: number; stroke: number; text: string } {
   if (phase !== "review") {
@@ -385,7 +407,7 @@ function paintMeetingBadge(
   badge: Graphics,
   badgeText: Text,
   locale: SupportedLocale,
-  phase: "kickoff" | "review",
+  phase: "kickoff" | "review" | undefined,
   decision?: MeetingReviewDecision,
 ): void {
   const style = getMeetingBadgeStyle(locale, phase, decision);

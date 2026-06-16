@@ -2,54 +2,103 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-// Ticker endpoint to fetch real-time data from Yahoo Finance chart endpoint (bypassing public quote blocks)
+interface TickerData {
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+}
+
+interface CacheEntry {
+  data: TickerData;
+  timestamp: number;
+}
+
+// Simple in-memory cache to prevent rate-limiting
+const cache: Record<string, CacheEntry> = {};
+const CACHE_TTL_MS = 60000; // 60 seconds cache TTL
+
+
+
+async function fetchFromYahooBulk(symbols: string[]): Promise<TickerData[]> {
+  if (symbols.length === 0) return [];
+  // Yahoo Spark API supports multiple comma-separated symbols
+  const url = `https://query1.finance.yahoo.com/v8/finance/spark?symbols=${symbols.join(",")}&range=1d&interval=1d`;
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    },
+    next: { revalidate: 60 }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Yahoo Bulk HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const results: TickerData[] = [];
+
+  for (const sym of symbols) {
+    const item = data[sym];
+    if (item && item.close && item.close.length > 0) {
+      const price = item.close[item.close.length - 1];
+      const prevClose = item.previousClose ?? item.chartPreviousClose ?? price;
+      const change = price - prevClose;
+      const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+      results.push({ symbol: sym, price, change, changePercent });
+    }
+  }
+
+  return results;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const symbolsParam = searchParams.get('symbols') || 'AAPL,MSFT,NVDA,SPY,QQQ,TSLA,AMZN';
   const symbols = symbolsParam.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
 
+  const now = Date.now();
+
   try {
-    const results = await Promise.all(
-      symbols.map(async (symbol) => {
+    // 1. Check cache first
+    const uncachedSymbols: string[] = [];
+    const activeResults: TickerData[] = [];
+
+    for (const sym of symbols) {
+      const cached = cache[sym];
+      if (cached && (now - cached.timestamp < CACHE_TTL_MS)) {
+        activeResults.push(cached.data);
+      } else {
+        uncachedSymbols.push(sym);
+      }
+    }
+
+    // 2. Fetch uncached symbols
+    if (uncachedSymbols.length > 0) {
+      // Fast Bulk Yahoo Fetch! (Yahoo Spark API supports max 20 symbols per request)
+      const CHUNK_SIZE = 20;
+      const chunks: string[][] = [];
+      for (let i = 0; i < uncachedSymbols.length; i += CHUNK_SIZE) {
+        chunks.push(uncachedSymbols.slice(i, i + CHUNK_SIZE));
+      }
+
+      const chunkPromises = chunks.map(async (chunk) => {
         try {
-          const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
-          const response = await fetch(url, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            },
-            next: { revalidate: 60 }
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-          const meta = data?.chart?.result?.[0]?.meta;
-          if (!meta) {
-            throw new Error("Invalid structure");
-          }
-
-          const price = meta.regularMarketPrice;
-          const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? price;
-          const change = price - prevClose;
-          const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0;
-
-          return {
-            symbol,
-            price,
-            change,
-            changePercent
-          };
+          return await fetchFromYahooBulk(chunk);
         } catch (err) {
-          console.error(`Error fetching symbol ${symbol} via v8 chart:`, err);
-          return null;
+          console.error(`Yahoo Bulk failed for chunk: ${chunk.join(",")}`, err);
+          return [];
         }
-      })
-    );
+      });
 
-    // Filter out any failed symbols
-    const activeResults = results.filter((r): r is NonNullable<typeof r> => r !== null);
+      const chunkResults = await Promise.all(chunkPromises);
+      for (const bulkRes of chunkResults) {
+        for (const r of bulkRes) {
+          cache[r.symbol] = { data: r, timestamp: now };
+          activeResults.push(r);
+        }
+      }
+    }
 
     if (activeResults.length === 0) {
       throw new Error("All symbols failed to load");

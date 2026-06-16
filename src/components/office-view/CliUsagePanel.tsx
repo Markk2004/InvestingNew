@@ -1,11 +1,23 @@
 import type { ReactNode } from "react";
-import type { CliUsageEntry, CliUsageWindow } from "../../api";
-import type { UiLanguage } from "../../i18n";
-import type { CliStatusMap } from "../../types";
+import type { UiLanguage } from "./themes-locale";
+import type { CliStatusMap } from "@/lib/agents";
+
+export interface CliUsageWindow {
+  label: string;
+  utilization: number;
+  resetsAt?: string;
+}
+
+export interface CliUsageEntry {
+  error?: string;
+  windows: CliUsageWindow[];
+}
 import { formatReset } from "./drawing-furniture-b";
 import { LOCALE_TEXT } from "./themes-locale";
 
-type TFunction = (messages: Record<UiLanguage, string>) => string;
+type TFunction = (
+  messages: Record<"ko" | "en" | "ja" | "zh", string> & Partial<Record<UiLanguage, string>>
+) => string;
 
 interface CliUsagePanelProps {
   cliStatus: CliStatusMap | null;

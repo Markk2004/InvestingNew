@@ -122,14 +122,16 @@ export default function NewsDashboardPage() {
     }
   };
 
-  // Automatically trigger scan and analysis on mount (when entering the tab)
+  const [hasAutoRefreshed, setHasAutoRefreshed] = useState(false);
+
+  // Automatically trigger scan and analysis on mount ONLY if the DB cache is empty
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (data && data.articles && data.articles.length === 0 && !isRefreshing && !hasAutoRefreshed) {
+      setHasAutoRefreshed(true);
       handleRefresh();
-    }, 0);
-    return () => clearTimeout(timer);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [data, isRefreshing, hasAutoRefreshed]);
 
   const hasError = !!error || (data?.error != null && data.articles.length === 0);
   const errorMessage = error?.message ?? data?.error;

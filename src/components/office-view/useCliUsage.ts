@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
-import { getCliStatus, getCliUsage, refreshCliUsage, type CliUsageEntry } from "../../api";
+import type { CliUsageEntry } from "./CliUsagePanel";
+
+const getCliStatus = async (): Promise<any> => null;
+const getCliUsage = async (): Promise<any> => ({ ok: false, usage: null });
+const refreshCliUsage = async (): Promise<any> => ({ ok: false, usage: null });
 import type { Task, CliStatusMap } from "@/lib/agents";
 
 interface UseCliUsageResult {

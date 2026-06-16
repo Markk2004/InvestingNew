@@ -1,6 +1,7 @@
 import type { MutableRefObject } from "react";
 import { Graphics, Text, TextStyle, type AnimatedSprite, type Container, type Sprite } from "pixi.js";
 import type { MeetingPresence } from "@/lib/agents";
+import type { AnimItem, SubCloneAnimItem, BreakAnimItem } from "./buildScene-types";
 import {
   type Delivery,
   type RoomRect,
@@ -21,38 +22,6 @@ import { applyWallClockTime, blendColor } from "./drawing-core";
 import { DEPT_THEME, DEFAULT_BREAK_THEME, DEFAULT_CEO_THEME } from "./themes-locale";
 import { updateBreakRoomAndDeliveryAnimations } from "./officeTickerRoomAndDelivery";
 
-interface AgentAnimItem {
-  sprite: Container;
-  status: string;
-  baseX: number;
-  baseY: number;
-  particles: Container;
-  agentId?: string;
-  cliProvider?: string;
-  deskG?: Graphics;
-  bedG?: Graphics;
-  blanketG?: Graphics;
-}
-
-interface SubCloneAnimItem {
-  container: Container;
-  aura: Graphics;
-  cloneVisual: Sprite;
-  animated?: AnimatedSprite;
-  frameCount: number;
-  baseScale: number;
-  baseX: number;
-  baseY: number;
-  phase: number;
-  fireworkOffset: number;
-}
-
-interface BreakAnimItem {
-  sprite: Container;
-  baseX: number;
-  baseY: number;
-}
-
 interface OfficeTickerData {
   customDeptThemes?: Record<string, { floor1: number; floor2: number; wall: number; accent: number }>;
   meetingPresence?: MeetingPresence[];
@@ -65,7 +34,7 @@ export interface OfficeTickerContext {
   ceoSpriteRef: MutableRefObject<Container | null>;
   crownRef: MutableRefObject<Text | null>;
   highlightRef: MutableRefObject<Graphics | null>;
-  animItemsRef: MutableRefObject<AgentAnimItem[]>;
+  animItemsRef: MutableRefObject<AnimItem[]>;
   cliUsageRef: MutableRefObject<Record<string, { windows?: Array<{ utilization: number }> }> | null>;
   roomRectsRef: MutableRefObject<RoomRect[]>;
   deliveriesRef: MutableRefObject<Delivery[]>;

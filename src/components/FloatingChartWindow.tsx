@@ -6,6 +6,7 @@
 
 import { useRef, useCallback, useState, memo } from "react";
 import { AdvancedRealTimeChart } from "react-ts-tradingview-widgets";
+import { getTradingViewSymbol } from "@/lib/stocks";
 
 export interface ChartWindowState {
   id: string;
@@ -243,8 +244,8 @@ export default function FloatingChartWindow({
   }, [isMaximized, win, onUpdate]);
 
   const titleColor = "#4fc3f7";
-  // Honour explicit exchange prefix (e.g. TVC:GOLD, OANDA:XAUUSD)
-  const tvSymbol = win.symbol.includes(":") ? win.symbol : `NASDAQ:${win.symbol}`;
+  // Resolve correct exchange prefix (e.g. NYSE:JPM or NASDAQ:AAPL)
+  const tvSymbol = getTradingViewSymbol(win.symbol);
 
   return (
     <div

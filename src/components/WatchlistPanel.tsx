@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { MiniChart } from "react-ts-tradingview-widgets";
+import { getTradingViewSymbol } from "@/lib/stocks";
 
 
 interface Props {
@@ -16,7 +17,7 @@ interface Props {
 
 // Mini sparkline using TradingView MiniChart widget
 function StockMiniChart({ symbol }: { symbol: string }) {
-  const tvSymbol = symbol.includes(":") ? symbol : `NASDAQ:${symbol}`;
+  const tvSymbol = getTradingViewSymbol(symbol);
   return (
     <div style={{ width: "100%", height: 60, overflow: "hidden", pointerEvents: "none" }}>
       <MiniChart

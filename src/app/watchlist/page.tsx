@@ -1,16 +1,15 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-//  Charts Page — Floating TradingView Windows Only
-//  Reads ?open=SYMBOL (comma-separated) → auto-opens charts
+//  /watchlist page — User Watchlist Standalone
 // ─────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useChartManager } from "@/components/FloatingChartManager";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import WatchlistStandalonePage from "@/components/watchlist/WatchlistStandalonePage";
 import MarketTicker from "@/components/MarketTicker";
+import { useWatchlist } from "@/lib/useWatchlist";
 
-// ── Live Clock ───────────────────────────────────────────────
 function LiveClock() {
   const [time, setTime] = useState("");
   useEffect(() => {
@@ -34,6 +33,7 @@ function LiveClock() {
         border: "1px solid #1e3a5f",
         padding: "2px 8px",
         letterSpacing: 1,
+        flexShrink: 0,
       }}
     >
       {time}
@@ -41,25 +41,9 @@ function LiveClock() {
   );
 }
 
-// ── Inner page that reads searchParams ────────────────────────
-function ChartsInner() {
+export default function WatchlistPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { openChart, ManagerUI, hasWindows, windows } = useChartManager();
-
-  // Auto-open symbols from ?open= query param on mount
-  useEffect(() => {
-    const openParam = searchParams.get("open");
-    if (!openParam) return;
-    const symbols = openParam
-      .split(",")
-      .map((s) => s.trim().toUpperCase())
-      .filter(Boolean);
-    symbols.forEach((sym) => openChart(sym));
-    // Clean up URL to avoid re-opening on refresh
-    router.replace("/charts", { scroll: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run only on mount
+  const { items } = useWatchlist();
 
   return (
     <div
@@ -74,7 +58,7 @@ function ChartsInner() {
         fontFamily: "monospace",
       }}
     >
-      {/* ── TOP NAV BAR ── */}
+      {/* ── HEADER ── */}
       <header
         style={{
           height: 48,
@@ -102,7 +86,6 @@ function ChartsInner() {
             fontFamily: "monospace",
             letterSpacing: 1,
             flexShrink: 0,
-            transition: "all 0.15s",
           }}
           onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#1e3a5f")}
           onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#0a1f3a")}
@@ -114,21 +97,13 @@ function ChartsInner() {
 
         {/* Title */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 18 }}>📊</span>
+          <span style={{ fontSize: 18 }}>⭐</span>
           <div>
-            <div
-              style={{
-                color: "#f43f5e",
-                fontFamily: "monospace",
-                fontSize: 10,
-                fontWeight: "bold",
-                letterSpacing: 2,
-              }}
-            >
-              DASH TERMINAL
+            <div style={{ color: "#fbbf24", fontFamily: "monospace", fontSize: 10, fontWeight: "bold", letterSpacing: 2 }}>
+              MY WATCHLIST
             </div>
             <div style={{ color: "#1e3a5f", fontSize: 7, letterSpacing: 1 }}>
-              FLOATING CHART WINDOWS
+              USER CURATED · {items.length} SYMBOL{items.length !== 1 ? "S" : ""} TRACKED
             </div>
           </div>
         </div>
@@ -138,7 +113,7 @@ function ChartsInner() {
         {/* Nav links */}
         {[
           { label: "📈 OVERVIEW", href: "/overview", color: "#4fc3f7" },
-          { label: "⭐ WATCHLIST", href: "/watchlist", color: "#fbbf24" },
+          { label: "📊 CHARTS", href: "/charts", color: "#f43f5e" },
         ].map(({ label, href, color }) => (
           <button
             key={href}
@@ -167,24 +142,6 @@ function ChartsInner() {
             {label}
           </button>
         ))}
-
-        <div style={{ width: 1, height: 28, background: "#0d2040", flexShrink: 0 }} />
-
-        {/* Windows count badge */}
-        {hasWindows && (
-          <div
-            style={{
-              background: "#0a1a30",
-              border: "1px solid #1e3a5f",
-              padding: "3px 10px",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ color: "#4fc3f7", fontSize: 8, fontFamily: "monospace" }}>
-              {windows.length} CHART{windows.length !== 1 ? "S" : ""} OPEN
-            </span>
-          </div>
-        )}
 
         <div style={{ flex: 1 }} />
 
@@ -217,68 +174,9 @@ function ChartsInner() {
         <LiveClock />
       </header>
 
-      {/* ── CANVAS — Full-width floating chart area ── */}
-      <main
-        style={{
-          flex: 1,
-          position: "relative",
-          overflow: "hidden",
-          background: "radial-gradient(ellipse at center, #060f1e 0%, #030810 70%)",
-        }}
-      >
-        {/* Empty state */}
-        {!hasWindows && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 16,
-              pointerEvents: "none",
-            }}
-          >
-            <div style={{ fontSize: 64, opacity: 0.1, filter: "grayscale(1)" }}>
-              📊
-            </div>
-            <div
-              style={{
-                textAlign: "center",
-                color: "#1e3a5f",
-                fontFamily: "monospace",
-                lineHeight: 2,
-              }}
-            >
-              <div style={{ fontSize: 11, letterSpacing: 2 }}>NO CHARTS OPEN</div>
-              <div style={{ fontSize: 8 }}>
-                Go to{" "}
-                <span style={{ color: "#4fc3f7" }}>📈 Overview</span> or{" "}
-                <span style={{ color: "#fbbf24" }}>⭐ Watchlist</span>
-              </div>
-              <div style={{ fontSize: 8 }}>
-                and click a stock to open it here
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Grid dots background */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "radial-gradient(circle, #0d2040 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-            opacity: 0.3,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
-
-        {/* Floating chart windows + control toolbar */}
-        {ManagerUI}
+      {/* ── MAIN CONTENT ── */}
+      <main style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <WatchlistStandalonePage />
       </main>
 
       {/* ── FOOTER TICKER ── */}
@@ -288,7 +186,6 @@ function ChartsInner() {
           height: 28,
           borderTop: "1px solid #0d2040",
           background: "#060d1a",
-          position: "relative",
           zIndex: 50,
         }}
       >
@@ -306,18 +203,5 @@ function ChartsInner() {
         }
       `}</style>
     </div>
-  );
-}
-
-// ── Exported page (wrapped in Suspense for useSearchParams) ───
-export default function ChartsPage() {
-  return (
-    <Suspense fallback={
-      <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", background: "#030810", color: "#1e3a5f", fontFamily: "monospace", fontSize: 9 }}>
-        LOADING…
-      </div>
-    }>
-      <ChartsInner />
-    </Suspense>
   );
 }

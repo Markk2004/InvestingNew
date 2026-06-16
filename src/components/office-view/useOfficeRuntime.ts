@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { CEO_SPEED, CEO_ZONE_H } from "@/components/office/constants";
+import { CEO_SPEED, CEO_ZONE_H } from "./model";
 
 const CEO_KEYS = [
   "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
