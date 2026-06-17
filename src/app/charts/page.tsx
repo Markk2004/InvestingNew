@@ -11,6 +11,7 @@ import useSWR from "swr";
 import { useChartManager } from "@/components/FloatingChartManager";
 import { useTheme } from "@/components/ThemeProvider";
 import MarketTicker from "@/components/MarketTicker";
+import { LineChart, Star } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const SWR_CONFIG = {
@@ -98,7 +99,7 @@ function ChartsInner() {
         flexDirection: "column",
         height: "100vh",
         width: "100vw",
-        background: "var(--color-bg-page)",
+        background: isCrimson ? "transparent" : "var(--color-bg-page)",
         overflow: "hidden",
         color: "white",
         fontFamily: "var(--font-mono)",
@@ -168,9 +169,9 @@ function ChartsInner() {
 
           {/* Nav links */}
           {[
-            { label: "📈 OVERVIEW", href: "/overview", color: "#4fc3f7" },
-            { label: "⭐ WATCHLIST", href: "/watchlist", color: "#fbbf24" },
-          ].map(({ label, href, color }) => (
+            { label: "OVERVIEW", icon: <LineChart size={11} />, href: "/overview", color: "#4fc3f7" },
+            { label: "WATCHLIST", icon: <Star size={11} />, href: "/watchlist", color: "#fbbf24" },
+          ].map(({ label, icon, href, color }) => (
             <button
               key={href}
               onClick={() => router.push(href)}
@@ -195,7 +196,10 @@ function ChartsInner() {
                 (e.currentTarget as HTMLButtonElement).style.color = "#475569";
               }}
             >
-              {label}
+              <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {icon}
+                {label}
+              </span>
             </button>
           ))}
 
@@ -295,8 +299,7 @@ function ChartsInner() {
           flex: 1,
           position: "relative",
           overflow: "hidden",
-          background: "var(--color-bg-page-gradient)",
-          backgroundColor: "var(--color-bg-page)",
+          background: isCrimson ? "transparent" : "var(--color-bg-page-gradient)",
         }}
       >
         {/* Empty state */}

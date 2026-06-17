@@ -248,7 +248,7 @@
   height: 100vh;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.2; /* Subtle tech overlay */
+  opacity: 0.5; /* Circuit overlay opacity based on user request */
 }
 
 [data-theme="crimson"] .active-node {

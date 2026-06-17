@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { US_STOCKS, type StockInfo } from "@/lib/stocks";
 import { useWatchlist } from "@/lib/useWatchlist";
 import Sparkline, { generateMockCloses } from "./Sparkline";
+import { useTheme } from "@/components/ThemeProvider";
 
 const PAGE_SIZE = 25;
 
@@ -43,6 +44,8 @@ type SortDir = "asc" | "desc";
 export default function USMarketListPanel() {
   const router = useRouter();
   const { add, has } = useWatchlist();
+  const { theme } = useTheme();
+  const isCrimson = theme === "crimson";
 
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [loadingQuotes, setLoadingQuotes] = useState(true);
@@ -158,9 +161,10 @@ export default function USMarketListPanel() {
 
   return (
     <div
+      className={isCrimson ? "card" : ""}
       style={{
-        background: "#04090f",
-        border: "1px solid #0d2040",
+        background: isCrimson ? "var(--color-bg-card)" : "#04090f",
+        border: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
         display: "flex",
         flexDirection: "column",
         flex: 1,
@@ -171,8 +175,8 @@ export default function USMarketListPanel() {
       <div
         style={{
           padding: "12px 16px 10px",
-          borderBottom: "1px solid #0d2040",
-          background: "linear-gradient(90deg, #060d1a 0%, #04090f 100%)",
+          borderBottom: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
+          background: isCrimson ? "transparent" : "linear-gradient(90deg, #060d1a 0%, #04090f 100%)",
           flexShrink: 0,
         }}
       >
@@ -203,9 +207,9 @@ export default function USMarketListPanel() {
           onChange={(e) => handleSearchChange(e.target.value)}
           style={{
             width: "100%",
-            background: "#071020",
-            border: "1px solid #1e3a5f",
-            color: "#93c5fd",
+            background: isCrimson ? "transparent" : "#071020",
+            border: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #1e3a5f",
+            color: isCrimson ? "var(--color-text-title)" : "#93c5fd",
             fontFamily: "monospace",
             fontSize: 11,
             padding: "6px 10px",
@@ -249,8 +253,8 @@ export default function USMarketListPanel() {
           gridTemplateColumns: "14px 110px 1fr 100px 90px 90px 80px",
           gap: 0,
           padding: "8px 12px",
-          borderBottom: "1px solid #0d2040",
-          background: "#060d1a",
+          borderBottom: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
+          background: isCrimson ? "transparent" : "#060d1a",
           flexShrink: 0,
           alignItems: "center",
         }}
@@ -305,11 +309,11 @@ export default function USMarketListPanel() {
                   gap: 0,
                   alignItems: "center",
                   padding: "8px 12px",
-                  borderBottom: "1px solid #080f1a",
+                  borderBottom: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #080f1a",
                   transition: "background 0.08s",
                   cursor: "default",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#071020")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = isCrimson ? "rgba(255, 0, 60, 0.05)" : "#071020")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 {/* Sector dot */}
@@ -435,8 +439,8 @@ export default function USMarketListPanel() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "8px 12px",
-          borderTop: "1px solid #0d2040",
-          background: "#060d1a",
+          borderTop: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
+          background: isCrimson ? "transparent" : "#060d1a",
           flexShrink: 0,
         }}
       >

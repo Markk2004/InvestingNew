@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { US_STOCKS } from "@/lib/stocks";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface Quote {
   symbol: string;
@@ -104,6 +105,8 @@ const SECTOR_METADATA: Record<
 };
 
 export default function SectorPerformancePanel() {
+  const { theme } = useTheme();
+  const isCrimson = theme === "crimson";
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [loading, setLoading] = useState(true);
 
@@ -215,9 +218,10 @@ export default function SectorPerformancePanel() {
 
   return (
     <div
+      className={isCrimson ? "card" : ""}
       style={{
-        background: "#04090f",
-        border: "1px solid #0d2040",
+        background: isCrimson ? "var(--color-bg-card)" : "#04090f",
+        border: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
         display: "flex",
         flexDirection: "column",
         flex: 1,
@@ -228,8 +232,8 @@ export default function SectorPerformancePanel() {
       <div
         style={{
           padding: "12px 16px 10px",
-          borderBottom: "1px solid #0d2040",
-          background: "linear-gradient(90deg, #060d1a 0%, #04090f 100%)",
+          borderBottom: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
+          background: isCrimson ? "transparent" : "linear-gradient(90deg, #060d1a 0%, #04090f 100%)",
           flexShrink: 0,
         }}
       >
@@ -270,8 +274,8 @@ export default function SectorPerformancePanel() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                background: "#060d1a",
-                border: "1px solid #0d2040",
+                background: isCrimson ? "transparent" : "#060d1a",
+                border: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
                 marginBottom: 6,
                 padding: "8px 10px",
                 gap: 12,
@@ -279,7 +283,7 @@ export default function SectorPerformancePanel() {
                 transition: "border-color 0.12s",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = stat.color)}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#0d2040")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = isCrimson ? "var(--color-border-subtle)" : "#0d2040")}
             >
               {/* Rank Badge (1 to Last) */}
               <div

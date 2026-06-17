@@ -11,6 +11,7 @@ import OfficeTab from "@/components/OfficeTab";
 import CharacterTab from "@/components/CharacterTab";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { useTheme } from "@/components/ThemeProvider";
+import { Building2, User, Newspaper, BarChart2, LineChart, Star } from "lucide-react";
 
 type Tab = "office" | "character";
 
@@ -87,13 +88,13 @@ function LiveClock() {
 interface TabButtonProps {
   id: Tab | "news" | "charts" | "overview" | "watchlist";
   label: string;
-  emoji: string;
+  icon: React.ReactNode;
   active: boolean;
   onClick: () => void;
   glowColor?: string;
 }
 
-function TabButton({ label, emoji, active, onClick, glowColor = "#4fc3f7" }: TabButtonProps) {
+function TabButton({ label, icon, active, onClick, glowColor = "#4fc3f7" }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -132,7 +133,7 @@ function TabButton({ label, emoji, active, onClick, glowColor = "#4fc3f7" }: Tab
         }
       }}
     >
-      <span style={{ fontSize: 13 }}>{emoji}</span>
+      <span style={{ display: "flex", alignItems: "center" }}>{icon}</span>
       <span>{label}</span>
       {active && (
         <span
@@ -281,7 +282,7 @@ function WatchlistTabButton() {
         (e.currentTarget as HTMLButtonElement).style.color = "#475569";
       }}
     >
-      <span style={{ fontSize: 13 }}>⭐</span>
+      <span style={{ display: "flex", alignItems: "center" }}><Star size={13} /></span>
       <span>Watchlist</span>
       {items.length > 0 && (
         <span
@@ -366,7 +367,7 @@ export default function GameShell() {
         <nav style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
           <TabButton
             id="office"
-            emoji="🏢"
+            icon={<Building2 size={13} />}
             label="Office Overview"
             active={activeTab === "office"}
             onClick={() => setActiveTab("office")}
@@ -374,7 +375,7 @@ export default function GameShell() {
           />
           <TabButton
             id="character"
-            emoji="👔"
+            icon={<User size={13} />}
             label="Character"
             active={activeTab === "character"}
             onClick={() => setActiveTab("character")}
@@ -382,7 +383,7 @@ export default function GameShell() {
           />
           <TabButton
             id="news"
-            emoji="📰"
+            icon={<Newspaper size={13} />}
             label="AnalysisNew"
             active={false}
             onClick={() => router.push("/news")}
@@ -390,7 +391,7 @@ export default function GameShell() {
           />
           <TabButton
             id="charts"
-            emoji="📊"
+            icon={<BarChart2 size={13} />}
             label="Charts"
             active={false}
             onClick={() => router.push("/charts")}
@@ -398,7 +399,7 @@ export default function GameShell() {
           />
           <TabButton
             id="overview"
-            emoji="📈"
+            icon={<LineChart size={13} />}
             label="Overview"
             active={false}
             onClick={() => router.push("/overview")}

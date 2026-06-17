@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import USMarketListPanel from "@/components/overview/USMarketListPanel";
 import SectorPerformancePanel from "@/components/overview/SectorPerformancePanel";
 import MarketTicker from "@/components/MarketTicker";
+import { useTheme } from "@/components/ThemeProvider";
+import { Star, BarChart2 } from "lucide-react";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -149,7 +151,7 @@ function PlaceholderSection({
 }
 
 // ── Breadth gauge visual ──────────────────────────────────────
-function BreadthPlaceholder() {
+function BreadthPlaceholder({ isCrimson }: { isCrimson: boolean }) {
   const items = [
     { label: "ADV", value: "—", color: "#22c55e" },
     { label: "DEC", value: "—", color: "#ef4444" },
@@ -161,9 +163,10 @@ function BreadthPlaceholder() {
 
   return (
     <div
+      className={isCrimson ? "card" : ""}
       style={{
-        background: "#04090f",
-        border: "1px solid #0d2040",
+        background: isCrimson ? "var(--color-bg-card)" : "#04090f",
+        border: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
         padding: "16px 20px",
       }}
     >
@@ -198,7 +201,7 @@ function BreadthPlaceholder() {
           <div
             key={item.label}
             style={{
-              background: "#060d1a",
+              background: isCrimson ? "transparent" : "#060d1a",
               border: `1px solid ${item.color}20`,
               padding: "10px 8px",
               textAlign: "center",
@@ -220,6 +223,8 @@ function BreadthPlaceholder() {
 // ── Main Overview Page ────────────────────────────────────────
 export default function OverviewPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
+  const isCrimson = theme === "crimson";
 
   return (
     <div
@@ -228,7 +233,7 @@ export default function OverviewPage() {
         flexDirection: "column",
         height: "100vh",
         width: "100vw",
-        background: "#030810",
+        background: isCrimson ? "transparent" : "#030810",
         overflow: "hidden",
         color: "white",
         fontFamily: "monospace",
@@ -239,8 +244,8 @@ export default function OverviewPage() {
         style={{
           height: 48,
           flexShrink: 0,
-          background: "#060d1a",
-          borderBottom: "2px solid #0d2040",
+          background: isCrimson ? "var(--color-bg-header)" : "#060d1a",
+          borderBottom: isCrimson ? "2px solid var(--color-border-subtle)" : "2px solid #0d2040",
           display: "flex",
           alignItems: "center",
           padding: "0 12px",
@@ -288,9 +293,9 @@ export default function OverviewPage() {
 
         {/* Navigation links */}
         {[
-          { label: "⭐ WATCHLIST", href: "/watchlist", color: "#fbbf24" },
-          { label: "📊 CHARTS", href: "/charts", color: "#f43f5e" },
-        ].map(({ label, href, color }) => (
+          { label: "WATCHLIST", icon: <Star size={11} />, href: "/watchlist", color: "#fbbf24" },
+          { label: "CHARTS", icon: <BarChart2 size={11} />, href: "/charts", color: "#f43f5e" },
+        ].map(({ label, icon, href, color }) => (
           <button
             key={href}
             onClick={() => router.push(href)}
@@ -315,7 +320,10 @@ export default function OverviewPage() {
               (e.currentTarget as HTMLButtonElement).style.color = "#475569";
             }}
           >
-            {label}
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {icon}
+              {label}
+            </span>
           </button>
         ))}
 
@@ -348,6 +356,25 @@ export default function OverviewPage() {
         </div>
 
         <LiveClock />
+
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          title="Toggle Theme"
+          className="font-pixel transition-transform active:scale-90 hover:scale-105"
+          style={{
+            fontSize: "7px",
+            padding: "6px 12px",
+            background: isCrimson ? "var(--color-bg-card)" : "transparent",
+            border: "2px solid var(--color-accent-primary)",
+            color: "var(--color-accent-primary)",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+            marginLeft: "8px",
+          }}
+        >
+          {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
+        </button>
       </header>
 
       {/* ── MAIN CONTENT ── */}
@@ -375,7 +402,7 @@ export default function OverviewPage() {
         </div>
 
         {/* Market Breadth placeholder */}
-        <BreadthPlaceholder />
+        <BreadthPlaceholder isCrimson={isCrimson} />
       </main>
 
       {/* ── FOOTER TICKER ── */}
@@ -383,8 +410,8 @@ export default function OverviewPage() {
         style={{
           flexShrink: 0,
           height: 28,
-          borderTop: "1px solid #0d2040",
-          background: "#060d1a",
+          borderTop: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
+          background: isCrimson ? "var(--color-bg-header)" : "#060d1a",
           position: "relative",
           zIndex: 50,
         }}

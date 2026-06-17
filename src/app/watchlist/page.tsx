@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import WatchlistStandalonePage from "@/components/watchlist/WatchlistStandalonePage";
 import MarketTicker from "@/components/MarketTicker";
 import { useWatchlist } from "@/lib/useWatchlist";
+import { LineChart, BarChart2 } from "lucide-react";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -112,9 +113,9 @@ export default function WatchlistPage() {
 
         {/* Nav links */}
         {[
-          { label: "📈 OVERVIEW", href: "/overview", color: "#4fc3f7" },
-          { label: "📊 CHARTS", href: "/charts", color: "#f43f5e" },
-        ].map(({ label, href, color }) => (
+          { label: "OVERVIEW", icon: <LineChart size={11} />, href: "/overview", color: "#4fc3f7" },
+          { label: "CHARTS", icon: <BarChart2 size={11} />, href: "/charts", color: "#f43f5e" },
+        ].map(({ label, icon, href, color }) => (
           <button
             key={href}
             onClick={() => router.push(href)}
@@ -139,7 +140,10 @@ export default function WatchlistPage() {
               (e.currentTarget as HTMLButtonElement).style.color = "#475569";
             }}
           >
-            {label}
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {icon}
+              {label}
+            </span>
           </button>
         ))}
 

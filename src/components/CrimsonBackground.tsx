@@ -13,7 +13,7 @@ export default function CrimsonBackground() {
       {/* LAYER 1: 100% Native SVG Circuit Board Elements with Running Lights and Pulse Nodes */}
       <svg className="circuit-bg-overlay" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
           {/* Base Paths/Traces (Orthogonal 90-degree lines) */}
-          <g stroke="#3a1414" strokeWidth="1.2" fill="none" opacity="0.3">
+          <g stroke="#3a1414" strokeWidth="1.2" fill="none">
               {/* Grid lines left area */}
               <path d="M -50,150 H 150 V 350 H 300 V 200 H 450" />
               <path d="M 100,-50 V 100 H 250 V 250 H 120 V 500" />
@@ -33,7 +33,7 @@ export default function CrimsonBackground() {
           </g>
 
           {/* PCB Chips / Component Squares (Stroke only) */}
-          <g stroke="#3a1414" strokeWidth="1" fill="none" opacity="0.3">
+          <g stroke="#3a1414" strokeWidth="1" fill="none">
               <rect x="140" y="340" width="20" height="20" />
               <rect x="240" y="90" width="20" height="20" />
               <rect x="1090" y="270" width="20" height="20" />
@@ -43,7 +43,7 @@ export default function CrimsonBackground() {
 
           {/* Solder Joints / Nodes */}
           {/* Default Dark Solder Nodes (#5a2222) */}
-          <g fill="#5a2222" opacity="0.3">
+          <g fill="#5a2222">
               <circle cx="150" cy="150" r="3" />
               <circle cx="300" cy="200" r="3" />
               <circle cx="100" cy="100" r="3" />
