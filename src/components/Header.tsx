@@ -6,12 +6,14 @@
 // ─────────────────────────────────────────────────────────────
 
 import { useState, useCallback } from "react";
+import type { NewsApiResponse } from "@/lib/types";
 
 interface HeaderProps {
   fetchedAt?: string;
   isLoading: boolean;
   hasError: boolean;
   onRefresh: () => void;
+  usage?: NewsApiResponse["usage"];
 }
 
 export default function Header({
@@ -19,6 +21,7 @@ export default function Header({
   isLoading,
   hasError,
   onRefresh,
+  usage,
 }: HeaderProps) {
   const [clicked, setClicked] = useState(false);
 
@@ -74,15 +77,29 @@ export default function Header({
           </p>
         </div>
 
-        {/* ── Center: Timestamp ─────────────────────────── */}
-        <div
-          className="hidden md:flex flex-col items-center gap-1 font-pixel"
-          style={{ fontSize: "7px" }}
-        >
-          <span style={{ color: "#475569" }}>LAST UPDATE</span>
-          <span style={{ color: formattedTime ? "var(--pixel-blue)" : "#475569" }}>
-            {formattedTime ? `${formattedTime} (ICT)` : "---"}
-          </span>
+        {/* ── Center: Timestamp & Token Usage ─────────────────────────── */}
+        <div className="hidden md:flex flex-col items-center gap-2 font-pixel" style={{ fontSize: "7px" }}>
+          <div className="flex gap-4">
+            <div className="flex flex-col items-center gap-1">
+              <span style={{ color: "#475569" }}>LAST UPDATE</span>
+              <span style={{ color: formattedTime ? "var(--pixel-blue)" : "#475569" }}>
+                {formattedTime ? `${formattedTime} (ICT)` : "---"}
+              </span>
+            </div>
+            
+            {/* Token Usage Status Line */}
+            {usage && (
+              <div 
+                className="flex flex-col items-center gap-1 px-2 border-l border-[#1e293b]"
+                title={`Prompt: ${usage.prompt_tokens} | Completion: ${usage.completion_tokens}`}
+              >
+                <span style={{ color: "#475569" }}>AI ENGINE ({usage.model})</span>
+                <span style={{ color: usage.cost > 0.1 ? "var(--pixel-yellow)" : "var(--pixel-green)" }}>
+                  ${usage.cost.toFixed(4)} / {usage.total_tokens.toLocaleString()} TKNS
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ── Right: Status + Refresh button ───────────── */}

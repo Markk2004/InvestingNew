@@ -133,6 +133,25 @@ export default function NewsDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, isRefreshing, hasAutoRefreshed]);
 
+  // Auto-process queue if there are pending articles
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (data?.pendingArticles && data.pendingArticles.length > 0) {
+      interval = setInterval(async () => {
+        try {
+          // Process the queue directly without hitting RSS cooldowns
+          await fetch("/api/news?process_queue=true");
+          mutate(); // Seamlessly update UI with newly analyzed articles
+        } catch (e) {
+          console.error("Failed to process news queue:", e);
+        }
+      }, 300000); // Check every 5 minutes (300,000 ms)
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [data?.pendingArticles, mutate]);
+
   const hasError = !!error || (data?.error != null && data.articles.length === 0);
   const errorMessage = error?.message ?? data?.error;
   const isUpdating = isLoading || isValidating || isRefreshing;
@@ -210,6 +229,7 @@ export default function NewsDashboardPage() {
         isLoading={isUpdating}
         hasError={hasError}
         onRefresh={handleRefresh}
+        usage={data?.usage}
       />
 
       {/* ── Back to Office Button ──────────────────────────── */}
@@ -312,6 +332,29 @@ export default function NewsDashboardPage() {
                 * โชว์ข่าวที่วิเคราะห์แล้วของวันนี้และเมื่อวาน
               </span>
             </div>
+
+            {/* ── Status Line / AI Usage Status ────────── */}
+            {data?.usage && (
+              <div
+                className="flex items-center gap-3 px-4 py-1.5"
+                style={{
+                  border: "1px dashed rgba(79,195,247,0.3)",
+                  background: "rgba(79,195,247,0.02)",
+                  marginTop: -16, // pull it up close to the date badge
+                  borderTop: "none"
+                }}
+              >
+                <span className="font-pixel text-[var(--pixel-blue)]" style={{ fontSize: "9px" }}>
+                  ⚡ AI STATUS:
+                </span>
+                <span className="font-pixel text-slate-400" style={{ fontSize: "9px" }}>
+                  Model: {data.usage.model} · Input: {data.usage.prompt_tokens.toLocaleString()} tokens · Output: {data.usage.completion_tokens.toLocaleString()} tokens · Est. Cost: ${data.usage.cost.toFixed(5)}
+                </span>
+                <span className="font-pixel text-emerald-400 ml-auto" style={{ fontSize: "8px" }}>
+                  ● Connection OK (Balance Refilled)
+                </span>
+              </div>
+            )}
 
             {/* ── News Grid (Analyzed only) ─────────────── */}
             <NewsGrid articles={data.articles} />

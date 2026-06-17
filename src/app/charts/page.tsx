@@ -7,8 +7,16 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import useSWR from "swr";
 import { useChartManager } from "@/components/FloatingChartManager";
 import MarketTicker from "@/components/MarketTicker";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const SWR_CONFIG = {
+  refreshInterval: 10 * 60 * 1000, // 10 min
+  revalidateOnFocus: false,
+  dedupingInterval: 5 * 60 * 1000,
+} as const;
 
 // ── Live Clock ───────────────────────────────────────────────
 function LiveClock() {
@@ -46,6 +54,25 @@ function ChartsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { openChart, hasWindows, windows } = useChartManager();
+
+  // ── Background News Poller ──────────────────────────────────
+  // Keeps news analysis active and sends Telegram alerts even when the user is on the chart page
+  const { data } = useSWR("/api/news?page=1", fetcher, SWR_CONFIG);
+
+  // Auto-process queue if there are pending articles
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (data?.pendingArticles && data.pendingArticles.length > 0) {
+      interval = setInterval(async () => {
+        try {
+          await fetch("/api/news?process_queue=true");
+        } catch (e) {}
+      }, 300000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [data?.pendingArticles]);
 
   // Auto-open symbols from ?open= query param on mount
   useEffect(() => {
@@ -187,6 +214,28 @@ function ChartsInner() {
         )}
 
         <div style={{ flex: 1 }} />
+        
+        {/* Token Usage Status Line */}
+        {data?.usage && (
+          <div 
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2px",
+              padding: "0 10px",
+              borderRight: "1px solid #0d2040",
+              borderLeft: "1px solid #0d2040",
+              marginRight: "4px"
+            }}
+            title={`Prompt: ${data.usage.prompt_tokens} | Completion: ${data.usage.completion_tokens}`}
+          >
+            <span style={{ color: "#475569", fontSize: 7 }}>AI ENGINE ({data.usage.model})</span>
+            <span style={{ color: data.usage.cost > 0.1 ? "#facc15" : "#22c55e", fontSize: 7 }}>
+              ${data.usage.cost.toFixed(4)} / {data.usage.total_tokens.toLocaleString()} TKNS
+            </span>
+          </div>
+        )}
 
         {/* Live status */}
         <div

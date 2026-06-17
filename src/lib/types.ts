@@ -47,6 +47,14 @@ export interface NewsApiResponse {
   error?: string;              // Present only when something went wrong
   currentPage?: number;        // Current page number (pagination)
   totalPages?: number;         // Total number of pages (pagination)
+  usage?: {
+    model: string;
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+    cost: number;
+    analyzed_at: string;
+  };
 }
 
 /**
