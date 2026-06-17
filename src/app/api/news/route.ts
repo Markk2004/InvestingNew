@@ -10,10 +10,12 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest): Promise<Response> {
   const fetchedAt = new Date().toISOString();
   const forceRefresh = req.nextUrl.searchParams.get("force") === "true";
+  const processQueue = req.nextUrl.searchParams.get("process_queue") === "true";
   const page = req.nextUrl.searchParams.get("page") || "1";
   
   const queryParams = new URLSearchParams();
   if (forceRefresh) queryParams.append("force", "true");
+  if (processQueue) queryParams.append("process_queue", "true");
   if (page !== "1") queryParams.append("page", page);
   const qs = queryParams.toString();
   
