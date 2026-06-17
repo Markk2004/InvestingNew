@@ -1,0 +1,276 @@
+/* ==========================================
+   2. CRIMSON CIRCUIT THEME (DARK MODE)
+   Cyber-Security / Tactical Dashboard Overhaul
+   ========================================== */
+
+[data-theme="crimson"] {
+  --background: #050505;
+  --foreground: #e0e0e0;
+
+  /* Modern Sans-Serif Typography Override */
+  --font-pixel: "Inter", system-ui, -apple-system, sans-serif !important;
+  --font-mono: "Fira Code", "JetBrains Mono", monospace !important;
+
+  /* Cyber-Security color palette */
+  --pixel-blue:   #ff003c; /* Electric Red */
+  --pixel-green:  #ff003c;
+  --pixel-yellow: #cc0030;
+  --pixel-red:    #ff003c;
+  --pixel-purple: #111111;
+  --pixel-orange: #ff003c;
+  --pixel-dark:   #050505;
+  --pixel-panel:  #0a0a0c;
+  --pixel-border: #1f1f1f;
+
+  /* Deep Dark / Grey Shadows */
+  --color-bg-page: transparent;
+  --color-bg-page-gradient: radial-gradient(circle at top, #110508 0%, #050505 80%);
+  --color-bg-header: rgba(10, 10, 12, 0.85);
+  --color-bg-header-toast: rgba(10, 10, 12, 0.95);
+  --color-bg-footer: #0a0a0c;
+  
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-border-normal: rgba(255, 255, 255, 0.1);
+  
+  --color-accent-primary: #ff003c;
+  --color-accent-secondary: #cc0030;
+  
+  --color-text-title: #ffffff;
+  --color-text-subtitle: #888888;
+  --color-text-muted: #555555;
+  
+  --color-button-bg: rgba(255, 0, 60, 0.1);
+  --color-button-border: rgba(255, 0, 60, 0.4);
+  --color-button-text: #ff003c;
+  --color-button-bg-hover: rgba(255, 0, 60, 0.2);
+  
+  --color-badge-bg: rgba(255, 0, 60, 0.15);
+  --color-badge-text: #ff003c;
+  --color-badge-border: rgba(255, 0, 60, 0.3);
+  
+  --color-card-bg: rgba(15, 15, 18, 0.6);
+  --color-card-border: rgba(255, 255, 255, 0.08);
+
+  --color-news-bg-toast: rgba(10, 10, 12, 0.75);
+  --color-news-border: rgba(255, 0, 60, 0.3);
+
+  --radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================
+   GLOBAL OVERRIDES FOR CRIMSON THEME
+   Removing all Pixel-Art constraints
+   ========================================== */
+[data-theme="crimson"] *,
+[data-theme="crimson"] *::before,
+[data-theme="crimson"] *::after {
+  image-rendering: auto !important; /* Remove crisp-edges */
+}
+
+[data-theme="crimson"] body {
+  background: var(--color-bg-page-gradient) !important;
+  background-attachment: fixed !important;
+  color: var(--color-text-title) !important;
+  font-family: var(--font-pixel);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force .font-pixel to use modern sans-serif and be smooth */
+[data-theme="crimson"] .font-pixel {
+  font-family: var(--font-pixel);
+  -webkit-font-smoothing: antialiased;
+  image-rendering: auto;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="crimson"] h1, [data-theme="crimson"] h2, [data-theme="crimson"] h3 {
+  color: var(--color-text-title);
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* ==========================================
+   GLASSMORPHISM & CYBER-SECURITY CARDS
+   ========================================== */
+[data-theme="crimson"] .card, 
+[data-theme="crimson"] .pixel-box, 
+[data-theme="crimson"] .pixel-box-blue, 
+[data-theme="crimson"] .pixel-box-red, 
+[data-theme="crimson"] .pixel-box-yellow, 
+[data-theme="crimson"] .pixel-box-green {
+  background: rgba(17, 17, 17, 0.6) !important; /* Deep grey with transparency for glassmorphism */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.03) !important; /* Very subtle border instead of sharp lines */
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important; /* Subtle top highlight for elevation */
+  border-radius: var(--radius) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 0, 60, 0.03) !important; /* Soft deep shadow + faint ambient glow */
+  padding: 24px;
+  transition: var(--transition);
+}
+
+[data-theme="crimson"] .card:hover,
+[data-theme="crimson"] .pixel-box:hover {
+  border-color: rgba(255, 0, 60, 0.2) !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 50px rgba(255, 0, 60, 0.08) !important; /* Glow intensifies smoothly */
+  transform: translateY(-2px);
+}
+
+/* Specifically for News Cards & Stat Cards to be Dark Grey with Red Glow */
+[data-theme="crimson"] .news-card,
+[data-theme="crimson"] .stat-card {
+  background: rgba(22, 22, 22, 0.6) !important; /* พื้นหลังเทาเข้ม มีความโปร่งแสงแบบ Glassmorphism */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.04) !important; /* ไม่เน้นเส้นขอบ แต่ใช้ความต่างของสีเทาและเงา */
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 0, 60, 0.04) !important; /* เงากว้างนุ่มนวล และแสงเรืองรองบางๆ */
+  border-radius: var(--radius) !important;
+  transition: var(--transition);
+}
+
+[data-theme="crimson"] .news-card:hover,
+[data-theme="crimson"] .stat-card:hover {
+  background: rgba(26, 26, 26, 0.8) !important;
+  border-color: rgba(255, 0, 60, 0.2) !important; /* ขอบแดงอ่อนๆ เมื่อชี้ */
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 50px rgba(255, 0, 60, 0.1) !important; /* ไฟสีแดงสว่างขึ้นแบบนุ่มนวล */
+  transform: translateY(-2px);
+}
+
+/* Also override internal elements of the news card */
+[data-theme="crimson"] .news-card > div,
+[data-theme="crimson"] .stat-card > div {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: transparent !important;
+}
+
+[data-theme="crimson"] .news-card a {
+  color: var(--color-text-title) !important;
+}
+
+[data-theme="crimson"] .news-card a:hover {
+  color: var(--color-accent-primary) !important;
+}
+
+/* Base Component Classes */
+[data-theme="crimson"] .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-button-border);
+  background: var(--color-button-bg);
+  color: var(--color-button-text);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
+}
+
+[data-theme="crimson"] .btn:hover {
+  background: var(--color-button-bg-hover);
+  box-shadow: 0 0 15px rgba(255, 0, 60, 0.2);
+}
+
+[data-theme="crimson"] .btn-primary {
+  background-color: var(--color-accent-primary);
+  color: #050505;
+  border: none;
+  box-shadow: 0 0 20px rgba(255, 0, 60, 0.4);
+}
+
+[data-theme="crimson"] .btn-primary:hover {
+  box-shadow: 0 0 30px rgba(255, 0, 60, 0.6);
+  background-color: #ff3366;
+}
+
+/* Tags & Badges */
+[data-theme="crimson"] .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: var(--color-badge-bg);
+  border: 1px solid var(--color-badge-border);
+  border-radius: 20px;
+  color: var(--color-accent-primary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  width: fit-content;
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="crimson"] .badge-pulse {
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-accent-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-accent-primary);
+  animation: electric-pulse 2s infinite;
+}
+
+/* Animations for CrimsonBackground SVG and Glows */
+@keyframes electric-pulse {
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 4px var(--color-accent-primary); }
+  50% { opacity: 1; box-shadow: 0 0 12px var(--color-accent-primary), 0 0 24px rgba(255,0,60,0.5); }
+}
+
+@keyframes running-light {
+  to { stroke-dashoffset: -80; }
+}
+
+[data-theme="crimson"] .ambient-glow {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1200px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, rgba(255, 0, 60, 0.08), transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+[data-theme="crimson"] .circuit-bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.2; /* Subtle tech overlay */
+}
+
+[data-theme="crimson"] .active-node {
+  animation: electric-pulse 2s infinite ease-in-out;
+  transform-origin: center;
+  fill: var(--color-accent-primary) !important;
+}
+
+[data-theme="crimson"] .node-delayed {
+  animation-delay: 1s;
+}
+
+[data-theme="crimson"] .load-line {
+  stroke-dasharray: 20 60;
+  stroke: var(--color-accent-primary) !important;
+  opacity: 0.5;
+  animation: running-light 3s linear infinite;
+}
+
+[data-theme="crimson"] .load-line-fast {
+  stroke-dasharray: 15 45;
+  stroke: var(--color-accent-primary) !important;
+  opacity: 0.7;
+  animation: running-light 2s linear infinite;
+}

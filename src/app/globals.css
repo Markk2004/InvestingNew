@@ -3,23 +3,11 @@
 
 /* ─────────────────────────────────────────────────────────────
    Design System Tokens — Pixel Art Game Theme
+   (Variables moved to theme-default.css & theme-crimson.css)
 ───────────────────────────────────────────────────────────── */
 
-:root {
-  --background: #0a0a1a;
-  --foreground: #e2e8f0;
-
-  /* Game color palette */
-  --pixel-blue:   #4fc3f7;
-  --pixel-green:  #69ff47;
-  --pixel-yellow: #ffd740;
-  --pixel-red:    #ff5252;
-  --pixel-purple: #ce93d8;
-  --pixel-orange: #ffab40;
-  --pixel-dark:   #0d0d2b;
-  --pixel-panel:  #1a1a3e;
-  --pixel-border: #3a3a6e;
-}
+@import "./theme-default.css";
+@import "./theme-crimson.css";
 
 @theme inline {
   --color-background: var(--background);
@@ -439,3 +427,5 @@ body {
   50% { transform: translateY(-4px) scale(1.02); }
   100% { transform: translateY(0px) scale(1); }
 }
+
+/* Crimson Circuit Theme styles moved to theme-crimson.css */

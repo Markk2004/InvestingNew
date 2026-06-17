@@ -159,7 +159,7 @@ export default function NewsDashboardPage() {
   return (
     <div
       className="min-h-screen relative"
-      style={{ background: "var(--pixel-dark)", color: "var(--foreground)" }}
+      style={{ background: "var(--color-bg-page)", color: "var(--foreground)" }}
     >
       {/* ── Toast Notifications ───────────────────────────── */}
       <div className="fixed top-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none">
@@ -169,7 +169,7 @@ export default function NewsDashboardPage() {
             className="font-pixel px-4 py-3 animate-pixel-fade-in"
             style={{
               fontSize: "12px",
-              background: "rgba(13,13,43,0.97)",
+              background: "var(--color-news-bg-toast)",
               border: `2px solid ${
                 toast.type === "success"
                   ? "var(--pixel-green)"
@@ -197,27 +197,27 @@ export default function NewsDashboardPage() {
         <div 
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
           style={{
-            background: "rgba(13, 13, 43, 0.7)",
+            background: "var(--color-news-bg-toast)",
             backdropFilter: "blur(10px)",
           }}
         >
           <div className="flex flex-col items-center gap-4 p-8"
             style={{
-               background: "rgba(13, 13, 43, 0.95)",
-               border: "2px solid var(--pixel-blue)",
-               boxShadow: "0 0 30px rgba(79, 195, 247, 0.2)"
+               background: "var(--color-bg-header-toast)",
+               border: "2px solid var(--color-news-border)",
+               boxShadow: "0 0 30px var(--color-news-border)"
             }}
           >
-            <div className="font-pixel text-xl animate-pulse" style={{ color: "var(--pixel-blue)" }}>
+            <div className="font-pixel text-xl animate-pulse" style={{ color: "var(--color-accent-primary)" }}>
               SCANNING GLOBAL NEWS...
             </div>
             <div className="font-pixel text-[10px] text-slate-400 tracking-widest">
               PLEASE WAIT — ANALYZING MARKET IMPACT
             </div>
             <div className="flex gap-2 mt-4">
-              <div className="w-3 h-3 bg-[var(--pixel-blue)] animate-bounce" style={{ animationDelay: "0ms" }}></div>
-              <div className="w-3 h-3 bg-[var(--pixel-blue)] animate-bounce" style={{ animationDelay: "150ms" }}></div>
-              <div className="w-3 h-3 bg-[var(--pixel-blue)] animate-bounce" style={{ animationDelay: "300ms" }}></div>
+              <div className="w-3 h-3 animate-bounce" style={{ backgroundColor: "var(--color-accent-primary)", animationDelay: "0ms" }}></div>
+              <div className="w-3 h-3 animate-bounce" style={{ backgroundColor: "var(--color-accent-primary)", animationDelay: "150ms" }}></div>
+              <div className="w-3 h-3 animate-bounce" style={{ backgroundColor: "var(--color-accent-primary)", animationDelay: "300ms" }}></div>
             </div>
           </div>
         </div>
@@ -240,10 +240,10 @@ export default function NewsDashboardPage() {
           className="font-pixel flex items-center gap-2 px-3 py-2 hover:scale-105 active:scale-95 transition-transform"
           style={{
             fontSize: "11px",
-            background: "var(--pixel-dark)",
-            border: "2px solid var(--pixel-border)",
-            color: "var(--pixel-blue)",
-            boxShadow: "0 0 8px rgba(79,195,247,0.3)",
+            background: "var(--color-button-bg)",
+            border: "1px solid var(--color-button-border)",
+            color: "var(--color-button-text)",
+            boxShadow: "0 0 8px var(--color-button-border)",
             textDecoration: "none",
           }}
         >
@@ -495,7 +495,7 @@ function StatCard({ label, value, sub, accent }: StatCardProps) {
   const s = ACCENT_MAP[accent];
   return (
     <div
-      className="flex flex-col justify-between p-4"
+      className="stat-card flex flex-col justify-between p-4"
       style={{
         border: `2px solid ${s.border}`,
         background: s.bg,

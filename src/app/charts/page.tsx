@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { useChartManager } from "@/components/FloatingChartManager";
+import { useTheme } from "@/components/ThemeProvider";
 import MarketTicker from "@/components/MarketTicker";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -53,6 +54,8 @@ function LiveClock() {
 function ChartsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { theme, toggleTheme } = useTheme();
+  const isCrimson = theme === "crimson";
   const { openChart, hasWindows, windows } = useChartManager();
 
   // ── Background News Poller ──────────────────────────────────
@@ -95,184 +98,205 @@ function ChartsInner() {
         flexDirection: "column",
         height: "100vh",
         width: "100vw",
-        background: "#030810",
+        background: "var(--color-bg-page)",
         overflow: "hidden",
         color: "white",
-        fontFamily: "monospace",
+        fontFamily: "var(--font-mono)",
       }}
     >
       {/* ── TOP NAV BAR ── */}
       <header
-        style={{
-          height: 48,
-          flexShrink: 0,
-          background: "#060d1a",
-          borderBottom: "2px solid #0d2040",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 12px",
-          gap: 10,
-          boxShadow: "0 2px 20px rgba(0,0,0,0.5)",
-          zIndex: 100,
-        }}
-      >
-        {/* Back */}
-        <button
-          onClick={() => router.push("/")}
           style={{
-            background: "#0a1f3a",
-            border: "1px solid #2563c8",
-            color: "#93c5fd",
-            fontSize: 9,
-            padding: "4px 10px",
-            cursor: "pointer",
-            fontFamily: "monospace",
-            letterSpacing: 1,
+            height: 48,
             flexShrink: 0,
-            transition: "all 0.15s",
+            background: "var(--color-bg-header)",
+            backdropFilter: "blur(12px)",
+            borderBottom: "2px solid var(--color-border-subtle)",
+            display: "flex",
+            alignItems: "center",
+            padding: "0 12px",
+            gap: 10,
+            boxShadow: "0 2px 20px rgba(0,0,0,0.5)",
+            zIndex: 100,
           }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#1e3a5f")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#0a1f3a")}
         >
-          ◀ OFFICE
-        </button>
-
-        <div style={{ width: 1, height: 28, background: "#0d2040", flexShrink: 0 }} />
-
-        {/* Title */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 18 }}>📊</span>
-          <div>
-            <div
-              style={{
-                color: "#f43f5e",
-                fontFamily: "monospace",
-                fontSize: 10,
-                fontWeight: "bold",
-                letterSpacing: 2,
-              }}
-            >
-              DASH TERMINAL
-            </div>
-            <div style={{ color: "#1e3a5f", fontSize: 7, letterSpacing: 1 }}>
-              FLOATING CHART WINDOWS
-            </div>
-          </div>
-        </div>
-
-        <div style={{ width: 1, height: 28, background: "#0d2040", flexShrink: 0 }} />
-
-        {/* Nav links */}
-        {[
-          { label: "📈 OVERVIEW", href: "/overview", color: "#4fc3f7" },
-          { label: "⭐ WATCHLIST", href: "/watchlist", color: "#fbbf24" },
-        ].map(({ label, href, color }) => (
+          {/* Back */}
           <button
-            key={href}
-            onClick={() => router.push(href)}
+            onClick={() => router.push("/")}
             style={{
-              background: "transparent",
-              border: "1px solid #1e3a5f",
-              color: "#475569",
-              fontSize: 8,
+              background: "var(--color-button-bg)",
+              border: "1px solid var(--color-button-border)",
+              color: "var(--color-button-text)",
+              fontSize: 9,
               padding: "4px 10px",
               cursor: "pointer",
               fontFamily: "monospace",
-              letterSpacing: 0.5,
-              transition: "all 0.15s",
+              letterSpacing: 1,
               flexShrink: 0,
+              transition: "all 0.15s",
             }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = color;
-              (e.currentTarget as HTMLButtonElement).style.color = color;
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#1e3a5f";
-              (e.currentTarget as HTMLButtonElement).style.color = "#475569";
-            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--color-button-bg-hover)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "var(--color-button-bg)")}
           >
-            {label}
+            ◀ OFFICE
           </button>
-        ))}
 
-        <div style={{ width: 1, height: 28, background: "#0d2040", flexShrink: 0 }} />
+          <div style={{ width: 1, height: 28, background: "var(--color-border-subtle)", flexShrink: 0 }} />
 
-        {/* Windows count badge */}
-        {hasWindows && (
+          {/* Title */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <span style={{ fontSize: 18 }}>📊</span>
+            <div>
+              <div
+                style={{
+                  color: "var(--color-accent-primary)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 10,
+                  fontWeight: "bold",
+                  letterSpacing: 2,
+                }}
+              >
+                DASH TERMINAL
+              </div>
+              <div style={{ color: "var(--color-text-subtitle)", fontSize: 7, letterSpacing: 1 }}>
+                FLOATING CHART WINDOWS
+              </div>
+            </div>
+          </div>
+
+          <div style={{ width: 1, height: 28, background: "var(--color-border-subtle)", flexShrink: 0 }} />
+
+          {/* Nav links */}
+          {[
+            { label: "📈 OVERVIEW", href: "/overview", color: "#4fc3f7" },
+            { label: "⭐ WATCHLIST", href: "/watchlist", color: "#fbbf24" },
+          ].map(({ label, href, color }) => (
+            <button
+              key={href}
+              onClick={() => router.push(href)}
+              style={{
+                background: "transparent",
+                border: "1px solid #1e3a5f",
+                color: "#475569",
+                fontSize: 8,
+                padding: "4px 10px",
+                cursor: "pointer",
+                fontFamily: "monospace",
+                letterSpacing: 0.5,
+                transition: "all 0.15s",
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = color;
+                (e.currentTarget as HTMLButtonElement).style.color = color;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "#1e3a5f";
+                (e.currentTarget as HTMLButtonElement).style.color = "#475569";
+              }}
+            >
+              {label}
+            </button>
+          ))}
+
+          <div style={{ width: 1, height: 28, background: "var(--color-border-subtle)", flexShrink: 0 }} />
+
+          {/* Windows count badge */}
+          {hasWindows && (
+            <div
+              style={{
+                background: "var(--color-badge-bg)",
+                border: "1px solid var(--color-badge-border)",
+                padding: "3px 10px",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ color: "var(--color-badge-text)", fontSize: 8, fontFamily: "var(--font-mono)" }}>
+                {windows.length} CHART{windows.length !== 1 ? "S" : ""} OPEN
+              </span>
+            </div>
+          )}
+
+          <div style={{ flex: 1 }} />
+          
+          {/* Token Usage Status Line */}
+          {data?.usage && (
+            <div 
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "2px",
+                padding: "0 10px",
+                borderRight: "1px solid #0d2040",
+                borderLeft: "1px solid #0d2040",
+                marginRight: "4px"
+              }}
+              title={`Prompt: ${data.usage.prompt_tokens} | Completion: ${data.usage.completion_tokens}`}
+            >
+              <span style={{ color: "#475569", fontSize: 7 }}>AI ENGINE ({data.usage.model})</span>
+              <span style={{ color: data.usage.cost > 0.1 ? "#facc15" : "#22c55e", fontSize: 7 }}>
+                ${data.usage.cost.toFixed(4)} / {data.usage.total_tokens.toLocaleString()} TKNS
+              </span>
+            </div>
+          )}
+
+          {/* Live status */}
           <div
             style={{
-              background: "#0a1a30",
-              border: "1px solid #1e3a5f",
-              padding: "3px 10px",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              background: "#0a1e12",
+              border: "1px solid #166534",
+              padding: "2px 8px",
               flexShrink: 0,
             }}
           >
-            <span style={{ color: "#4fc3f7", fontSize: 8, fontFamily: "monospace" }}>
-              {windows.length} CHART{windows.length !== 1 ? "S" : ""} OPEN
-            </span>
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#22c55e",
+                boxShadow: "0 0 6px #22c55e",
+                display: "inline-block",
+                animation: "pixelBlink 2s ease-in-out infinite",
+              }}
+            />
+            <span style={{ color: "#22c55e", fontSize: 8 }}>LIVE</span>
           </div>
-        )}
 
-        <div style={{ flex: 1 }} />
-        
-        {/* Token Usage Status Line */}
-        {data?.usage && (
-          <div 
+          <LiveClock />
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            title="Toggle Theme"
+            className="font-pixel transition-transform active:scale-90 hover:scale-105"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2px",
-              padding: "0 10px",
-              borderRight: "1px solid #0d2040",
-              borderLeft: "1px solid #0d2040",
-              marginRight: "4px"
+              fontSize: "7px",
+              padding: "6px 12px",
+              background: isCrimson ? "var(--color-bg-card)" : "transparent",
+              border: "2px solid var(--color-accent-primary)",
+              color: "var(--color-accent-primary)",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+              marginLeft: "8px",
             }}
-            title={`Prompt: ${data.usage.prompt_tokens} | Completion: ${data.usage.completion_tokens}`}
           >
-            <span style={{ color: "#475569", fontSize: 7 }}>AI ENGINE ({data.usage.model})</span>
-            <span style={{ color: data.usage.cost > 0.1 ? "#facc15" : "#22c55e", fontSize: 7 }}>
-              ${data.usage.cost.toFixed(4)} / {data.usage.total_tokens.toLocaleString()} TKNS
-            </span>
-          </div>
-        )}
+            {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
+          </button>
+        </header>
 
-        {/* Live status */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            background: "#0a1e12",
-            border: "1px solid #166534",
-            padding: "2px 8px",
-            flexShrink: 0,
-          }}
-        >
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background: "#22c55e",
-              boxShadow: "0 0 6px #22c55e",
-              display: "inline-block",
-              animation: "pixelBlink 2s ease-in-out infinite",
-            }}
-          />
-          <span style={{ color: "#22c55e", fontSize: 8 }}>LIVE</span>
-        </div>
-
-        <LiveClock />
-      </header>
-
-      {/* ── CANVAS — Full-width floating chart area ── */}
+      {/* ── DESKTOP WORKSPACE ── */}
       <main
         style={{
           flex: 1,
           position: "relative",
           overflow: "hidden",
-          background: "radial-gradient(ellipse at center, #060f1e 0%, #030810 70%)",
+          background: "var(--color-bg-page-gradient)",
+          backgroundColor: "var(--color-bg-page)",
         }}
       >
         {/* Empty state */}
@@ -334,8 +358,8 @@ function ChartsInner() {
         style={{
           flexShrink: 0,
           height: 28,
-          borderTop: "1px solid #0d2040",
-          background: "#060d1a",
+          borderTop: "1px solid var(--color-border-subtle)",
+          background: "var(--color-bg-header)",
           position: "relative",
           zIndex: 50,
         }}

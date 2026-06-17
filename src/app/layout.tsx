@@ -26,6 +26,8 @@ export const metadata: Metadata = {
 };
 
 import { ChartManagerProvider } from "@/components/FloatingChartManager";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import CrimsonBackground from "@/components/CrimsonBackground";
 
 export default function RootLayout({
   children,
@@ -37,9 +39,12 @@ export default function RootLayout({
       lang="th"
       className={`${pressStart.variable} ${shareTechMono.variable} h-full`}
     >
-      <body className="min-h-full bg-slate-950">
-        <GlobalErrorHandler />
-        <ChartManagerProvider>{children}</ChartManagerProvider>
+      <body className="min-h-full bg-[var(--color-bg-page)]">
+        <ThemeProvider>
+          <CrimsonBackground />
+          <GlobalErrorHandler />
+          <ChartManagerProvider>{children}</ChartManagerProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

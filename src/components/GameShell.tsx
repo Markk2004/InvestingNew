@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import OfficeTab from "@/components/OfficeTab";
 import CharacterTab from "@/components/CharacterTab";
 import { useWatchlist } from "@/lib/useWatchlist";
+import { useTheme } from "@/components/ThemeProvider";
 
 type Tab = "office" | "character";
 
@@ -308,6 +309,8 @@ function WatchlistTabButton() {
 export default function GameShell() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("office");
+  const { theme, toggleTheme } = useTheme();
+  const isCrimson = theme === "crimson";
   const [spriteOverrides, setSpriteOverrides] = useState<Record<string, number>>({
     mxrk: 1,
     gemini: 2,
@@ -321,7 +324,7 @@ export default function GameShell() {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        background: "#03080f",
+        background: "var(--color-bg-page)",
         overflow: "hidden",
       }}
     >
@@ -431,6 +434,25 @@ export default function GameShell() {
           />
           <span style={{ color: "#22c55e", fontSize: 8, fontFamily: "monospace" }}>LIVE</span>
         </div>
+
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          title="Toggle Theme"
+          className="font-pixel transition-transform active:scale-90 hover:scale-105"
+          style={{
+            fontSize: "7px",
+            padding: "6px 12px",
+            background: isCrimson ? "var(--color-bg-card)" : "transparent",
+            border: "2px solid var(--color-accent-primary)",
+            color: "var(--color-accent-primary)",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+            marginLeft: "8px",
+          }}
+        >
+          {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
+        </button>
       </header>
 
       {/* ── TAB CONTENT ── */}

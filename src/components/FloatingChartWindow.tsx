@@ -5,8 +5,11 @@
 // ─────────────────────────────────────────────────────────────
 
 import { useRef, useCallback, useState, memo } from "react";
+import useSWR from "swr";
 import { AdvancedRealTimeChart } from "react-ts-tradingview-widgets";
 import { getTradingViewSymbol } from "@/lib/stocks";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export interface ChartWindowState {
   id: string;
@@ -132,6 +135,32 @@ const MemoizedChart = memo(
 );
 
 MemoizedChart.displayName = "MemoizedChart";
+
+// ── Percentage Badge Component ────────────────────────────────────────────────
+const PercentageBadge = memo(({ symbol }: { symbol: string }) => {
+  const cleanSymbol = symbol.includes(":") ? symbol.split(":")[1] : symbol;
+  const { data: quoteArr } = useSWR<any[]>(`/api/ticker?symbols=${cleanSymbol}`, fetcher, {
+    refreshInterval: 60000,
+  });
+  const quote = Array.isArray(quoteArr) && quoteArr.length > 0 ? quoteArr[0] : null;
+
+  if (!quote) return null;
+
+  return (
+    <span style={{ 
+      color: quote.change >= 0 ? "#22c55e" : "#ef4444", 
+      fontSize: 9, 
+      marginLeft: 8,
+      background: "rgba(0,0,0,0.3)",
+      padding: "1px 4px",
+      borderRadius: 2
+    }}>
+      {quote.change >= 0 ? "+" : ""}{quote.changePercent.toFixed(2)}%
+    </span>
+  );
+});
+
+PercentageBadge.displayName = "PercentageBadge";
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function FloatingChartWindow({
@@ -265,10 +294,11 @@ export default function FloatingChartWindow({
         pointerEvents: win.closed ? "none" : "auto",
         transform: win.closed ? "scale(0.8)" : "scale(1)",
         flexDirection: "column",
-        background: "#060d1a",
-        border: `2px solid ${titleColor}40`,
-        boxShadow: `0 0 0 1px #0d2040, 0 8px 40px rgba(0,0,0,0.8), 0 0 20px ${titleColor}15`,
-        borderRadius: 2,
+        background: "var(--color-bg-header)",
+        backdropFilter: "blur(12px)",
+        border: `2px solid var(--color-border-normal)`,
+        boxShadow: `0 0 0 1px var(--color-border-subtle), 0 8px 40px rgba(0,0,0,0.8), 0 0 20px var(--color-accent-primary)`,
+        borderRadius: "var(--radius, 2px)",
         overflow: "hidden",
         transition: "box-shadow 0.15s ease",
         minWidth: MIN_W,
@@ -282,8 +312,9 @@ export default function FloatingChartWindow({
         style={{
           height: 44,
           flexShrink: 0,
-          background: "linear-gradient(180deg, #0a1628 0%, #071020 100%)",
-          borderBottom: `1px solid ${titleColor}30`,
+          background: "var(--color-bg-page-gradient)",
+          backgroundColor: "var(--color-bg-page)",
+          borderBottom: `1px solid var(--color-border-normal)`,
           display: "flex",
           alignItems: "center",
           padding: "0 10px",
@@ -326,23 +357,26 @@ export default function FloatingChartWindow({
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
-            color: titleColor,
-            fontFamily: "monospace",
+            color: "var(--color-accent-primary)",
+            fontFamily: "var(--font-mono)",
             fontSize: 11,
             fontWeight: "bold",
             letterSpacing: 1,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
+            display: "flex",
+            alignItems: "center",
           }}>
-            {win.symbol}
+            <span>{win.symbol}</span>
+            <PercentageBadge symbol={win.symbol} />
             {!iframeReady && (
               <span style={{ color: "#fbbf24", fontSize: 8, marginLeft: 8, fontWeight: "normal" }}>
                 ⏳
               </span>
             )}
           </div>
-          <div style={{ color: "#3a5a7a", fontFamily: "monospace", fontSize: 8, letterSpacing: 0.5 }}>
+          <div style={{ color: "var(--color-text-subtitle)", fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: 0.5 }}>
             TRADINGVIEW · LIVE
           </div>
         </div>

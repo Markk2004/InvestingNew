@@ -7,6 +7,7 @@
 
 import { useState, useCallback } from "react";
 import type { NewsApiResponse } from "@/lib/types";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface HeaderProps {
   fetchedAt?: string;
@@ -24,6 +25,8 @@ export default function Header({
   usage,
 }: HeaderProps) {
   const [clicked, setClicked] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const isCrimson = theme === "crimson";
 
   const handleRefreshClick = useCallback(() => {
     if (isLoading) return;
@@ -54,9 +57,10 @@ export default function Header({
     <header
       className="sticky top-0 z-40 w-full"
       style={{
-        background: "rgba(13,13,43,0.95)",
-        borderBottom: "2px solid var(--pixel-border)",
+        background: "var(--color-bg-header-toast)",
+        borderBottom: "2px solid var(--color-border-subtle)",
         backdropFilter: "blur(8px)",
+        transition: "var(--transition)",
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
@@ -146,6 +150,24 @@ export default function Header({
             }}
           >
             {isLoading ? "SCANNING..." : "[ REFRESH ]"}
+          </button>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            title="Toggle Theme"
+            className="font-pixel transition-transform active:scale-90 hover:scale-105"
+            style={{
+              fontSize: "7px",
+              padding: "6px 12px",
+              background: isCrimson ? "var(--color-bg-card)" : "transparent",
+              border: "2px solid var(--color-accent-primary)",
+              color: "var(--color-accent-primary)",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
           </button>
         </div>
       </div>

@@ -71,7 +71,7 @@ export default function NewsCard({ article, index }: NewsCardProps) {
   return (
     <article
       id={`news-card-${article.id}`}
-      className="animate-pixel-fade-in flex flex-col"
+      className="news-card animate-pixel-fade-in flex flex-col"
       style={{
         animationDelay: `${Math.min(index * 60, 500)}ms`,
         animationFillMode: "both",

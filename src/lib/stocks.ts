@@ -119,6 +119,7 @@ export const US_STOCKS: StockInfo[] = [
 
 /**
  * Returns the correct TradingView prefix symbol (e.g. NYSE:JPM, NASDAQ:AAPL)
+ * Note: Forced to use BATS exchange to bypass TradingView's 15-minute delay for free widgets.
  */
 export function getTradingViewSymbol(symbol: string): string {
   if (!symbol) return "";
@@ -128,8 +129,9 @@ export function getTradingViewSymbol(symbol: string): string {
   }
   const stock = US_STOCKS.find((s) => s.symbol.toUpperCase() === upperSymbol);
   if (stock) {
-    return `${stock.exchange}:${stock.symbol}`;
+    // Override native exchange with BATS to get free real-time data
+    return `BATS:${stock.symbol}`;
   }
-  // Default fallback to NASDAQ if not in list
-  return `NASDAQ:${symbol}`;
+  // Default fallback to BATS if not in list
+  return `BATS:${symbol}`;
 }

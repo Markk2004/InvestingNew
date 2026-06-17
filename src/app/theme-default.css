@@ -1,0 +1,47 @@
+/* ==========================================
+   1. DEFAULT (PIXEL GAME) THEME VARIABLES
+   ========================================== */
+
+:root, [data-theme="default"] {
+  --background: #0a0a1a;
+  --foreground: #e2e8f0;
+
+  /* Game color palette */
+  --pixel-blue:   #4fc3f7;
+  --pixel-green:  #69ff47;
+  --pixel-yellow: #ffd740;
+  --pixel-red:    #ff5252;
+  --pixel-purple: #ce93d8;
+  --pixel-orange: #ffab40;
+  --pixel-dark:   #0d0d2b;
+  --pixel-panel:  #1a1a3e;
+  --pixel-border: #3a3a6e;
+
+  /* UI specific backgrounds and borders for Default Theme */
+  --color-bg-page: #030810;
+  --color-bg-page-gradient: radial-gradient(ellipse at center, #060f1e 0%, #030810 70%);
+  --color-bg-header: #060d1a;
+  --color-bg-header-toast: rgba(13, 13, 43, 0.95);
+  --color-bg-footer: #040c18;
+  --color-border-subtle: #0d2040;
+  --color-border-normal: #1e3a5f;
+  --color-accent-primary: #4fc3f7;
+  --color-accent-secondary: #fbbf24;
+  --color-text-title: #4fc3f7;
+  --color-text-subtitle: #1e3a5f;
+  --color-text-muted: #475569;
+  
+  --color-button-bg: #0a1f3a;
+  --color-button-border: #2563c8;
+  --color-button-text: #93c5fd;
+  --color-button-bg-hover: #1e3a5f;
+  
+  --color-badge-bg: #0a1a30;
+  --color-badge-text: #4fc3f7;
+  --color-badge-border: #1e3a5f;
+  
+  --color-card-bg: #030810;
+  --color-card-border: #1e3a5f;
+
+  --color-news-bg-toast: rgba(13, 13, 43, 0.7);
+}
