@@ -150,7 +150,7 @@ export default function USMarketListPanel() {
     setPage(1);
   };
 
-  const SortIcon = ({ k }: { k: SortKey }) => {
+  const renderSortIcon = (k: SortKey) => {
     if (sortKey !== k) return <span style={{ color: "#1e3a5f" }}>⇅</span>;
     return (
       <span style={{ color: "#4fc3f7" }}>
@@ -264,7 +264,7 @@ export default function USMarketListPanel() {
           onClick={() => handleSort("symbol")}
           style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", cursor: "pointer", letterSpacing: 0.5, userSelect: "none", display: "flex", gap: 2 }}
         >
-          SYM <SortIcon k="symbol" />
+          SYM {renderSortIcon("symbol")}
         </div>
         <div style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", letterSpacing: 0.5 }}>NAME</div>
         <div style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", letterSpacing: 0.5, textAlign: "center" }}>TREND</div>
@@ -272,13 +272,13 @@ export default function USMarketListPanel() {
           onClick={() => handleSort("price")}
           style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", cursor: "pointer", textAlign: "right", letterSpacing: 0.5, userSelect: "none", display: "flex", gap: 2, justifyContent: "flex-end" }}
         >
-          PRICE <SortIcon k="price" />
+          PRICE {renderSortIcon("price")}
         </div>
         <div
           onClick={() => handleSort("changePercent")}
           style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", cursor: "pointer", textAlign: "right", letterSpacing: 0.5, userSelect: "none", display: "flex", gap: 2, justifyContent: "flex-end" }}
         >
-          CHG% <SortIcon k="changePercent" />
+          CHG% {renderSortIcon("changePercent")}
         </div>
         <div style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", textAlign: "center", letterSpacing: 0.5 }}>ADD</div>
       </div>

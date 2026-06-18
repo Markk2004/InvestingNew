@@ -190,7 +190,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
 
   const handleResolveLogs = async () => {
     try {
-      await fetch("http://localhost:8080/api/system/log/unread"); // Marks them as read on Laravel
+      await fetch("http://localhost:8080/api/system/log/read", { method: "POST" }); // Marks them as read on Laravel
       setUnreadLogs([]);
       setTechieModal(null);
     } catch (e) {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Press_Start_2P, Share_Tech_Mono } from "next/font/google";
+import { Press_Start_2P, Share_Tech_Mono, Rajdhani } from "next/font/google";
 import "./globals.css";
 import GlobalErrorHandler from "../components/GlobalErrorHandler";
 
@@ -16,6 +16,14 @@ const shareTechMono = Share_Tech_Mono({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-mono",
+  display: "swap",
+});
+
+// FUI font
+const rajdhani = Rajdhani({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-fui",
   display: "swap",
 });
 
@@ -37,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="th"
-      className={`${pressStart.variable} ${shareTechMono.variable} h-full`}
+      className={`${pressStart.variable} ${shareTechMono.variable} ${rajdhani.variable} h-full`}
     >
       <body className="min-h-full bg-[var(--color-bg-page)]">
         <ThemeProvider>

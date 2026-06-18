@@ -21,6 +21,12 @@ export default function GlobalErrorHandler() {
       if (event.message === "Script error.") {
         return;
       }
+      // Ignore benign ResizeObserver errors that often occur during layout shifts or CSS transitions
+      if (event.message.includes("ResizeObserver loop") || event.message.includes("ResizeObserver loop completed with undelivered notifications")) {
+        // Prevent default to stop it from flooding the browser console too, if possible
+        event.preventDefault();
+        return;
+      }
       logToBackend({
         type: "error",
         message: event.message,

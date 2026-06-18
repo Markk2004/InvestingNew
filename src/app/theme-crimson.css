@@ -7,9 +7,9 @@
   --background: #050505;
   --foreground: #e0e0e0;
 
-  /* Modern Sans-Serif Typography Override */
-  --font-pixel: "Inter", system-ui, -apple-system, sans-serif !important;
-  --font-mono: "Fira Code", "JetBrains Mono", monospace !important;
+  /* Sci-Fi FUI Typography */
+  --font-pixel: var(--font-fui), "Rajdhani", system-ui, -apple-system, sans-serif !important;
+  --font-mono: var(--font-mono), "Share Tech Mono", monospace !important;
 
   /* Cyber-Security color palette */
   --pixel-blue:   #ff003c; /* Electric Red primary brand color */
@@ -329,9 +329,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: 
-    radial-gradient(circle at 10% 0%, rgba(255, 82, 82, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 90% 0%, rgba(255, 82, 82, 0.08) 0%, transparent 45%);
+  background: radial-gradient(circle at 10% 0%, rgba(255, 82, 82, 0.08) 0%, transparent 45%), radial-gradient(circle at 90% 0%, rgba(255, 82, 82, 0.08) 0%, transparent 45%);
   z-index: 0;
   pointer-events: none;
 }
@@ -391,4 +389,57 @@
 
 [data-theme="crimson"] ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ==========================================
+   SCI-FI FUI UTILITIES
+   ========================================== */
+[data-theme="crimson"] .fui-cut-corner {
+  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+[data-theme="crimson"] .fui-cut-corner-reverse {
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+}
+
+[data-theme="crimson"] .fui-button-cut {
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+[data-theme="crimson"] .fui-button-ghost {
+  background: transparent !important;
+  border: 1px solid var(--color-accent-primary) !important;
+  color: var(--color-accent-primary) !important;
+  text-shadow: 0 0 5px var(--color-accent-primary);
+  box-shadow: inset 0 0 10px rgba(255, 0, 60, 0.1);
+}
+
+[data-theme="crimson"] .fui-button-ghost:hover {
+  background: rgba(255, 0, 60, 0.1) !important;
+  box-shadow: inset 0 0 15px rgba(255, 0, 60, 0.3), 0 0 15px rgba(255, 0, 60, 0.2);
+}
+
+[data-theme="crimson"] .fui-panel {
+  background: rgba(10, 10, 12, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+[data-theme="crimson"] .fui-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+  z-index: 1;
+}
+
+[data-theme="crimson"] .fui-text-glow {
+  text-shadow: 0 0 8px var(--color-accent-primary);
+}
+
+[data-theme="crimson"] .fui-border-glow {
+  box-shadow: 0 0 10px var(--color-accent-primary), inset 0 0 10px var(--color-accent-primary);
+  border-color: var(--color-accent-primary) !important;
 }

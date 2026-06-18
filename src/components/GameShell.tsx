@@ -12,6 +12,7 @@ import CharacterTab from "@/components/CharacterTab";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { useTheme } from "@/components/ThemeProvider";
 import { Building2, User, Newspaper, BarChart2, LineChart, Star } from "lucide-react";
+import CyberHudDashboard from "@/components/CyberHudDashboard";
 
 type Tab = "office" | "character";
 
@@ -310,6 +311,16 @@ function WatchlistTabButton() {
 export default function GameShell() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("office");
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tab") === "character") {
+        setActiveTab("character");
+      }
+    }
+  }, []);
+
   const { theme, toggleTheme } = useTheme();
   const isCrimson = theme === "crimson";
   const [spriteOverrides, setSpriteOverrides] = useState<Record<string, number>>({
@@ -318,6 +329,19 @@ export default function GameShell() {
     newinvester: 3,
     techie: 5,
   });
+
+  if (isCrimson) {
+    return (
+      <CyberHudDashboard activeTab={activeTab} setActiveTab={setActiveTab}>
+        <main style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
+          {activeTab === "office" && <OfficeTab spriteOverrides={spriteOverrides} />}
+          {activeTab === "character" && (
+            <CharacterTab spriteOverrides={spriteOverrides} setSpriteOverrides={setSpriteOverrides} />
+          )}
+        </main>
+      </CyberHudDashboard>
+    );
+  }
 
   return (
       <div

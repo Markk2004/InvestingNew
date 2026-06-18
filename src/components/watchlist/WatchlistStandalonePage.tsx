@@ -63,6 +63,7 @@ export default function WatchlistStandalonePage() {
   }, [symbols.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchQuotes();
     const interval = setInterval(fetchQuotes, 60000);
     return () => clearInterval(interval);

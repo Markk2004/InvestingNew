@@ -12,6 +12,7 @@ import { useChartManager } from "@/components/FloatingChartManager";
 import { useTheme } from "@/components/ThemeProvider";
 import MarketTicker from "@/components/MarketTicker";
 import { LineChart, Star } from "lucide-react";
+import CyberHudDashboard from "@/components/CyberHudDashboard";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const SWR_CONFIG = {
@@ -91,6 +92,78 @@ function ChartsInner() {
     router.replace("/charts", { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run only on mount
+
+  const renderContent = () => (
+      <main
+        style={{
+          flex: 1,
+          position: "relative",
+          overflow: "hidden",
+          background: isCrimson ? "transparent" : "var(--color-bg-page-gradient)",
+        }}
+      >
+        {/* Empty state */}
+        {!hasWindows && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 16,
+              pointerEvents: "none",
+            }}
+          >
+            <div style={{ fontSize: 64, opacity: 0.1, filter: "grayscale(1)" }}>
+              📊
+            </div>
+            <div
+              style={{
+                textAlign: "center",
+                color: "#1e3a5f",
+                fontFamily: "monospace",
+                lineHeight: 2,
+              }}
+            >
+              <div style={{ fontSize: 11, letterSpacing: 2 }}>NO CHARTS OPEN</div>
+              <div style={{ fontSize: 8 }}>
+                Go to{" "}
+                <span style={{ color: "#4fc3f7" }}>📈 Overview</span> or{" "}
+                <span style={{ color: "#fbbf24" }}>⭐ Watchlist</span>
+              </div>
+              <div style={{ fontSize: 8 }}>
+                and click a stock to open it here
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Grid dots background */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "radial-gradient(circle, #0d2040 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+            opacity: 0.3,
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+
+        {/* Floating chart windows + control toolbar are rendered globally by ChartManagerProvider */}
+      </main>
+  );
+
+  if (isCrimson) {
+    return (
+      <CyberHudDashboard activeTab="charts" setActiveTab={() => {}}>
+        {renderContent()}
+      </CyberHudDashboard>
+    );
+  }
 
   return (
     <div
@@ -293,68 +366,7 @@ function ChartsInner() {
           </button>
         </header>
 
-      {/* ── DESKTOP WORKSPACE ── */}
-      <main
-        style={{
-          flex: 1,
-          position: "relative",
-          overflow: "hidden",
-          background: isCrimson ? "transparent" : "var(--color-bg-page-gradient)",
-        }}
-      >
-        {/* Empty state */}
-        {!hasWindows && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 16,
-              pointerEvents: "none",
-            }}
-          >
-            <div style={{ fontSize: 64, opacity: 0.1, filter: "grayscale(1)" }}>
-              📊
-            </div>
-            <div
-              style={{
-                textAlign: "center",
-                color: "#1e3a5f",
-                fontFamily: "monospace",
-                lineHeight: 2,
-              }}
-            >
-              <div style={{ fontSize: 11, letterSpacing: 2 }}>NO CHARTS OPEN</div>
-              <div style={{ fontSize: 8 }}>
-                Go to{" "}
-                <span style={{ color: "#4fc3f7" }}>📈 Overview</span> or{" "}
-                <span style={{ color: "#fbbf24" }}>⭐ Watchlist</span>
-              </div>
-              <div style={{ fontSize: 8 }}>
-                and click a stock to open it here
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Grid dots background */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "radial-gradient(circle, #0d2040 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-            opacity: 0.3,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
-
-        {/* Floating chart windows + control toolbar are rendered globally by ChartManagerProvider */}
-      </main>
+      {renderContent()}
 
       {/* ── FOOTER TICKER ── */}
       <footer

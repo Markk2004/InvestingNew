@@ -10,6 +10,8 @@ import WatchlistStandalonePage from "@/components/watchlist/WatchlistStandaloneP
 import MarketTicker from "@/components/MarketTicker";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { LineChart, BarChart2 } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
+import CyberHudDashboard from "@/components/CyberHudDashboard";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -45,6 +47,22 @@ function LiveClock() {
 export default function WatchlistPage() {
   const router = useRouter();
   const { items } = useWatchlist();
+  const { theme } = useTheme();
+  const isCrimson = theme === "crimson";
+
+  const renderContent = () => (
+    <main style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <WatchlistStandalonePage />
+    </main>
+  );
+
+  if (isCrimson) {
+    return (
+      <CyberHudDashboard activeTab="watchlist" setActiveTab={() => {}}>
+        {renderContent()}
+      </CyberHudDashboard>
+    );
+  }
 
   return (
     <div
@@ -178,10 +196,7 @@ export default function WatchlistPage() {
         <LiveClock />
       </header>
 
-      {/* ── MAIN CONTENT ── */}
-      <main style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-        <WatchlistStandalonePage />
-      </main>
+      {renderContent()}
 
       {/* ── FOOTER TICKER ── */}
       <footer

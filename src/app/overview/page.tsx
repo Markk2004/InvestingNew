@@ -12,6 +12,7 @@ import SectorPerformancePanel from "@/components/overview/SectorPerformancePanel
 import MarketTicker from "@/components/MarketTicker";
 import { useTheme } from "@/components/ThemeProvider";
 import { Star, BarChart2 } from "lucide-react";
+import CyberHudDashboard from "@/components/CyberHudDashboard";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -226,6 +227,44 @@ export default function OverviewPage() {
   const { theme, toggleTheme } = useTheme();
   const isCrimson = theme === "crimson";
 
+  const renderContent = () => (
+    <main
+      style={{
+        flex: 1,
+        overflow: "hidden",
+        padding: "16px 20px 12px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+        height: "100%"
+      }}
+    >
+      {/* Horizontal split for Market List & Sector Performance */}
+      <div style={{ display: "flex", flexDirection: "row", gap: 16, flex: 1, overflow: "hidden" }}>
+        {/* Left Column: US Market List */}
+        <div style={{ flex: 3, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <USMarketListPanel />
+        </div>
+
+        {/* Right Column: Sector Performance Tierlist */}
+        <div style={{ flex: 2, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <SectorPerformancePanel />
+        </div>
+      </div>
+
+      {/* Market Breadth placeholder */}
+      <BreadthPlaceholder isCrimson={isCrimson} />
+    </main>
+  );
+
+  if (isCrimson) {
+    return (
+      <CyberHudDashboard activeTab="overview" setActiveTab={() => {}}>
+        {renderContent()}
+      </CyberHudDashboard>
+    );
+  }
+
   return (
     <div
       style={{
@@ -376,34 +415,7 @@ export default function OverviewPage() {
           {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
         </button>
       </header>
-
-      {/* ── MAIN CONTENT ── */}
-      <main
-        style={{
-          flex: 1,
-          overflow: "hidden",
-          padding: "16px 20px 12px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-      >
-        {/* Horizontal split for Market List & Sector Performance */}
-        <div style={{ display: "flex", flexDirection: "row", gap: 16, flex: 1, overflow: "hidden" }}>
-          {/* Left Column: US Market List */}
-          <div style={{ flex: 3, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <USMarketListPanel />
-          </div>
-
-          {/* Right Column: Sector Performance Tierlist */}
-          <div style={{ flex: 2, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <SectorPerformancePanel />
-          </div>
-        </div>
-
-        {/* Market Breadth placeholder */}
-        <BreadthPlaceholder isCrimson={isCrimson} />
-      </main>
+      {renderContent()}
 
       {/* ── FOOTER TICKER ── */}
       <footer

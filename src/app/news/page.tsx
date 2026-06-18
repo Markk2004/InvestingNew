@@ -15,6 +15,8 @@ import MarketGauge from "@/components/MarketGauge";
 import NewsGrid from "@/components/NewsGrid";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import ErrorBanner from "@/components/ErrorBanner";
+import CyberHudDashboard from "@/components/CyberHudDashboard";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ── SWR fetcher ──────────────────────────────────────────────
 
@@ -38,6 +40,8 @@ interface Toast { id: number; message: string; type: ToastType; }
 // ── Page Component ────────────────────────────────────────────
 
 export default function NewsDashboardPage() {
+  const { theme } = useTheme();
+  const isCrimson = theme === "crimson";
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [formattedDate, setFormattedDate] = useState<string>("");
@@ -156,10 +160,10 @@ export default function NewsDashboardPage() {
   const errorMessage = error?.message ?? data?.error;
   const isUpdating = isLoading || isValidating || isRefreshing;
 
-  return (
+  const renderContent = () => (
     <div
       className="min-h-screen relative"
-      style={{ background: "var(--color-bg-page)", color: "var(--foreground)" }}
+      style={{ background: isCrimson ? "transparent" : "var(--color-bg-page)", color: "var(--foreground)" }}
     >
       {/* ── Toast Notifications ───────────────────────────── */}
       <div className="fixed top-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none">
@@ -224,13 +228,7 @@ export default function NewsDashboardPage() {
       )}
 
       {/* ── Pixel HUD Header ───────────────────────────────── */}
-      <Header
-        fetchedAt={data?.fetchedAt}
-        isLoading={isUpdating}
-        hasError={hasError}
-        onRefresh={handleRefresh}
-        usage={data?.usage}
-      />
+      {/* Header is now rendered globally inside CyberHudDashboard via headerProps */}
 
       {/* ── Back to Office Button ──────────────────────────── */}
       <div className="fixed bottom-5 left-5 z-50">
@@ -474,6 +472,26 @@ export default function NewsDashboardPage() {
       </main>
     </div>
   );
+
+  if (isCrimson) {
+    return (
+      <CyberHudDashboard 
+        activeTab="news" 
+        setActiveTab={() => {}}
+        headerProps={{
+          fetchedAt: data?.fetchedAt,
+          isLoading: isUpdating,
+          hasError: hasError,
+          onRefresh: handleRefresh,
+          usage: data?.usage
+        }}
+      >
+        {renderContent()}
+      </CyberHudDashboard>
+    );
+  }
+
+  return renderContent();
 }
 
 // ── Pixel StatCard ───────────────────────────────────────────
