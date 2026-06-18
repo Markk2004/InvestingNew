@@ -237,7 +237,7 @@ export default function NewsDashboardPage() {
         <Link
           href="/"
           id="back-to-office-btn"
-          className="font-pixel flex items-center gap-2 px-3 py-2 hover:scale-105 active:scale-95 transition-transform"
+          className="back-office-btn font-pixel flex items-center gap-2 px-3 py-2 hover:scale-105 active:scale-95 transition-transform"
           style={{
             fontSize: "11px",
             background: "var(--color-button-bg)",
@@ -313,7 +313,7 @@ export default function NewsDashboardPage() {
 
             {/* ── Today's Date Badge ────────────────────── */}
             <div
-              className="flex items-center gap-3 px-4 py-2"
+              className="date-badge-container flex items-center gap-3 px-4 py-2"
               style={{
                 border: "1px solid rgba(79,195,247,0.2)",
                 background: "rgba(79,195,247,0.04)",
@@ -336,7 +336,7 @@ export default function NewsDashboardPage() {
             {/* ── Status Line / AI Usage Status ────────── */}
             {data?.usage && (
               <div
-                className="flex items-center gap-3 px-4 py-1.5"
+                className="ai-status-container flex items-center gap-3 px-4 py-1.5"
                 style={{
                   border: "1px dashed rgba(79,195,247,0.3)",
                   background: "rgba(79,195,247,0.02)",
@@ -368,7 +368,7 @@ export default function NewsDashboardPage() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   disabled={page === 1}
-                  className="font-pixel px-4 py-2 hover:bg-[rgba(79,195,247,0.1)] active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                  className="pagination-btn font-pixel px-4 py-2 hover:bg-[rgba(79,195,247,0.1)] active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
                   style={{
                     fontSize: "12px",
                     border: "2px solid var(--pixel-blue)",
@@ -386,7 +386,7 @@ export default function NewsDashboardPage() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   disabled={page === data.totalPages}
-                  className="font-pixel px-4 py-2 hover:bg-[rgba(79,195,247,0.1)] active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
+                  className="pagination-btn font-pixel px-4 py-2 hover:bg-[rgba(79,195,247,0.1)] active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
                   style={{
                     fontSize: "12px",
                     border: "2px solid var(--pixel-blue)",
@@ -402,7 +402,7 @@ export default function NewsDashboardPage() {
             {data.pendingArticles && data.pendingArticles.length > 0 && (
               <div className="space-y-3">
                 <div
-                  className="flex items-center gap-3 px-4 py-2"
+                  className="pending-queue-header flex items-center gap-3 px-4 py-2"
                   style={{
                     border: "1px solid rgba(255,215,64,0.25)",
                     background: "rgba(255,215,64,0.04)",
@@ -428,7 +428,7 @@ export default function NewsDashboardPage() {
                       href={article.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-2.5 hover:brightness-125 transition-all"
+                      className="pending-queue-item flex items-center gap-3 px-4 py-2.5 hover:brightness-125 transition-all"
                       style={{
                         border: "1px solid rgba(255,215,64,0.2)",
                         background: "rgba(255,215,64,0.03)",

@@ -138,7 +138,16 @@ export default function Header({
             disabled={isLoading}
             aria-label="รีเฟรชข้อมูล"
             className="font-pixel transition-transform active:scale-90 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{
+            style={isCrimson ? {
+              fontSize: "7px",
+              padding: "6px 12px",
+              background: clicked ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              color: "#cbd5e1",
+              borderRadius: "6px",
+              cursor: isLoading ? "not-allowed" : "pointer",
+              transition: "all 0.15s ease",
+            } : {
               fontSize: "7px",
               padding: "6px 12px",
               background: clicked ? "var(--pixel-blue)" : "transparent",
@@ -157,10 +166,19 @@ export default function Header({
             onClick={toggleTheme}
             title="Toggle Theme"
             className="font-pixel transition-transform active:scale-90 hover:scale-105"
-            style={{
+            style={isCrimson ? {
               fontSize: "7px",
               padding: "6px 12px",
-              background: isCrimson ? "var(--color-bg-card)" : "transparent",
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              color: "#cbd5e1",
+              borderRadius: "6px",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            } : {
+              fontSize: "7px",
+              padding: "6px 12px",
+              background: "transparent",
               border: "2px solid var(--color-accent-primary)",
               color: "var(--color-accent-primary)",
               cursor: "pointer",

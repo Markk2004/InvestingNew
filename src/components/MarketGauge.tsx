@@ -6,6 +6,8 @@
 //  health-bar / RPG-style progress gauge.
 // ─────────────────────────────────────────────────────────────
 
+import { useTheme } from "./ThemeProvider";
+
 interface MarketGaugeProps {
   averageSeverity: number;
   articleCount: number;
@@ -31,9 +33,11 @@ export default function MarketGauge({
   averageSeverity,
   articleCount,
 }: MarketGaugeProps) {
+  const { theme } = useTheme();
   const score = Math.min(10, Math.max(0, averageSeverity));
   const level = getGaugeLevel(score);
   const filledSegments = Math.round(score);
+  const isCrimson = theme === "crimson";
 
   const segmentColor = (i: number): string => {
     if (i >= filledSegments) return "rgba(58,58,110,0.4)";
@@ -46,7 +50,7 @@ export default function MarketGauge({
 
   return (
     <div
-      className="flex flex-col gap-4 p-5 h-full"
+      className="market-risk-card flex flex-col gap-4 p-5 h-full"
       style={{
         border: `2px solid ${level.color}`,
         background: level.bg,
@@ -103,21 +107,46 @@ export default function MarketGauge({
         >
           THREAT LEVEL
         </div>
-        <div className="flex gap-1">
-          {Array.from({ length: SEGMENT_COUNT }, (_, i) => (
+        {isCrimson ? (
+          <div className="relative mt-1">
             <div
-              key={i}
+              className="w-full bg-slate-950/40 rounded-full border border-white/10 overflow-hidden"
+              style={{ height: "14px" }}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${score * 10}%`,
+                  background: `linear-gradient(90deg, ${level.color}dd, ${level.color})`,
+                  boxShadow: `0 0 8px ${level.color}`,
+                }}
+              />
+            </div>
+            {/* Subtle glow underneath */}
+            <div
+              className="absolute -bottom-1 left-0 right-0 h-2 blur-md rounded-full pointer-events-none opacity-40 transition-all duration-500"
               style={{
-                flex: 1,
-                height: "20px",
-                background: segmentColor(i),
-                border: `1px solid ${i < filledSegments ? segmentColor(i) : "rgba(58,58,110,0.6)"}`,
-                boxShadow: i < filledSegments ? `0 0 4px ${segmentColor(i)}` : "none",
-                transition: "all 0.3s ease",
+                background: level.color,
               }}
             />
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="flex gap-1">
+            {Array.from({ length: SEGMENT_COUNT }, (_, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  height: "20px",
+                  background: segmentColor(i),
+                  border: `1px solid ${i < filledSegments ? segmentColor(i) : "rgba(58,58,110,0.6)"}`,
+                  boxShadow: i < filledSegments ? `0 0 4px ${segmentColor(i)}` : "none",
+                  transition: "all 0.3s ease",
+                }}
+              />
+            ))}
+          </div>
+        )}
         {/* Scale labels */}
         <div className="flex justify-between mt-1">
           {["0", "5", "10"].map((n) => (

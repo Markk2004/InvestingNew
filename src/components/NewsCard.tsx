@@ -87,7 +87,7 @@ export default function NewsCard({ article, index }: NewsCardProps) {
       >
         {/* Score Badge */}
         <div
-          className="flex-shrink-0 flex flex-col items-center justify-center font-pixel"
+          className="news-score-badge flex-shrink-0 flex flex-col items-center justify-center font-pixel"
           style={{
             minWidth: "50px",
             height: "50px",
@@ -148,7 +148,7 @@ export default function NewsCard({ article, index }: NewsCardProps) {
 
         {/* Sentiment Badge */}
         <div
-          className="flex-shrink-0 font-pixel px-2 py-1"
+          className="news-sentiment-badge flex-shrink-0 font-pixel px-2 py-1"
           style={{
             fontSize: "10px",
             border: `1px solid ${sentiment.color}`,
@@ -235,7 +235,7 @@ export default function NewsCard({ article, index }: NewsCardProps) {
             article.keywords.map((kw) => (
               <span
                 key={kw}
-                className="font-pixel px-2 py-0.5"
+                className="keyword-badge font-pixel px-2 py-0.5"
                 style={{
                   fontSize: "10px",
                   border: `1px solid var(--pixel-border)`,
@@ -263,7 +263,7 @@ export default function NewsCard({ article, index }: NewsCardProps) {
           href={article.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-pixel flex items-center gap-1.5 hover:brightness-110 active:scale-95 transition-all"
+          className="news-source-btn font-pixel flex items-center gap-1.5 hover:brightness-110 active:scale-95 transition-all"
           style={{
             fontSize: "10px",
             border: `2px solid var(--pixel-blue)`,

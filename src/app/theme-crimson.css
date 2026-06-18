@@ -12,12 +12,12 @@
   --font-mono: "Fira Code", "JetBrains Mono", monospace !important;
 
   /* Cyber-Security color palette */
-  --pixel-blue:   #ff003c; /* Electric Red */
-  --pixel-green:  #ff003c;
-  --pixel-yellow: #cc0030;
-  --pixel-red:    #ff003c;
+  --pixel-blue:   #ff003c; /* Electric Red primary brand color */
+  --pixel-green:  #10b981; /* Green for safe / bullish status */
+  --pixel-yellow: #f59e0b; /* Amber for caution status */
+  --pixel-red:    #ff5252; /* Softer red for critical / high risk */
   --pixel-purple: #111111;
-  --pixel-orange: #ff003c;
+  --pixel-orange: #ff8080; /* Softer red/orange for danger / bearish */
   --pixel-dark:   #050505;
   --pixel-panel:  #0a0a0c;
   --pixel-border: #1f1f1f;
@@ -100,42 +100,50 @@
 [data-theme="crimson"] .pixel-box-red, 
 [data-theme="crimson"] .pixel-box-yellow, 
 [data-theme="crimson"] .pixel-box-green {
-  background: rgba(17, 17, 17, 0.6) !important; /* Deep grey with transparency for glassmorphism */
+  background: rgba(255, 255, 255, 0.03) !important; /* White semi-transparent 3% for glassmorphism */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.03) !important; /* Very subtle border instead of sharp lines */
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important; /* Subtle top highlight for elevation */
+  border: 1px solid rgba(255, 255, 255, 0.06) !important; /* Thin semi-transparent white border */
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtle top highlight for elevation */
   border-radius: var(--radius) !important;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 0, 60, 0.03) !important; /* Soft deep shadow + faint ambient glow */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important; /* Soft deep shadow without bright red glows */
   padding: 24px;
   transition: var(--transition);
 }
 
 [data-theme="crimson"] .card:hover,
 [data-theme="crimson"] .pixel-box:hover {
-  border-color: rgba(255, 0, 60, 0.2) !important;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 50px rgba(255, 0, 60, 0.08) !important; /* Glow intensifies smoothly */
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6) !important;
   transform: translateY(-2px);
 }
 
-/* Specifically for News Cards & Stat Cards to be Dark Grey with Red Glow */
-[data-theme="crimson"] .news-card,
-[data-theme="crimson"] .stat-card {
-  background: rgba(22, 22, 22, 0.6) !important; /* พื้นหลังเทาเข้ม มีความโปร่งแสงแบบ Glassmorphism */
+/* Standout Market Risk Card overrides to preserve status colors and glowing border */
+[data-theme="crimson"] .market-risk-card {
+  background: rgba(255, 255, 255, 0.03) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.04) !important; /* ไม่เน้นเส้นขอบ แต่ใช้ความต่างของสีเทาและเงา */
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 0, 60, 0.04) !important; /* เงากว้างนุ่มนวล และแสงเรืองรองบางๆ */
+  border-radius: var(--radius) !important;
+}
+
+/* Specifically for News Cards & Stat Cards to be Glassmorphic without red glow */
+[data-theme="crimson"] .news-card,
+[data-theme="crimson"] .stat-card {
+  background: rgba(255, 255, 255, 0.035) !important; /* White semi-transparent 3.5% */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
   border-radius: var(--radius) !important;
   transition: var(--transition);
 }
 
 [data-theme="crimson"] .news-card:hover,
 [data-theme="crimson"] .stat-card:hover {
-  background: rgba(26, 26, 26, 0.8) !important;
-  border-color: rgba(255, 0, 60, 0.2) !important; /* ขอบแดงอ่อนๆ เมื่อชี้ */
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), 0 0 50px rgba(255, 0, 60, 0.1) !important; /* ไฟสีแดงสว่างขึ้นแบบนุ่มนวล */
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6) !important;
   transform: translateY(-2px);
 }
 
@@ -217,6 +225,94 @@
   animation: electric-pulse 2s infinite;
 }
 
+/* Glassmorphism Buttons & Badges Override */
+[data-theme="crimson"] .news-score-badge {
+  border-width: 1px !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="crimson"] .news-sentiment-badge {
+  border-radius: 6px !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+[data-theme="crimson"] .news-source-btn {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="crimson"] .news-source-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="crimson"] .pagination-btn {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="crimson"] .pagination-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="crimson"] .back-office-btn {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+  border-radius: 6px !important;
+}
+
+[data-theme="crimson"] .back-office-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="crimson"] .keyword-badge {
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 4px !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="crimson"] .date-badge-container {
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: var(--radius) !important;
+}
+
+[data-theme="crimson"] .ai-status-container {
+  border: 1px dashed rgba(255, 255, 255, 0.06) !important;
+  border-top: none !important;
+  background: rgba(255, 255, 255, 0.01) !important;
+  border-bottom-left-radius: var(--radius) !important;
+  border-bottom-right-radius: var(--radius) !important;
+}
+
+[data-theme="crimson"] .pending-queue-header {
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: var(--radius) !important;
+}
+
+[data-theme="crimson"] .pending-queue-item {
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: var(--radius) !important;
+}
+
+[data-theme="crimson"] .pending-queue-item:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
 /* Animations for CrimsonBackground SVG and Glows */
 @keyframes electric-pulse {
   0%, 100% { opacity: 0.5; box-shadow: 0 0 4px var(--color-accent-primary); }
@@ -230,12 +326,12 @@
 [data-theme="crimson"] .ambient-glow {
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 1200px;
-  height: 600px;
-  background: radial-gradient(ellipse at center, rgba(255, 0, 60, 0.08), transparent 70%);
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: 
+    radial-gradient(circle at 10% 0%, rgba(255, 82, 82, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 90% 0%, rgba(255, 82, 82, 0.08) 0%, transparent 45%);
   z-index: 0;
   pointer-events: none;
 }
@@ -273,4 +369,26 @@
   stroke: var(--color-accent-primary) !important;
   opacity: 0.7;
   animation: running-light 2s linear infinite;
+}
+
+/* Custom Scrollbar for Crimson Theme */
+[data-theme="crimson"] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+[data-theme="crimson"] ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: none !important;
+  border-radius: 8px;
+}
+
+[data-theme="crimson"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px;
+}
+
+[data-theme="crimson"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
 }
