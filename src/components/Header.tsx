@@ -57,9 +57,10 @@ export default function Header({
     <header
       className="sticky top-0 z-40 w-full"
       style={{
-        background: "var(--color-bg-header-toast)",
-        borderBottom: "2px solid var(--color-border-subtle)",
-        backdropFilter: "blur(8px)",
+        background: "linear-gradient(180deg, rgba(40, 40, 45, 0.65) 0%, rgba(10, 10, 15, 0.95) 100%), radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+        boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 15px 35px rgba(0, 0, 0, 0.6)",
+        backdropFilter: "blur(12px)",
         transition: "var(--transition)",
       }}
     >
@@ -111,9 +112,18 @@ export default function Header({
 
           {/* Status badge */}
           <div
-            className="font-pixel flex items-center gap-1.5 px-2 py-1"
-            style={{
+            className="font-pixel flex items-center gap-1.5"
+            style={isCrimson ? {
               fontSize: "7px",
+              padding: "6px 12px",
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
+              color: "#cbd5e1",
+              borderRadius: "6px",
+            } : {
+              fontSize: "7px",
+              padding: "4px 8px",
               border: `1px solid ${statusColor}`,
               background: `${statusColor}10`,
             }}
@@ -128,7 +138,9 @@ export default function Header({
                 background: statusColor,
               }}
             />
-            <span style={{ color: statusColor }}>{statusText}</span>
+            <span style={isCrimson ? {} : { color: statusColor }}>
+              {isCrimson ? `[ ${statusText} ]` : statusText}
+            </span>
           </div>
 
           {/* Refresh button */}
@@ -143,6 +155,7 @@ export default function Header({
               padding: "6px 12px",
               background: clicked ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.04)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
               color: "#cbd5e1",
               borderRadius: "6px",
               cursor: isLoading ? "not-allowed" : "pointer",
@@ -171,6 +184,7 @@ export default function Header({
               padding: "6px 12px",
               background: "rgba(255, 255, 255, 0.04)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
               color: "#cbd5e1",
               borderRadius: "6px",
               cursor: "pointer",

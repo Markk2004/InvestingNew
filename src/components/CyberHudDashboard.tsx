@@ -78,7 +78,8 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
     return (
       <button
         key={id}
-        onClick={() => {
+        onMouseEnter={() => path && router.prefetch(path.split("?")[0])}
+        onClick={(e) => {
           if (path && pathname !== path.split("?")[0]) {
             router.push(path);
           } else {
@@ -154,6 +155,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
             return (
               <button 
                 key={item.id}
+                onMouseEnter={() => router.prefetch(item.path.split("?")[0])}
                 onClick={() => router.push(item.path)}
                 className={`relative w-full h-[60px] flex justify-center items-center z-10 mb-[10px] transition-colors ${isActive ? 'text-[var(--color-accent-primary)]' : 'text-[#94a3b8] hover:text-[#cbd5e1]'}`}
                 style={isActive ? { filter: "drop-shadow(0 0 5px rgba(255,0,60,0.6))" } : {}}
@@ -206,9 +208,10 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
           
           <div className="text-[10px] text-[#555] mt-6 mb-3 tracking-widest uppercase">Target Lock</div>
           <button
+            onMouseEnter={() => router.prefetch("/watchlist")}
             onClick={() => router.push("/watchlist")}
             className="w-full flex items-center justify-between px-4 py-3 mb-2 fui-cut-corner transition-all duration-300 bg-[rgba(10,10,12,0.6)] border-l-4 border-transparent text-[#888] hover:bg-[rgba(255,191,36,0.05)] hover:border-[rgba(255,191,36,0.5)] hover:text-[#ccc]"
-            style={{ fontFamily: "var(--font-fui)", fontSize: "14px", textTransform: "uppercase", letterSpacing: "2px" }}
+            style={{ fontFamily: "var(--font-fui)", fontSize: "14px", textTransform: "uppercase", letterSpacing: "2px", display: "flex", textDecoration: "none" }}
           >
             <div className="flex items-center gap-3">
               <Star size={16} className="text-[#fbbf24]" />
@@ -239,7 +242,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
       )}
 
       {/* CENTER CONTENT */}
-      <main className="flex-1 h-full flex flex-col relative z-10">
+      <main className="flex-1 h-full flex flex-col relative">
         <Header {...(headerProps || { isLoading: false, hasError: false, onRefresh: () => {} })} />
         
         {/* Scrollable Content Area */}

@@ -126,6 +126,8 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
         }
 
         // Create new window
+        const sidebar = document.querySelector('aside');
+        const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
         const idx = prev.length % INITIAL_POSITIONS.length;
         const pos = INITIAL_POSITIONS[idx];
         const newZ = maxZ + 1;
@@ -135,7 +137,7 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
         const newWin: ChartWindowState = {
           id,
           symbol: symbol.toUpperCase(),
-          x: pos.x + prev.length * 30,
+          x: sidebarWidth + pos.x + prev.length * 30,
           y: pos.y + prev.length * 20,
           width: 620,
           height: 420,
@@ -187,7 +189,9 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
     const layout = TILE_LAYOUTS[layoutKey] ?? { cols: 2, rows: 2 };
     const vw = globalThis.innerWidth ?? 1200;
     const vh = globalThis.innerHeight ?? 800;
-    const availW = vw;
+    const sidebar = document.querySelector('aside');
+    const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
+    const availW = vw - sidebarWidth;
     const availH = vh - 96; // header + footer
     const cellW = Math.floor(availW / layout.cols);
     const cellH = Math.floor(availH / layout.rows);
@@ -199,7 +203,7 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
         if (w.closed) return w;
         const res = {
           ...w,
-          x: (activeIdx % layout.cols) * cellW,
+          x: sidebarWidth + (activeIdx % layout.cols) * cellW,
           y: Math.floor(activeIdx / layout.cols) * cellH,
           width: cellW - 4,
           height: cellH - 4,
@@ -235,6 +239,7 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
               border: "1px solid #1e3a5f",
               padding: "4px 10px",
               boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+              pointerEvents: "auto",
             }}
           >
             <span
@@ -363,14 +368,14 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
           bottom: 28,
           left: 0,
           right: 0,
-          zIndex: isChartsPage ? 999 : -1,
-          pointerEvents: isChartsPage ? "auto" : "none",
+          zIndex: isChartsPage ? 15 : -1,
+          pointerEvents: "none",
           visibility: isChartsPage ? "visible" : "hidden",
           opacity: isChartsPage ? 1 : 0,
           transition: "opacity 0.2s ease, visibility 0.2s ease",
         }}
       >
-        <div style={{ pointerEvents: isChartsPage ? "auto" : "none", width: "100%", height: "100%", position: "relative" }}>
+        <div style={{ pointerEvents: "none", width: "100%", height: "100%", position: "relative" }}>
           {ManagerUI}
         </div>
       </div>

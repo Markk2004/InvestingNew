@@ -263,7 +263,9 @@ export default function FloatingChartWindow({
       };
       const vw = globalThis.innerWidth ?? 1200;
       const vh = globalThis.innerHeight ?? 800;
-      onUpdate(win.id, { x: 0, y: 0, width: vw, height: vh - 96 });
+      const sidebar = document.querySelector('aside');
+      const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
+      onUpdate(win.id, { x: sidebarWidth, y: 0, width: vw - sidebarWidth, height: vh - 96 });
       setIsMaximized(true);
     } else {
       if (prevStateRef.current) {
