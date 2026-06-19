@@ -127,11 +127,39 @@ export function getTradingViewSymbol(symbol: string): string {
   if (upperSymbol.includes(":")) {
     return upperSymbol;
   }
+
+  // Special Commodities / Forex / Crypto mappings
+  if (
+    upperSymbol === "XAUUSD" ||
+    upperSymbol === "GOLD" ||
+    upperSymbol === "XAUSD" ||
+    upperSymbol === "XAAUSD" ||
+    upperSymbol === "TVCGOLD"
+  ) {
+    // Let TradingView auto-resolve the best real-time spot gold (usually FX_IDC or OANDA)
+    return "XAUUSD";
+  }
+  if (upperSymbol === "BTC" || upperSymbol === "BTCUSD") {
+    return "COINBASE:BTCUSD";
+  }
+  if (upperSymbol === "ETH" || upperSymbol === "ETHUSD") {
+    return "COINBASE:ETHUSD";
+  }
+  if (upperSymbol === "SOL" || upperSymbol === "SOLUSD") {
+    return "COINBASE:SOLUSD";
+  }
+  if (upperSymbol === "USDT" || upperSymbol === "USDTUSD") {
+    return "KRAKEN:USDTUSD";
+  }
+
   const stock = US_STOCKS.find((s) => s.symbol.toUpperCase() === upperSymbol);
   if (stock) {
-    // Override native exchange with BATS to get free real-time data
+    if (stock.exchange === "TVC" || stock.exchange === "OANDA") {
+      return stock.symbol;
+    }
+    // Override native exchange with BATS to get free real-time data on TradingView widgets
     return `BATS:${stock.symbol}`;
   }
-  // Default fallback to BATS if not in list
-  return `BATS:${symbol}`;
+  // Default fallback to auto-resolve
+  return symbol;
 }

@@ -5,7 +5,7 @@
 //  Reads ?open=SYMBOL (comma-separated) → auto-opens charts
 // ─────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { useChartManager } from "@/components/FloatingChartManager";
@@ -59,30 +59,41 @@ function ChartsInner() {
   const { theme, toggleTheme } = useTheme();
   const isCrimson = theme === "crimson";
   const { openChart, hasWindows, windows } = useChartManager();
+  const [isProcessingQueue, setIsProcessingQueue] = useState(false);
 
   // ── Background News Poller ──────────────────────────────────
   // Keeps news analysis active and sends Telegram alerts even when the user is on the chart page
-  const { data } = useSWR("/api/news?page=1", fetcher, SWR_CONFIG);
+  const { data, mutate } = useSWR("/api/news?page=1", fetcher, SWR_CONFIG);
 
-  // Auto-process queue if there are pending articles
+  // Auto-process queue sequentially with 15-second loop if pending articles exist
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (data?.pendingArticles && data.pendingArticles.length > 0) {
-      interval = setInterval(async () => {
-        try {
-          await fetch("/api/news?process_queue=true");
-        } catch (e) {}
-      }, 300000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [data?.pendingArticles]);
+    if (isProcessingQueue) return;
+    if (!data?.pendingArticles || data.pendingArticles.length === 0) return;
 
-  // Auto-open symbols from ?open= query param on mount
+    const timer = setTimeout(async () => {
+      try {
+        setIsProcessingQueue(true);
+        await fetch("/api/news?process_queue=true");
+        await mutate();
+      } catch (e) {
+        console.error("Failed background queue process:", e);
+      } finally {
+        setIsProcessingQueue(false);
+      }
+    }, 15000); // 15 seconds accelerated dynamic loop
+
+    return () => clearTimeout(timer);
+  }, [data?.pendingArticles, mutate, isProcessingQueue]);
+
+  const lastProcessedOpen = useRef<string | null>(null);
+
+  // Auto-open symbols from ?open= query param
   useEffect(() => {
     const openParam = searchParams.get("open");
-    if (!openParam) return;
+    if (!openParam || openParam === lastProcessedOpen.current) return;
+
+    lastProcessedOpen.current = openParam;
+
     const symbols = openParam
       .split(",")
       .map((s) => s.trim().toUpperCase())
@@ -90,8 +101,7 @@ function ChartsInner() {
     symbols.forEach((sym) => openChart(sym));
     // Clean up URL to avoid re-opening on refresh
     router.replace("/charts", { scroll: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run only on mount
+  }, [searchParams, openChart, router]);
 
   const renderContent = () => (
       <main

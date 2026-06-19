@@ -50,11 +50,12 @@ export default function MarketGauge({
 
   return (
     <div
-      className="market-risk-card flex flex-col gap-4 p-5 h-full"
+      className="market-risk-card flex flex-col gap-3 p-4 h-full"
       style={{
         border: `2px solid ${level.color}`,
         background: level.bg,
         boxShadow: `0 0 20px ${level.color}30`,
+        minHeight: "180px",
       }}
     >
       {/* Title */}
@@ -83,9 +84,9 @@ export default function MarketGauge({
         <div
           className="font-pixel"
           style={{
-            fontSize: "48px",
+            fontSize: "36px",
             color: level.color,
-            textShadow: `0 0 20px ${level.color}`,
+            textShadow: `0 0 15px ${level.color}`,
             lineHeight: 1,
           }}
         >
@@ -111,7 +112,7 @@ export default function MarketGauge({
           <div className="relative mt-1">
             <div
               className="w-full bg-slate-950/40 rounded-full border border-white/10 overflow-hidden"
-              style={{ height: "14px" }}
+              style={{ height: "10px" }}
             >
               <div
                 className="h-full rounded-full transition-all duration-500 ease-out"

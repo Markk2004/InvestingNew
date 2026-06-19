@@ -99,17 +99,117 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
     );
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatInput.trim()) return;
-    setChatMessages([...chatMessages, {
-      id: Date.now(),
+    const input = chatInput.trim();
+    if (!input) return;
+
+    // Add user's message
+    const userMsgId = Date.now();
+    const newMsg = {
+      id: userMsgId,
       sender: "COMMANDER",
-      text: chatInput,
+      text: input,
       time: new Date().toLocaleTimeString("en-US", { hour12: false }) + " UTC",
       type: "user"
-    }]);
+    };
+
+    setChatMessages((prev) => [...prev, newMsg]);
     setChatInput("");
+
+    // Classify intent
+    const lowerInput = input.toLowerCase();
+    const words = input.toUpperCase().split(/\s+/);
+    
+    const openTerms = ["เปิดกราฟ", "ดูกราฟ", "เปิด", "กราฟ", "open chart", "show chart", "chart", "open"];
+    const priceTerms = ["ราคา", "เช็คราคา", "เช็ค", "ราคาเท่าไหร่", "price", "check price", "check"];
+    
+    const hasOpenWord = openTerms.some(term => lowerInput.includes(term));
+    const hasPriceWord = priceTerms.some(term => lowerInput.includes(term));
+    
+    let symbol: string | null = null;
+    for (const w of words) {
+      const cleaned = w.replace(/[^A-Z0-9.\-]/g, "");
+      if (
+        cleaned && 
+        cleaned.length >= 1 && 
+        cleaned.length <= 10 && 
+        !openTerms.map(t => t.toUpperCase()).includes(cleaned) && 
+        !priceTerms.map(t => t.toUpperCase()).includes(cleaned) &&
+        !["หุ้น", "หุ้นสหรัฐ", "หน่อย", "สิ", "ที", "USD", "US"].includes(cleaned)
+      ) {
+        symbol = cleaned;
+        break;
+      }
+    }
+
+    // Agent response logic helper
+    const addAgentMessage = (sender: string, text: string, type: "agent" | "system" = "agent") => {
+      setChatMessages((prev) => [...prev, {
+        id: Date.now() + Math.random(),
+        sender,
+        text,
+        time: new Date().toLocaleTimeString("en-US", { hour12: false }) + " UTC",
+        type
+      }]);
+    };
+
+    if (symbol) {
+      if (hasOpenWord || (!hasPriceWord && lowerInput.includes("กราฟ"))) {
+        // OPEN CHART COMMAND
+        setTimeout(() => {
+          addAgentMessage("NewInvester", `รับทราบครับท่านผู้บัญชาการ! กำลังนำทางและเปิดหน้าต่างกราฟของ $${symbol} ให้เดี๋ยวนี้ครับ... 📈`);
+          
+          setTimeout(() => {
+            router.push(`/charts?open=${symbol}`);
+          }, 1000);
+        }, 600);
+      } else {
+        // DEFAULT TO CHECK PRICE (since there's a symbol)
+        const symbolForYahoo = ["XAUUSD", "GOLD", "XAUSD"].includes(symbol.toUpperCase()) ? "GC=F" : symbol;
+        const displayLabel = ["XAUUSD", "GOLD", "XAUSD", "GC=F"].includes(symbol.toUpperCase()) ? "GOLD" : symbol;
+
+        setTimeout(() => {
+          addAgentMessage("NewInvester", `กำลังส่งคำขอสืบค้นราคาล่าสุดของ $${displayLabel} จาก Feed ตลาดให้นะครับ... 🔍`);
+          
+          setTimeout(async () => {
+            try {
+              const res = await fetch(`/api/ticker?symbols=${symbolForYahoo}`);
+              if (!res.ok) throw new Error("API response error");
+              const data = await res.json();
+              if (Array.isArray(data) && data.length > 0) {
+                const quote = data[0];
+                const isUp = quote.change >= 0;
+                const changeStr = `${isUp ? "▲ +" : "▼ "}${Math.abs(quote.change).toFixed(2)} (${Math.abs(quote.changePercent).toFixed(2)}%)`;
+                addAgentMessage(
+                  "NewInvester", 
+                  `ราคาของ $${displayLabel} ปัจจุบันอยู่ที่ $${quote.price.toFixed(2)} USD [ ${changeStr} ] ครับท่าน!`
+                );
+              } else {
+                addAgentMessage("NewInvester", `ไม่พบสัญลักษณ์หุ้น $${displayLabel} ในตลาดสหรัฐฯ หรือบริการดึงข้อมูลขัดข้องชั่วคราวครับ`);
+              }
+            } catch (err) {
+              addAgentMessage("Techie", `[SYSTEM ERROR] เกิดปัญหาขัดข้องทางเทคนิคในการสืบค้นข้อมูลของ $${displayLabel} กรุณาลองใหม่อีกครั้งครับ`, "system");
+            }
+          }, 800);
+        }, 500);
+      }
+    } else {
+      // General conversational fallbacks
+      setTimeout(() => {
+        if (lowerInput.includes("สวัสดี") || lowerInput.includes("hello") || lowerInput.includes("hi")) {
+          addAgentMessage("Gemini", "สวัสดีครับผู้บัญชาการ! มีอะไรให้ผมและทีมงานวิเคราะห์ความเสี่ยงตลาดช่วยตรวจสอบในวันนี้ไหมครับ?");
+        } else if (lowerInput.includes("status") || lowerInput.includes("ระบบ") || lowerInput.includes("ทำงาน")) {
+          addAgentMessage("Techie", "สถานะระบบ: ONLINE 🟢 | API: เชื่อมต่อปกติ | ความหน่วง: 42ms | บัญชี DeepSeek / Gemini พร้อมใช้งานครับหัวหน้า!");
+        } else if (lowerInput.includes("ความเสี่ยง") || lowerInput.includes("ข่าว") || lowerInput.includes("risk")) {
+          addAgentMessage("Gemini", "ขณะนี้ความเสี่ยงตลาดเฉลี่ยคำนวณจาก Feed ข่าวล่าสุดครับ หากต้องการตรวจสอบตัวชี้วัดใดเพิ่มเติม พิมพ์บอกได้เลยครับ");
+        } else if (lowerInput.includes("กราฟ") || lowerInput.includes("chart")) {
+          addAgentMessage("Dash", "ถ้าคุณต้องการเปิดดูหน้ากราฟรวม สามารถคลิกเมนู 'Market Radars' หรือพิมพ์คำสั่งเช่น 'เปิดกราฟ AAPL' ได้เลยครับ");
+        } else {
+          addAgentMessage("NewInvester", "รับทราบคำสั่งครับท่าน! ทีมงานในห้องค้ากำลังสแกนหน้าจอมอนิเตอร์ตลาดอย่างใกล้ชิดอยู่ครับ 🫡");
+        }
+      }, 600);
+    }
   };
 
   return (

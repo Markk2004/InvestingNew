@@ -11,6 +11,7 @@ import { US_STOCKS, type StockInfo } from "@/lib/stocks";
 import { useWatchlist } from "@/lib/useWatchlist";
 import Sparkline, { generateMockCloses } from "./Sparkline";
 import { useTheme } from "@/components/ThemeProvider";
+import { LineChart } from "lucide-react";
 
 const PAGE_SIZE = 25;
 
@@ -182,7 +183,7 @@ export default function USMarketListPanel() {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 18 }}>🇺🇸</span>
+            <LineChart size={18} style={{ color: "#4fc3f7" }} />
             <div>
               <div style={{ color: "#4fc3f7", fontFamily: "monospace", fontSize: 12, fontWeight: "bold", letterSpacing: 1.5 }}>
                 US MARKET LIST

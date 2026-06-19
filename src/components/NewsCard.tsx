@@ -8,7 +8,6 @@
 
 import type { NewsItem } from "@/lib/types";
 import { getSeverityLevel, getSentimentEmoji } from "@/lib/types";
-import { useState } from "react";
 
 interface NewsCardProps {
   article: NewsItem;
@@ -29,8 +28,6 @@ const SENTIMENT_CONFIG = {
 };
 
 export default function NewsCard({ article, index }: NewsCardProps) {
-  const [expanded, setExpanded] = useState(false);
-
   const level = getSeverityLevel(article.severityScore);
   const severity = SEVERITY_CONFIG[level];
   const sentiment = SENTIMENT_CONFIG[article.sentiment ?? "neutral"];
@@ -138,7 +135,7 @@ export default function NewsCard({ article, index }: NewsCardProps) {
             {dateFormatted && (
               <span
                 className="font-pixel"
-                style={{ fontSize: "11px", color: "#cbd5e1" }}
+                style={{ fontSize: "11px", color: "#f8fafc" }}
               >
                 · 📅 {dateFormatted} ({relativeTime})
               </span>
@@ -174,51 +171,6 @@ export default function NewsCard({ article, index }: NewsCardProps) {
           {article.summary}
         </p>
 
-        {/* ── Expand/Collapse impact details ──────────── */}
-        {(article.shortTermImpact || article.longTermImpact) && (
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="mt-3 font-pixel hover:underline flex items-center gap-1"
-            style={{
-              fontSize: "11px",
-              color: "var(--pixel-yellow)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            {expanded ? "▲ ซ่อนรายละเอียดผลกระทบ" : "▼ ดูผลกระทบต่อผู้ลงทุนไทย"}
-          </button>
-        )}
-
-        {expanded && (
-          <div
-            className="mt-3 space-y-2 animate-pixel-fade-in"
-            style={{ borderLeft: `2px solid var(--pixel-border)`, paddingLeft: "12px" }}
-          >
-            {article.shortTermImpact && (
-              <div>
-                <p className="font-pixel" style={{ fontSize: "11px", color: "var(--pixel-yellow)", marginBottom: 4 }}>
-                  ⚡ ระยะสั้น (1-7 วัน)
-                </p>
-                <p style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: 1.6, fontFamily: "var(--font-mono), monospace" }}>
-                  {article.shortTermImpact}
-                </p>
-              </div>
-            )}
-            {article.longTermImpact && (
-              <div>
-                <p className="font-pixel" style={{ fontSize: "11px", color: "var(--pixel-blue)", marginBottom: 4 }}>
-                  📊 ระยะยาว (สัปดาห์-เดือน)
-                </p>
-                <p style={{ fontSize: "13px", color: "#cbd5e1", lineHeight: 1.6, fontFamily: "var(--font-mono), monospace" }}>
-                  {article.longTermImpact}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* ── Card Footer (Keywords & Source Link) ──────────── */}
@@ -237,9 +189,9 @@ export default function NewsCard({ article, index }: NewsCardProps) {
                 key={kw}
                 className="keyword-badge font-pixel px-2 py-0.5"
                 style={{
-                  fontSize: "10px",
+                  fontSize: "11px",
                   border: `1px solid var(--pixel-border)`,
-                  color: "#94a3b8",
+                  color: "#cbd5e1",
                   background: "rgba(58,58,110,0.3)",
                 }}
               >
@@ -248,9 +200,9 @@ export default function NewsCard({ article, index }: NewsCardProps) {
             ))
           ) : (
             <span
-              className="font-pixel text-slate-500"
+              className="font-pixel text-slate-300"
               style={{
-                fontSize: "10px",
+                fontSize: "11px",
               }}
             >
               #no-keywords

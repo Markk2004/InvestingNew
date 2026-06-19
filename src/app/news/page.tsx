@@ -17,6 +17,7 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import ErrorBanner from "@/components/ErrorBanner";
 import CyberHudDashboard from "@/components/CyberHudDashboard";
 import { useTheme } from "@/components/ThemeProvider";
+import ExposureChart from "@/components/ExposureChart";
 
 // ── SWR fetcher ──────────────────────────────────────────────
 
@@ -43,6 +44,7 @@ export default function NewsDashboardPage() {
   const { theme } = useTheme();
   const isCrimson = theme === "crimson";
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isProcessingQueue, setIsProcessingQueue] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [formattedDate, setFormattedDate] = useState<string>("");
 
@@ -137,24 +139,47 @@ export default function NewsDashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, isRefreshing, hasAutoRefreshed]);
 
-  // Auto-process queue if there are pending articles
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (data?.pendingArticles && data.pendingArticles.length > 0) {
-      interval = setInterval(async () => {
-        try {
-          // Process the queue directly without hitting RSS cooldowns
-          await fetch("/api/news?process_queue=true");
-          mutate(); // Seamlessly update UI with newly analyzed articles
-        } catch (e) {
-          console.error("Failed to process news queue:", e);
-        }
-      }, 300000); // Check every 5 minutes (300,000 ms)
+  // Manual trigger to process queue immediately with higher batch limit (6)
+  const triggerProcessQueue = async () => {
+    if (isProcessingQueue) return;
+    setIsProcessingQueue(true);
+    showToast("⚡ กำลังส่งวิเคราะห์คิวถัดไป (ครั้งละ 6 ข่าว)...", "success");
+    try {
+      const response = await fetch("/api/news?process_queue=true&limit=6");
+      const result = await response.json();
+      await mutate();
+      if (result?.error) {
+        showToast(`⚠️ ${result.error}`, "warning");
+      } else {
+        showToast("✅ วิเคราะห์คิวสำเร็จ!", "success");
+      }
+    } catch (e) {
+      console.error("Failed manual queue process:", e);
+      showToast("❌ เกิดข้อผิดพลาดในการวิเคราะห์คิว", "error");
+    } finally {
+      setIsProcessingQueue(false);
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [data?.pendingArticles, mutate]);
+  };
+
+  // Auto-process queue sequentially with 15-second loop if pending articles exist
+  useEffect(() => {
+    if (isProcessingQueue) return;
+    if (!data?.pendingArticles || data.pendingArticles.length === 0) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        setIsProcessingQueue(true);
+        await fetch("/api/news?process_queue=true");
+        await mutate();
+      } catch (e) {
+        console.error("Failed auto queue process:", e);
+      } finally {
+        setIsProcessingQueue(false);
+      }
+    }, 15000); // 15 seconds accelerated dynamic loop
+
+    return () => clearTimeout(timer);
+  }, [data?.pendingArticles, mutate, isProcessingQueue]);
 
   const hasError = !!error || (data?.error != null && data.articles.length === 0);
   const errorMessage = error?.message ?? data?.error;
@@ -272,25 +297,8 @@ export default function NewsDashboardPage() {
                 />
               </div>
 
-              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <StatCard
-                  label="ข่าวที่วิเคราะห์"
-                  value={`${data.articles.length}`}
-                  sub="รายการ"
-                  accent="blue"
-                />
-                <StatCard
-                  label="ความเสี่ยงสูง"
-                  value={`${data.articles.filter((a) => a.severityScore >= 7).length}`}
-                  sub="คะแนน ≥ 7"
-                  accent="red"
-                />
-                <StatCard
-                  label="ปลอดภัย"
-                  value={`${data.articles.filter((a) => a.severityScore < 7).length}`}
-                  sub="คะแนน < 7"
-                  accent="green"
-                />
+              <div className="lg:col-span-2">
+                <ExposureChart articles={data.articles} />
               </div>
             </div>
 
@@ -320,12 +328,12 @@ export default function NewsDashboardPage() {
               <span className="font-pixel" style={{ fontSize: "11px", color: "var(--pixel-blue)" }}>
                 📅 ข่าวล่าสุด:
               </span>
-              <span className="font-pixel" style={{ fontSize: "11px", color: "#94a3b8" }}>
+              <span className="font-pixel" style={{ fontSize: "11px", color: "#f8fafc" }}>
                 {formattedDate}
               </span>
               <span
                 className="font-pixel ml-auto"
-                style={{ fontSize: "9px", color: "rgba(100,116,139,0.8)" }}
+                style={{ fontSize: "9px", color: "rgba(255,255,255,0.7)" }}
               >
                 * โชว์ข่าวที่วิเคราะห์แล้วของวันนี้และเมื่อวาน
               </span>
@@ -345,7 +353,7 @@ export default function NewsDashboardPage() {
                 <span className="font-pixel text-[var(--pixel-blue)]" style={{ fontSize: "9px" }}>
                   ⚡ AI STATUS:
                 </span>
-                <span className="font-pixel text-slate-400" style={{ fontSize: "9px" }}>
+                <span className="font-pixel text-slate-200" style={{ fontSize: "10px" }}>
                   Model: {data.usage.model} · Input: {data.usage.prompt_tokens.toLocaleString()} tokens · Output: {data.usage.completion_tokens.toLocaleString()} tokens · Est. Cost: ${data.usage.cost.toFixed(5)}
                 </span>
                 <span className="font-pixel text-emerald-400 ml-auto" style={{ fontSize: "8px" }}>
@@ -400,24 +408,33 @@ export default function NewsDashboardPage() {
             {data.pendingArticles && data.pendingArticles.length > 0 && (
               <div className="space-y-3">
                 <div
-                  className="pending-queue-header flex items-center gap-3 px-4 py-2"
+                  className="pending-queue-header flex items-center justify-between px-4 py-2"
                   style={{
                     border: "1px solid rgba(255,215,64,0.25)",
                     background: "rgba(255,215,64,0.04)",
                   }}
                 >
-                  <span
-                    className="font-pixel animate-pulse"
-                    style={{ fontSize: "11px", color: "var(--pixel-yellow)" }}
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="font-pixel animate-pulse"
+                      style={{ fontSize: "11px", color: "var(--pixel-yellow)" }}
+                    >
+                      ⏳ ANALYSIS QUEUE
+                    </span>
+                    <span
+                      className="font-pixel"
+                      style={{ fontSize: "11px", color: "#f8fafc" }}
+                    >
+                      {data.pendingArticles.length} ข่าวรอคิววิเคราะห์ {isProcessingQueue && "⚡ กำลังวิเคราะห์..."}
+                    </span>
+                  </div>
+                  <button
+                    onClick={triggerProcessQueue}
+                    disabled={isProcessingQueue}
+                    className="font-pixel text-[9px] px-2.5 py-1 bg-yellow-500/10 border border-yellow-500 hover:bg-yellow-500/20 active:scale-95 disabled:opacity-50 transition-all text-yellow-400 cursor-pointer"
                   >
-                    ⏳ ANALYSIS QUEUE
-                  </span>
-                  <span
-                    className="font-pixel"
-                    style={{ fontSize: "11px", color: "#94a3b8" }}
-                  >
-                    {data.pendingArticles.length} ข่าวรอคิววิเคราะห์ (จะถูกวิเคราะห์ในรอบถัดไป)
-                  </span>
+                    {isProcessingQueue ? "ANALYZING..." : "⚡ FORCE PROCESS BATCH"}
+                  </button>
                 </div>
                 <div className="flex flex-col gap-2">
                   {data.pendingArticles.map((article, index) => (
@@ -446,8 +463,8 @@ export default function NewsDashboardPage() {
                       </span>
                       <span
                         style={{
-                          fontSize: "13px",
-                          color: "#94a3b8",
+                          fontSize: "14px",
+                          color: "#f8fafc",
                           fontFamily: "var(--font-mono), monospace",
                           overflow: "hidden",
                           textOverflow: "ellipsis",

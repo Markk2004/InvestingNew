@@ -20,7 +20,27 @@ export function getWatchlist(): WatchlistItem[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed as WatchlistItem[];
+
+    // Auto-correct common typos or unsupported gold symbol variations (XAAUSD -> XAUUSD, TVCGOLD -> XAUUSD)
+    let changed = false;
+    const corrected = parsed.map((item: WatchlistItem) => {
+      if (item && item.symbol) {
+        const upperSym = item.symbol.toUpperCase().trim();
+        if (upperSym === "XAAUSD" || upperSym === "TVCGOLD") {
+          changed = true;
+          return { ...item, symbol: "XAUUSD" };
+        }
+      }
+      return item;
+    });
+
+    if (changed) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(corrected));
+      // Notify same-tab listeners about the self-healed list
+      window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
+    }
+
+    return corrected as WatchlistItem[];
   } catch {
     return [];
   }

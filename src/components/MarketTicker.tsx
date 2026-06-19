@@ -24,7 +24,7 @@ interface Quote {
 
 export default function MarketTicker() {
   const { data: quotes, error } = useSWR<Quote[]>("/api/ticker", fetcher, {
-    refreshInterval: 60000, // Refresh every 1 minute
+    refreshInterval: 10000, // Refresh every 10 seconds
   });
 
   const isLoading = !quotes && !error;

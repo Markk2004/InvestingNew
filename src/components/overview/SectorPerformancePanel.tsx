@@ -7,6 +7,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { US_STOCKS } from "@/lib/stocks";
 import { useTheme } from "@/components/ThemeProvider";
+import { BarChart2 } from "lucide-react";
 
 interface Quote {
   symbol: string;
@@ -239,7 +240,7 @@ export default function SectorPerformancePanel() {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 18 }}>🏆</span>
+            <BarChart2 size={18} style={{ color: "#fbbf24" }} />
             <div>
               <div style={{ color: "#fbbf24", fontFamily: "monospace", fontSize: 12, fontWeight: "bold", letterSpacing: 1.5 }}>
                 SECTOR PERFORMANCE RANKING

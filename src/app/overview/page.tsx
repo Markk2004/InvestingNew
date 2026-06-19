@@ -11,7 +11,7 @@ import USMarketListPanel from "@/components/overview/USMarketListPanel";
 import SectorPerformancePanel from "@/components/overview/SectorPerformancePanel";
 import MarketTicker from "@/components/MarketTicker";
 import { useTheme } from "@/components/ThemeProvider";
-import { Star, BarChart2 } from "lucide-react";
+import { Star, BarChart2, TrendingUp } from "lucide-react";
 import CyberHudDashboard from "@/components/CyberHudDashboard";
 
 function LiveClock() {
@@ -45,181 +45,7 @@ function LiveClock() {
   );
 }
 
-// ── Placeholder section card ──────────────────────────────────
-function PlaceholderSection({
-  title,
-  icon,
-  description,
-  color = "#1e3a5f",
-}: {
-  title: string;
-  icon: string;
-  description: string;
-  color?: string;
-}) {
-  return (
-    <div
-      style={{
-        background: "#04090f",
-        border: `1px solid #0d2040`,
-        padding: "20px 24px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 18 }}>{icon}</span>
-        <div>
-          <div
-            style={{
-              color,
-              fontFamily: "monospace",
-              fontSize: 10,
-              fontWeight: "bold",
-              letterSpacing: 1.5,
-            }}
-          >
-            {title}
-          </div>
-          <div style={{ color: "#1e3a5f", fontFamily: "monospace", fontSize: 7 }}>
-            SCANNER BACKEND REQUIRED
-          </div>
-        </div>
-        <div style={{ marginLeft: "auto" }}>
-          <span
-            style={{
-              background: "#0d1a0d",
-              border: "1px solid #166534",
-              color: "#22c55e",
-              fontSize: 6,
-              fontFamily: "monospace",
-              padding: "2px 8px",
-              letterSpacing: 1,
-            }}
-          >
-            COMING SOON
-          </span>
-        </div>
-      </div>
-      <div
-        style={{
-          color: "#1e3a5f",
-          fontFamily: "monospace",
-          fontSize: 8,
-          lineHeight: 1.6,
-          borderTop: "1px solid #0d2040",
-          paddingTop: 10,
-          marginTop: 4,
-        }}
-      >
-        {description}
-      </div>
-      {/* Mock grid placeholder */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 8,
-          marginTop: 4,
-        }}
-      >
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            style={{
-              height: 36,
-              background: "#060d1a",
-              border: "1px solid #0d2040",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                width: `${40 + i * 10}%`,
-                height: 6,
-                background: "#0d2040",
-                borderRadius: 2,
-              }}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-// ── Breadth gauge visual ──────────────────────────────────────
-function BreadthPlaceholder({ isCrimson }: { isCrimson: boolean }) {
-  const items = [
-    { label: "ADV", value: "—", color: "#22c55e" },
-    { label: "DEC", value: "—", color: "#ef4444" },
-    { label: "52W HI", value: "—", color: "#4fc3f7" },
-    { label: "52W LO", value: "—", color: "#f43f5e" },
-    { label: "A/D LINE", value: "—", color: "#fbbf24" },
-    { label: "MCO", value: "—", color: "#a78bfa" },
-  ];
-
-  return (
-    <div
-      className={isCrimson ? "card" : ""}
-      style={{
-        background: isCrimson ? "var(--color-bg-card)" : "#04090f",
-        border: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
-        padding: "16px 20px",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-        <span style={{ fontSize: 18 }}>📊</span>
-        <div>
-          <div style={{ color: "#4fc3f7", fontFamily: "monospace", fontSize: 10, fontWeight: "bold", letterSpacing: 1.5 }}>
-            MARKET BREADTH
-          </div>
-          <div style={{ color: "#1e3a5f", fontFamily: "monospace", fontSize: 7 }}>
-            NYSE/NASDAQ ADVANCE-DECLINE · BACKEND REQUIRED
-          </div>
-        </div>
-        <span
-          style={{
-            marginLeft: "auto",
-            background: "#0d1a0d",
-            border: "1px solid #166534",
-            color: "#22c55e",
-            fontSize: 6,
-            fontFamily: "monospace",
-            padding: "2px 8px",
-            letterSpacing: 1,
-          }}
-        >
-          COMING SOON
-        </span>
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8 }}>
-        {items.map((item) => (
-          <div
-            key={item.label}
-            style={{
-              background: isCrimson ? "transparent" : "#060d1a",
-              border: `1px solid ${item.color}20`,
-              padding: "10px 8px",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ color: item.color, fontFamily: "monospace", fontSize: 16, marginBottom: 4 }}>
-              {item.value}
-            </div>
-            <div style={{ color: "#1e3a5f", fontFamily: "monospace", fontSize: 6, letterSpacing: 0.5 }}>
-              {item.label}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ── Main Overview Page ────────────────────────────────────────
 export default function OverviewPage() {
@@ -251,9 +77,6 @@ export default function OverviewPage() {
           <SectorPerformancePanel />
         </div>
       </div>
-
-      {/* Market Breadth placeholder */}
-      <BreadthPlaceholder isCrimson={isCrimson} />
     </main>
   );
 
@@ -317,13 +140,13 @@ export default function OverviewPage() {
 
         {/* Title */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 18 }}>📈</span>
+          <TrendingUp size={18} style={{ color: "#4fc3f7" }} />
           <div>
             <div style={{ color: "#4fc3f7", fontFamily: "monospace", fontSize: 10, fontWeight: "bold", letterSpacing: 2 }}>
               MARKET OVERVIEW
             </div>
             <div style={{ color: "#1e3a5f", fontSize: 7, letterSpacing: 1 }}>
-              US EQUITIES · BREADTH · SCANNER
+              US EQUITIES · SECTOR PERFORMANCE
             </div>
           </div>
         </div>

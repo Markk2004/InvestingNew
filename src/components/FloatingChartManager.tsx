@@ -59,6 +59,7 @@ function getContainerId(symbol: string): string {
 
 export function ChartManagerProvider({ children }: { children: ReactNode }) {
   const [windows, setWindows] = useState<ChartWindowState[]>([]);
+  const windowsRef = useRef<ChartWindowState[]>([]);
   const [maxZ, setMaxZ] = useState(100);
   // Set of window IDs that are allowed to render their iframe
   // (staggered unlock to prevent CDN flooding)
@@ -99,6 +100,7 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
 
   // ── Persist to localStorage on change ────────────────────────────────────
   useEffect(() => {
+    windowsRef.current = windows;
     if (!isLoadedRef.current) return;
     try {
       localStorage.setItem(WINDOWS_STORAGE_KEY, JSON.stringify(windows));
@@ -110,47 +112,46 @@ export function ChartManagerProvider({ children }: { children: ReactNode }) {
   // ── Open / focus chart ────────────────────────────────────────────────────
   const openChart = useCallback(
     (symbol: string) => {
-      setWindows((prev) => {
-        // If already open (including closed/hidden) → focus, un-minimize, and un-close
-        const existing = prev.find(
-          (w) => w.symbol.toUpperCase() === symbol.toUpperCase()
-        );
-        if (existing) {
-          const newZ = maxZ + 1;
-          setMaxZ(newZ);
-          return prev.map((w) =>
+      const prevWindows = windowsRef.current;
+      const existing = prevWindows.find(
+        (w) => w.symbol.toUpperCase() === symbol.toUpperCase()
+      );
+
+      const newZ = maxZ + 1;
+      setMaxZ(newZ);
+
+      if (existing) {
+        setWindows((prev) =>
+          prev.map((w) =>
             w.id === existing.id
               ? { ...w, zIndex: newZ, minimized: false, closed: false }
               : w
-          );
-        }
+          )
+        );
+        return;
+      }
 
-        // Create new window
-        const sidebar = document.querySelector('aside');
-        const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
-        const idx = prev.length % INITIAL_POSITIONS.length;
-        const pos = INITIAL_POSITIONS[idx];
-        const newZ = maxZ + 1;
-        setMaxZ(newZ);
+      // Create new window
+      const sidebar = document.querySelector('aside');
+      const sidebarWidth = sidebar ? sidebar.getBoundingClientRect().width : 0;
+      const idx = prevWindows.length % INITIAL_POSITIONS.length;
+      const pos = INITIAL_POSITIONS[idx];
 
-        const id = `chart-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-        const newWin: ChartWindowState = {
-          id,
-          symbol: symbol.toUpperCase(),
-          x: sidebarWidth + pos.x + prev.length * 30,
-          y: pos.y + prev.length * 20,
-          width: 620,
-          height: 420,
-          zIndex: newZ,
-          minimized: false,
-          closed: false,
-        };
+      const id = `chart-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const newWin: ChartWindowState = {
+        id,
+        symbol: symbol.toUpperCase(),
+        x: sidebarWidth + pos.x + prevWindows.length * 30,
+        y: pos.y + prevWindows.length * 20,
+        width: 620,
+        height: 420,
+        zIndex: newZ,
+        minimized: false,
+        closed: false,
+      };
 
-        // New window is immediately ready (not a restore batch)
-        setReadyIds((r) => new Set([...r, id]));
-
-        return [...prev, newWin];
-      });
+      setReadyIds((r) => new Set([...r, id]));
+      setWindows((prev) => [...prev, newWin]);
     },
     [maxZ]
   );

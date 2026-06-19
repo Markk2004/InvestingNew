@@ -140,7 +140,7 @@ MemoizedChart.displayName = "MemoizedChart";
 const PercentageBadge = memo(({ symbol }: { symbol: string }) => {
   const cleanSymbol = symbol.includes(":") ? symbol.split(":")[1] : symbol;
   const { data: quoteArr } = useSWR<any[]>(`/api/ticker?symbols=${cleanSymbol}`, fetcher, {
-    refreshInterval: 60000,
+    refreshInterval: 10000,
   });
   const quote = Array.isArray(quoteArr) && quoteArr.length > 0 ? quoteArr[0] : null;
 

@@ -16,7 +16,7 @@ interface CacheEntry {
 
 // Simple in-memory cache to prevent rate-limiting
 const cache: Record<string, CacheEntry> = {};
-const CACHE_TTL_MS = 60000; // 60 seconds cache TTL
+const CACHE_TTL_MS = 10000; // 10 seconds cache TTL
 
 
 
@@ -52,6 +52,22 @@ async function fetchFromYahooBulk(symbols: string[]): Promise<TickerData[]> {
   return results;
 }
 
+const YAHOO_SYMBOL_MAP: Record<string, string> = {
+  'XAUUSD': 'GC=F',
+  'GOLD': 'GC=F',
+  'XAUSD': 'GC=F',
+  'XAAUSD': 'GC=F', // Common typo fallback
+  'TVCGOLD': 'GC=F', // Stripped fallback
+  'BTCUSD': 'BTC-USD',
+  'BTC': 'BTC-USD',
+  'ETHUSD': 'ETH-USD',
+  'ETH': 'ETH-USD',
+  'SOLUSD': 'SOL-USD',
+  'SOL': 'SOL-USD',
+  'USDTUSD': 'USDT-USD',
+  'USDT': 'USDT-USD',
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const symbolsParam = searchParams.get('symbols') || 'AAPL,MSFT,NVDA,SPY,QQQ,TSLA,AMZN';
@@ -75,33 +91,67 @@ export async function GET(request: Request) {
 
     // 2. Fetch uncached symbols
     if (uncachedSymbols.length > 0) {
+      // Map uncached symbols to their Yahoo tickers, keeping track of mapping back
+      const yahooToOriginals: Record<string, string[]> = {};
+      const yahooTickersToFetch: string[] = [];
+
+      for (const sym of uncachedSymbols) {
+        // Strip TradingView-style prefix if present (e.g. "OANDA:XAUUSD" -> "XAUUSD")
+        const baseSym = sym.includes(":") ? sym.split(":")[1] : sym;
+        const yahooSym = YAHOO_SYMBOL_MAP[baseSym] || baseSym;
+        if (!yahooToOriginals[yahooSym]) {
+          yahooToOriginals[yahooSym] = [];
+          yahooTickersToFetch.push(yahooSym);
+        }
+        yahooToOriginals[yahooSym].push(sym);
+      }
+
       // Fast Bulk Yahoo Fetch! (Yahoo Spark API supports max 20 symbols per request)
       const CHUNK_SIZE = 20;
       const chunks: string[][] = [];
-      for (let i = 0; i < uncachedSymbols.length; i += CHUNK_SIZE) {
-        chunks.push(uncachedSymbols.slice(i, i + CHUNK_SIZE));
+      for (let i = 0; i < yahooTickersToFetch.length; i += CHUNK_SIZE) {
+        chunks.push(yahooTickersToFetch.slice(i, i + CHUNK_SIZE));
       }
 
       const chunkPromises = chunks.map(async (chunk) => {
         try {
           return await fetchFromYahooBulk(chunk);
         } catch (err) {
-          console.error(`Yahoo Bulk failed for chunk: ${chunk.join(",")}`, err);
-          return [];
+          console.error(`Yahoo Bulk failed for chunk: ${chunk.join(",")}. Falling back to individual fetches.`, err);
+          // Fallback: Fetch each symbol in the failed chunk individually so valid symbols still load
+          const individualPromises = chunk.map(async (sym) => {
+            try {
+              return await fetchFromYahooBulk([sym]);
+            } catch (singleErr) {
+              console.warn(`Yahoo fetch failed for individual symbol: ${sym}`, singleErr);
+              return [];
+            }
+          });
+          const individualResults = await Promise.all(individualPromises);
+          return individualResults.flat();
         }
       });
 
       const chunkResults = await Promise.all(chunkPromises);
       for (const bulkRes of chunkResults) {
         for (const r of bulkRes) {
-          cache[r.symbol] = { data: r, timestamp: now };
-          activeResults.push(r);
+          const originalSymbols = yahooToOriginals[r.symbol] || [r.symbol];
+          for (const origSym of originalSymbols) {
+            const mappedResult = {
+              symbol: origSym,
+              price: r.price,
+              change: r.change,
+              changePercent: r.changePercent
+            };
+            cache[origSym] = { data: mappedResult, timestamp: now };
+            activeResults.push(mappedResult);
+          }
         }
       }
     }
 
     if (activeResults.length === 0) {
-      throw new Error("All symbols failed to load");
+      return NextResponse.json({ error: "No symbols loaded" }, { status: 404 });
     }
 
     return NextResponse.json(activeResults);
@@ -124,4 +174,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
 }
+
 

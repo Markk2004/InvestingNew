@@ -83,11 +83,11 @@ export default function Header({
         </div>
 
         {/* ── Center: Timestamp & Token Usage ─────────────────────────── */}
-        <div className="hidden md:flex flex-col items-center gap-2 font-pixel" style={{ fontSize: "7px" }}>
+        <div className="hidden md:flex flex-col items-center gap-1 font-mono" style={{ fontSize: "11px", letterSpacing: "1px" }}>
           <div className="flex gap-4">
-            <div className="flex flex-col items-center gap-1">
-              <span style={{ color: "#475569" }}>LAST UPDATE</span>
-              <span style={{ color: formattedTime ? "var(--pixel-blue)" : "#475569" }}>
+            <div className="flex flex-col items-center gap-0.5">
+              <span style={{ color: "#64748b", fontSize: "9px" }}>LAST UPDATE</span>
+              <span style={{ color: formattedTime ? "var(--color-accent-primary)" : "#475569", fontWeight: "bold" }}>
                 {formattedTime ? `${formattedTime} (ICT)` : "---"}
               </span>
             </div>
@@ -95,11 +95,11 @@ export default function Header({
             {/* Token Usage Status Line */}
             {usage && (
               <div 
-                className="flex flex-col items-center gap-1 px-2 border-l border-[#1e293b]"
+                className="flex flex-col items-center gap-0.5 px-3 border-l border-[#1e293b]"
                 title={`Prompt: ${usage.prompt_tokens} | Completion: ${usage.completion_tokens}`}
               >
-                <span style={{ color: "#475569" }}>AI ENGINE ({usage.model})</span>
-                <span style={{ color: usage.cost > 0.1 ? "var(--pixel-yellow)" : "var(--pixel-green)" }}>
+                <span style={{ color: "#64748b", fontSize: "9px" }}>AI ENGINE ({usage.model})</span>
+                <span style={{ color: usage.cost > 0.1 ? "#fbbf24" : "#4ade80", fontWeight: "bold" }}>
                   ${usage.cost.toFixed(4)} / {usage.total_tokens.toLocaleString()} TKNS
                 </span>
               </div>
@@ -112,20 +112,24 @@ export default function Header({
 
           {/* Status badge */}
           <div
-            className="font-pixel flex items-center gap-1.5"
+            className="font-mono flex items-center gap-2"
             style={isCrimson ? {
-              fontSize: "7px",
-              padding: "6px 12px",
+              fontSize: "10px",
+              padding: "6px 14px",
               background: "rgba(255, 255, 255, 0.04)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
               boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
-              color: "#cbd5e1",
+              color: "#f1f5f9",
               borderRadius: "6px",
+              letterSpacing: "1px",
+              fontWeight: "bold",
             } : {
-              fontSize: "7px",
-              padding: "4px 8px",
+              fontSize: "10px",
+              padding: "4px 10px",
               border: `1px solid ${statusColor}`,
               background: `${statusColor}10`,
+              letterSpacing: "1px",
+              fontWeight: "bold",
             }}
           >
             <span
@@ -134,8 +138,9 @@ export default function Header({
                 display: "inline-block",
                 width: 6,
                 height: 6,
-                borderRadius: 0,
+                borderRadius: "50%",
                 background: statusColor,
+                boxShadow: `0 0 8px ${statusColor}`,
               }}
             />
             <span style={isCrimson ? {} : { color: statusColor }}>

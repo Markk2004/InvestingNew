@@ -48,14 +48,11 @@
 *   **บทบาทในฉาก:** นั่งทำงานอยู่ในออฟฟิศ มีหน้าที่วิเคราะห์ข่าวและประเมิน Sentiment
 *   **Animation States:**
     *   `idle` — นั่งเฉยๆ ไม่มีงาน
-    *   `typing` — กำลังพิมพ์ รัน Scheduler fetch ข่าวปกติ
+    *   `typing` — กำลังพิมพ์ รันการประมวลผลข่าว
     *   `analyzing` — วิเคราะห์เร่งด่วน เมื่อข่าว Critical เข้า (FED, สงคราม)
-*   **State Sync:** state ผูกกับ `/agent/status` endpoint — frontend polling ทุก 5 วินาที
-*   **XP System:**
-    *   วิเคราะห์ข่าวสำเร็จ 1 ครั้ง → +10 XP
-    *   ตรวจจับข่าว Critical ได้ → +25 XP
-    *   Level Up ทุก 100 XP → unlock animation ใหม่ + ความแม่น Sentiment เพิ่ม
-*   **ข้อมูลในฐานข้อมูล:** ตาราง `agents` (id, name, xp, level, state)
+*   **State Sync:** ทำงานแบบ Client-driven (ดึงและวิเคราะห์ข่าวผ่านหน้าต่างเบราว์เซอร์ Next.js) และเปลี่ยนการแสดงผลสัญลักษณ์คิววิเคราะห์บนหน้าจอ
+*   **XP System:** (ระบบเก็บค่าประสบการณ์และปลดล็อกชุดแต่งกายอยู่ระหว่างการพัฒนาในเฟสถัดไป)
+*   **ข้อมูลในฐานข้อมูล:** (ระบบตาราง `agents` ใน MySQL อยู่ระหว่างการออกแบบเพื่อเชื่อมต่อการสะสมแต้มถาวร)
 
 ### NewInvester (Trader)
 
@@ -63,7 +60,7 @@
 *   **ข้อมูลพอร์ตปัจจุบัน:** 12 Shares · Avg $55.07 · Balance $70.80
 *   **Animation States:** `idle` loop (นั่งมองจอ)
 *   **จอในฉาก:** แสดง Mini Chart จริงจาก TradingView Lightweight Charts ขนาดย่อส่วน
-*   **ข้อมูลในฐานข้อมูล:** ตาราง `agents` (id, name, xp, level, state)
+*   **ข้อมูลในฐานข้อมูล:** (อยู่ระหว่างการพัฒนาในเฟสถัดไป)
 
 ### Dash (Market Monitor / Chart Specialist)
 

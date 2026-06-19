@@ -22,10 +22,10 @@ export default function NewsGrid({ articles }: NewsGridProps) {
           background: "var(--pixel-panel)",
         }}
       >
-        <p style={{ fontSize: "12px", color: "var(--pixel-blue)" }}>
+        <p style={{ fontSize: "14px", color: "var(--pixel-blue)" }}>
           NO DATA SIGNAL
         </p>
-        <p style={{ fontSize: "7px", color: "#64748b", marginTop: "12px" }}>
+        <p style={{ fontSize: "12px", color: "#cbd5e1", marginTop: "12px", fontFamily: "var(--font-mono), monospace" }}>
           รอการอัปเดตข้อมูลจากระบบ...
         </p>
       </div>
