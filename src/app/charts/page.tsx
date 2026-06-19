@@ -59,31 +59,10 @@ function ChartsInner() {
   const { theme, toggleTheme } = useTheme();
   const isCrimson = theme === "crimson";
   const { openChart, hasWindows, windows } = useChartManager();
-  const [isProcessingQueue, setIsProcessingQueue] = useState(false);
 
   // ── Background News Poller ──────────────────────────────────
   // Keeps news analysis active and sends Telegram alerts even when the user is on the chart page
-  const { data, mutate } = useSWR("/api/news?page=1", fetcher, SWR_CONFIG);
-
-  // Auto-process queue sequentially with 15-second loop if pending articles exist
-  useEffect(() => {
-    if (isProcessingQueue) return;
-    if (!data?.pendingArticles || data.pendingArticles.length === 0) return;
-
-    const timer = setTimeout(async () => {
-      try {
-        setIsProcessingQueue(true);
-        await fetch("/api/news?process_queue=true");
-        await mutate();
-      } catch (e) {
-        console.error("Failed background queue process:", e);
-      } finally {
-        setIsProcessingQueue(false);
-      }
-    }, 15000); // 15 seconds accelerated dynamic loop
-
-    return () => clearTimeout(timer);
-  }, [data?.pendingArticles, mutate, isProcessingQueue]);
+  const { data } = useSWR("/api/news?page=1", fetcher, SWR_CONFIG);
 
   const lastProcessedOpen = useRef<string | null>(null);
 

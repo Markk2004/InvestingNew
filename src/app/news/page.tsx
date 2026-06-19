@@ -161,25 +161,7 @@ export default function NewsDashboardPage() {
     }
   };
 
-  // Auto-process queue sequentially with 15-second loop if pending articles exist
-  useEffect(() => {
-    if (isProcessingQueue) return;
-    if (!data?.pendingArticles || data.pendingArticles.length === 0) return;
 
-    const timer = setTimeout(async () => {
-      try {
-        setIsProcessingQueue(true);
-        await fetch("/api/news?process_queue=true");
-        await mutate();
-      } catch (e) {
-        console.error("Failed auto queue process:", e);
-      } finally {
-        setIsProcessingQueue(false);
-      }
-    }, 15000); // 15 seconds accelerated dynamic loop
-
-    return () => clearTimeout(timer);
-  }, [data?.pendingArticles, mutate, isProcessingQueue]);
 
   const hasError = !!error || (data?.error != null && data.articles.length === 0);
   const errorMessage = error?.message ?? data?.error;

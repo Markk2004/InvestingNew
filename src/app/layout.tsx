@@ -36,6 +36,7 @@ export const metadata: Metadata = {
 import { ChartManagerProvider } from "@/components/FloatingChartManager";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import CrimsonBackground from "@/components/CrimsonBackground";
+import GlobalNewsPoller from "@/components/GlobalNewsPoller";
 
 export default function RootLayout({
   children,
@@ -49,6 +50,7 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-[var(--color-bg-page)]">
         <ThemeProvider>
+          <GlobalNewsPoller />
           <CrimsonBackground />
           <GlobalErrorHandler />
           <ChartManagerProvider>{children}</ChartManagerProvider>

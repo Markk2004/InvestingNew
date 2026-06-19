@@ -230,20 +230,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
     }
   };
 
-  // 2. Background Poller to process news automatically (Replaces Laravel Cron Job)
-  useEffect(() => {
-    const processNewsBg = () => {
-      console.log("[Background Poller] Triggering news fetch and analysis...");
-      fetch("/api/news?force=true", { cache: "no-store" })
-        .then(res => res.json())
-        .then(data => console.log("[Background Poller] Completed:", data?.articles?.length || 0, "analyzed"))
-        .catch((e) => console.error("[Background Poller] Failed:", e));
-    };
-    
-    // Run every 5 minutes (300,000 ms)
-    const iv = setInterval(processNewsBg, 5 * 60 * 1000);
-    return () => clearInterval(iv);
-  }, []);
+
 
   const workingCount = agents.filter((a) => a.status === "working").length;
   const totalPnl = shares.reduce((acc, s) => acc + (s.price - s.cost) * s.qty, 0);
