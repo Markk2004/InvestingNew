@@ -69,7 +69,7 @@ export default function Header({
             className="font-pixel leading-tight truncate"
             style={{ fontSize: "10px", color: "var(--pixel-blue)" }}
           >
-            InvestingNew
+            Kairos TECH
           </h1>
           <p
             className="font-pixel hidden sm:block"

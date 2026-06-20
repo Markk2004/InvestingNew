@@ -285,7 +285,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
                 ? "#fbbf24"
                 : diagnoseReport
                 ? (diagnoseReport.status === "healthy" ? "#22c55e" : diagnoseReport.status === "warning" ? "#fbbf24" : "#ef4444")
-                : (techieModal.log ? "#ef4444" : "#22c55e")
+                : (techieModal.log ? (techieModal.log.type === "error" ? "#ef4444" : "#fbbf24") : "#22c55e")
             }`,
             borderRadius: 4,
             padding: "14px 18px",
@@ -296,7 +296,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
                 ? "rgba(251,191,36,0.25)"
                 : diagnoseReport && diagnoseReport.status === "critical"
                 ? "rgba(239,68,68,0.25)"
-                : (techieModal.log ? "rgba(239,68,68,0.25)" : "rgba(34,197,94,0.15)")
+                : (techieModal.log ? (techieModal.log.type === "error" ? "rgba(239,68,68,0.25)" : "rgba(251,191,36,0.25)") : "rgba(34,197,94,0.15)")
             }`,
             zIndex: 1000,
           }}
@@ -310,7 +310,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
                   ? "#fbbf24" 
                   : diagnoseReport 
                   ? (diagnoseReport.status === "healthy" ? "#22c55e" : diagnoseReport.status === "warning" ? "#fbbf24" : "#ef4444")
-                  : (techieModal.log ? "#ef4444" : "#22c55e"), 
+                  : (techieModal.log ? (techieModal.log.type === "error" ? "#ef4444" : "#fbbf24") : "#22c55e"), 
                 fontWeight: "bold", 
                 fontSize: 11, 
                 letterSpacing: 1 
@@ -319,7 +319,7 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
                   ? "TECHIE: RUNNING SYSTEM CHECK... 🔍" 
                   : diagnoseReport 
                   ? `TECHIE: DIAGNOSTICS REPORT - ${diagnoseReport.status.toUpperCase()} ${diagnoseReport.status === "healthy" ? "✅" : diagnoseReport.status === "warning" ? "⚠️" : "🚨"}`
-                  : (techieModal.log ? "TECHIE: SYSTEM ERROR ALERT! ⚠️" : "TECHIE: SYSTEM STATUS OK ✅")}
+                  : (techieModal.log ? (techieModal.log.type === "error" ? "TECHIE: SYSTEM ERROR ALERT! ⚠️" : "TECHIE: SYSTEM PERFORMANCE LOG ⚡") : "TECHIE: SYSTEM STATUS OK ✅")}
               </div>
               <div style={{ color: "#475569", fontSize: 8 }}>
                 SYSADMIN DIAGNOSTICS & LOG MONITOR
@@ -435,11 +435,17 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
             </div>
           ) : techieModal.log ? (
             <div>
-              <div style={{ background: "#08101c", border: "1px solid #ef444420", padding: "8px 10px", borderRadius: 2, marginBottom: 10 }}>
+              <div style={{ 
+                background: "#08101c", 
+                border: `1px solid ${techieModal.log.type === "error" ? "#ef444420" : "#fbbf2420"}`, 
+                padding: "8px 10px", 
+                borderRadius: 2, 
+                marginBottom: 10 
+              }}>
                 <div style={{ color: "#fbbf24", fontSize: 8, textTransform: "uppercase", marginBottom: 2 }}>
                   [Source]: {techieModal.log.url || "Unknown"}
                 </div>
-                <div style={{ color: "#fca5a5", fontSize: 10, fontWeight: "bold", wordBreak: "break-all" }}>
+                <div style={{ color: techieModal.log.type === "error" ? "#fca5a5" : "#fef08a", fontSize: 10, fontWeight: "bold", wordBreak: "break-all" }}>
                   {techieModal.log.message}
                 </div>
                 {techieModal.log.stack_trace && (

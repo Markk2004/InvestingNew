@@ -59,7 +59,7 @@ export default function CyberSidebar({ activeSubTab, onSubTabChange }: CyberSide
           </div>
           <div className="flex flex-col">
             <span className="text-[14px] font-bold tracking-widest text-white leading-tight">
-              INVESTER
+              KAIROS TECH
             </span>
             <span className="text-[9px] tracking-[0.2em] text-[var(--color-accent-primary)] uppercase font-medium">
               Tactical Ops

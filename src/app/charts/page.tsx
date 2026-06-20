@@ -148,7 +148,11 @@ function ChartsInner() {
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard activeTab="charts" setActiveTab={() => {}}>
+      <CyberHudDashboard
+        activeTab="charts"
+        setActiveTab={() => {}}
+        contentClassName="flex-1 overflow-hidden p-6 relative flex flex-col h-full"
+      >
         {renderContent()}
       </CyberHudDashboard>
     );

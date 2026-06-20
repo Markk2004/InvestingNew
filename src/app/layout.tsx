@@ -28,7 +28,7 @@ const rajdhani = Rajdhani({
 });
 
 export const metadata: Metadata = {
-  title: "InvestingNew — AI Market Intelligence",
+  title: "Kairos TECH — AI Market Intelligence",
   description: "แดชบอร์ดข่าวการลงทุน AI วิเคราะห์ความเสี่ยงตลาดแบบเรียลไทม์ด้วย Gemini 2.5 Flash",
   keywords: ["investing", "news", "AI", "Gemini", "finance", "market analysis"],
 };

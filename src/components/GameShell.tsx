@@ -393,7 +393,7 @@ export default function GameShell() {
               className="logo-shimmer font-pixel"
               style={{ fontSize: 10, letterSpacing: 2, lineHeight: 1.2 }}
             >
-              INVESTER CORP
+              KAIROS TECH
             </div>
             <div style={{ color: "#1e3a5f", fontSize: 7, fontFamily: "monospace", letterSpacing: 1 }}>
               AI-POWERED TRADING
@@ -565,7 +565,7 @@ export default function GameShell() {
         </span>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <span style={{ color: "#1e3a5f", fontSize: 7, fontFamily: "monospace" }}>
-            INVESTER CORP v1.0 · Gemini AI
+            KAIROS TECH v1.0 · Gemini AI
           </span>
           <button
             onClick={() => router.push("/news")}

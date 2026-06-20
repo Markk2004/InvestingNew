@@ -15,6 +15,7 @@ interface CyberHudDashboardProps {
   setActiveTab: (tab: Tab) => void;
   children: React.ReactNode;
   headerProps?: any;
+  contentClassName?: string;
 }
 
 function SysTime() {
@@ -33,7 +34,7 @@ function SysTime() {
   return <span className="text-[var(--color-accent-primary)]">{time}</span>;
 }
 
-export default function CyberHudDashboard({ activeTab, setActiveTab, children, headerProps }: CyberHudDashboardProps) {
+export default function CyberHudDashboard({ activeTab, setActiveTab, children, headerProps, contentClassName }: CyberHudDashboardProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { items } = useWatchlist();
@@ -289,7 +290,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
           <div className="flex items-center gap-3">
             <ShieldAlert size={28} className="text-[var(--color-accent-primary)]" />
             <div>
-              <h1 className="text-xl font-bold text-white tracking-widest fui-text-glow" style={{ fontFamily: "var(--font-fui)" }}>INVESTER.OS</h1>
+              <h1 className="text-xl font-bold text-white tracking-widest fui-text-glow" style={{ fontFamily: "var(--font-fui)" }}>KAIROS TECH</h1>
               <div className="text-[10px] text-[var(--color-accent-primary)] tracking-[3px]">TACTICAL AI NEXUS</div>
             </div>
           </div>
@@ -352,7 +353,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
         <Header {...(headerProps || { isLoading: false, hasError: false, onRefresh: () => {} })} />
         
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto p-6 relative">
+        <div className={contentClassName !== undefined ? contentClassName : "flex-1 overflow-y-auto p-6 relative"}>
           {/* Corner Decals */}
           <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-[rgba(255,0,60,0.5)] pointer-events-none" />
           <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-[rgba(255,0,60,0.5)] pointer-events-none" />

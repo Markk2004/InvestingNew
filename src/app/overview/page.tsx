@@ -62,18 +62,17 @@ export default function OverviewPage() {
         display: "flex",
         flexDirection: "column",
         gap: 12,
-        height: "100%"
       }}
     >
       {/* Horizontal split for Market List & Sector Performance */}
-      <div style={{ display: "flex", flexDirection: "row", gap: 16, flex: 1, overflow: "hidden" }}>
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 overflow-y-auto lg:overflow-hidden min-h-0">
         {/* Left Column: US Market List */}
-        <div style={{ flex: 3, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div className="flex-1 lg:flex-[3] flex flex-col overflow-hidden min-h-[400px] lg:min-h-0">
           <USMarketListPanel />
         </div>
 
         {/* Right Column: Sector Performance Tierlist */}
-        <div style={{ flex: 2, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div className="flex-1 lg:flex-[2] flex flex-col overflow-hidden min-h-[300px] lg:min-h-0">
           <SectorPerformancePanel />
         </div>
       </div>
@@ -82,7 +81,11 @@ export default function OverviewPage() {
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard activeTab="overview" setActiveTab={() => {}}>
+      <CyberHudDashboard
+        activeTab="overview"
+        setActiveTab={() => {}}
+        contentClassName="flex-1 overflow-hidden p-6 relative flex flex-col h-full"
+      >
         {renderContent()}
       </CyberHudDashboard>
     );

@@ -58,7 +58,11 @@ export default function WatchlistPage() {
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard activeTab="watchlist" setActiveTab={() => {}}>
+      <CyberHudDashboard
+        activeTab="watchlist"
+        setActiveTab={() => {}}
+        contentClassName="flex-1 overflow-hidden p-6 relative flex flex-col h-full"
+      >
         {renderContent()}
       </CyberHudDashboard>
     );
