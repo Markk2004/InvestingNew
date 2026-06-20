@@ -110,7 +110,7 @@ export default function AuthModal({
         const redirectUrl = params.get("redirect");
         
         if (data.user.role === "member") {
-          const allowedPages = ["/news", "/charts", "/watchlist"];
+          const allowedPages = ["/news", "/charts", "/watchlist", "/overview"];
           const isAllowed = allowedPages.some(page => redirectUrl?.startsWith(page));
           if (redirectUrl && isAllowed) {
             window.location.href = redirectUrl;
@@ -171,7 +171,7 @@ export default function AuthModal({
         const redirectUrl = params.get("redirect");
         
         if (data.user.role === "member") {
-          const allowedPages = ["/news", "/charts", "/watchlist"];
+          const allowedPages = ["/news", "/charts", "/watchlist", "/overview"];
           const isAllowed = allowedPages.some(page => redirectUrl?.startsWith(page));
           if (redirectUrl && isAllowed) {
             window.location.href = redirectUrl;

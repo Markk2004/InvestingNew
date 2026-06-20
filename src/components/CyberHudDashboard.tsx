@@ -41,8 +41,8 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
   const { isOwner } = useAuth();
 
   const navItems = [
-    { id: "office", icon: <Building2 size={20} />, path: "/dashboard" },
-    { id: "character", icon: <User size={20} />, path: "/dashboard?tab=character" },
+    isOwner ? { id: "office", icon: <Building2 size={20} />, path: "/dashboard" } : null,
+    isOwner ? { id: "character", icon: <User size={20} />, path: "/dashboard?tab=character" } : null,
     { id: "overview", icon: <LineChart size={20} />, path: "/overview" },
     isOwner ? { id: "member", icon: <Users size={20} />, path: "/member" } : null,
     { id: "news", icon: <Newspaper size={20} />, path: "/news" },
@@ -302,9 +302,9 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
         </div>
 
         <nav className="flex-1 p-4 overflow-y-auto">
-          <div className="text-[10px] text-[#555] mb-3 tracking-widest uppercase">Main Modules</div>
-          {renderNavButton({ id: "office", label: "Command Center", icon: <Building2 size={16} />, path: "/dashboard" })}
-          {renderNavButton({ id: "character", label: "Operators", icon: <User size={16} />, path: "/dashboard?tab=character" })}
+          <div className="text-[10px] text-[#555] mb-3 tracking-widest uppercase">{isOwner ? "Main Modules" : "Modules"}</div>
+          {isOwner && renderNavButton({ id: "office", label: "Command Center", icon: <Building2 size={16} />, path: "/dashboard" })}
+          {isOwner && renderNavButton({ id: "character", label: "Operators", icon: <User size={16} />, path: "/dashboard?tab=character" })}
           {renderNavButton({ id: "overview", label: "Global Overview", icon: <LineChart size={16} />, path: "/overview" })}
           {isOwner && renderNavButton({ id: "member", label: "Member Control", icon: <Users size={16} />, path: "/member" })}
           

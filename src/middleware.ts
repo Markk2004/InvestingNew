@@ -18,7 +18,7 @@ import { verifyToken } from "@/lib/auth";
 const PROTECTED_ROUTES = ["/dashboard", "/member", "/overview", "/news", "/charts", "/watchlist"];
 
 // Routes เฉพาะ owner เท่านั้น
-const OWNER_ONLY_ROUTES = ["/member", "/overview"];
+const OWNER_ONLY_ROUTES = ["/member"];
 
 // Routes ที่ bypass middleware ทั้งหมด
 const PUBLIC_API_ROUTES = [
