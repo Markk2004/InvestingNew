@@ -464,24 +464,6 @@ export default function GameShell() {
         {/* Clock */}
         <LiveClock />
 
-        {/* Status badge */}
-        <div
-          style={{
-            display: "flex", alignItems: "center", gap: 4,
-            background: "#0a1e12", border: "1px solid #166534",
-            padding: "2px 8px", flexShrink: 0,
-          }}
-        >
-          <span
-            style={{
-              width: 6, height: 6, borderRadius: "50%",
-              background: "#22c55e", boxShadow: "0 0 6px #22c55e",
-              display: "inline-block",
-              animation: "pixelBlink 2s ease-in-out infinite",
-            }}
-          />
-          <span style={{ color: "#22c55e", fontSize: 8, fontFamily: "monospace" }}>LIVE</span>
-        </div>
 
         {/* Username badge */}
         {username && (

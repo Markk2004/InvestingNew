@@ -6,7 +6,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import type { NewsApiResponse } from "@/lib/types";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/lib/useAuth";
@@ -30,6 +30,7 @@ export default function Header({
   const { theme, toggleTheme } = useTheme();
   const { user, isOwner, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const isCrimson = theme === "crimson";
 
   const handleRefreshClick = useCallback(() => {
@@ -48,14 +49,6 @@ export default function Header({
         timeZone: "Asia/Bangkok",
       }).format(new Date(fetchedAt))
     : null;
-
-  const statusColor = hasError
-    ? "var(--pixel-red)"
-    : isLoading
-    ? "var(--pixel-yellow)"
-    : "var(--pixel-green)";
-
-  const statusText = hasError ? "ERROR" : isLoading ? "LOADING" : "LIVE";
 
   return (
     <header
@@ -114,74 +107,39 @@ export default function Header({
         {/* ── Right: Status + Refresh button ───────────── */}
         <div className="flex items-center gap-3 flex-shrink-0">
 
-          {/* Status badge */}
-          <div
-            className="font-mono flex items-center gap-2"
-            style={isCrimson ? {
-              fontSize: "10px",
-              padding: "6px 14px",
-              background: "rgba(255, 255, 255, 0.04)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
-              color: "#f1f5f9",
-              borderRadius: "6px",
-              letterSpacing: "1px",
-              fontWeight: "bold",
-            } : {
-              fontSize: "10px",
-              padding: "4px 10px",
-              border: `1px solid ${statusColor}`,
-              background: `${statusColor}10`,
-              letterSpacing: "1px",
-              fontWeight: "bold",
-            }}
-          >
-            <span
-              className={isLoading ? "animate-text-blink" : ""}
-              style={{
-                display: "inline-block",
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: statusColor,
-                boxShadow: `0 0 8px ${statusColor}`,
-              }}
-            />
-            <span style={isCrimson ? {} : { color: statusColor }}>
-              {isCrimson ? `[ ${statusText} ]` : statusText}
-            </span>
-          </div>
 
           {/* Refresh button */}
-          <button
-            id="header-refresh-btn"
-            onClick={handleRefreshClick}
-            disabled={isLoading}
-            aria-label="รีเฟรชข้อมูล"
-            className="font-pixel transition-transform active:scale-90 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={isCrimson ? {
-              fontSize: "7px",
-              padding: "6px 12px",
-              background: clicked ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.04)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
-              color: "#cbd5e1",
-              borderRadius: "6px",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              transition: "all 0.15s ease",
-            } : {
-              fontSize: "7px",
-              padding: "6px 12px",
-              background: clicked ? "var(--pixel-blue)" : "transparent",
-              border: "2px solid var(--pixel-blue)",
-              color: clicked ? "var(--pixel-dark)" : "var(--pixel-blue)",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              boxShadow: "0 0 8px rgba(79,195,247,0.3)",
-              transition: "all 0.15s ease",
-            }}
-          >
-            {isLoading ? "SCANNING..." : "[ REFRESH ]"}
-          </button>
+          {pathname === "/news" && (
+            <button
+              id="header-refresh-btn"
+              onClick={handleRefreshClick}
+              disabled={isLoading}
+              aria-label="รีเฟรชข้อมูล"
+              className="font-pixel transition-transform active:scale-90 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={isCrimson ? {
+                fontSize: "7px",
+                padding: "6px 12px",
+                background: clicked ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
+                color: "#cbd5e1",
+                borderRadius: "6px",
+                cursor: isLoading ? "not-allowed" : "pointer",
+                transition: "all 0.15s ease",
+              } : {
+                fontSize: "7px",
+                padding: "6px 12px",
+                background: clicked ? "var(--pixel-blue)" : "transparent",
+                border: "2px solid var(--pixel-blue)",
+                color: clicked ? "var(--pixel-dark)" : "var(--pixel-blue)",
+                cursor: isLoading ? "not-allowed" : "pointer",
+                boxShadow: "0 0 8px rgba(79,195,247,0.3)",
+                transition: "all 0.15s ease",
+              }}
+            >
+              {isLoading ? "SCANNING..." : "[ REFRESH ]"}
+            </button>
+          )}
 
           {/* Theme Toggle Button */}
           <button
