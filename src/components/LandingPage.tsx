@@ -8,7 +8,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { isLoggedIn } from "@/lib/auth";
+import { isLoggedIn, getUser } from "@/lib/auth";
 import "@/app/landing.css";
 
 const AuthModal = dynamic(() => import("@/components/AuthModal"), {
@@ -20,10 +20,15 @@ export default function LandingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"login" | "register">("login");
 
-  // If already logged in, redirect to dashboard
+  // If already logged in, redirect to proper dashboard based on role
   useEffect(() => {
     if (isLoggedIn()) {
-      router.replace("/dashboard");
+      const user = getUser();
+      if (user?.role === "member") {
+        router.replace("/news");
+      } else {
+        router.replace("/dashboard");
+      }
     }
   }, [router]);
 
@@ -273,7 +278,7 @@ export default function LandingPage() {
             <div className="lp-container lp-di-inner">
               <div className="lp-di-grid">
                 <div className="lp-reveal lp-di-text">
-                  <span className="lp-di-tier">FREE &bull; PLUS &bull; SUPER &bull; ULTRA</span>
+                  <span className="lp-di-tier">MEMBER &bull; OWNER</span>
                   <h3 className="lp-di-title">DARK INVEST</h3>
                   <p className="lp-di-desc">
                     DECRYPT THE FUTURES. PROTOCOL ACCESS UNLOCKS HIGH-FREQUENCY SIGNAL ROUTING,

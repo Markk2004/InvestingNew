@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { useTheme } from "@/components/ThemeProvider";
-import { Building2, User, Newspaper, BarChart2, LineChart, Star, ShieldAlert, MessageSquare, ChevronRight, ChevronLeft, Send, Bell, Menu } from "lucide-react";
+import { Building2, User, Users, Newspaper, BarChart2, LineChart, Star, ShieldAlert, MessageSquare, ChevronRight, ChevronLeft, Send, Bell, Menu } from "lucide-react";
 import Header from "@/components/Header";
+import { useAuth } from "@/lib/useAuth";
 
 type Tab = "office" | "character";
 
@@ -37,6 +38,17 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
   const pathname = usePathname();
   const { items } = useWatchlist();
   const { toggleTheme } = useTheme();
+  const { isOwner } = useAuth();
+
+  const navItems = [
+    { id: "office", icon: <Building2 size={20} />, path: "/dashboard" },
+    { id: "character", icon: <User size={20} />, path: "/dashboard?tab=character" },
+    { id: "overview", icon: <LineChart size={20} />, path: "/overview" },
+    isOwner ? { id: "member", icon: <Users size={20} />, path: "/member" } : null,
+    { id: "news", icon: <Newspaper size={20} />, path: "/news" },
+    { id: "charts", icon: <BarChart2 size={20} />, path: "/charts" },
+    { id: "watchlist", icon: <Star size={20} />, path: "/watchlist" },
+  ].filter((item): item is { id: string; icon: React.JSX.Element; path: string } => item !== null);
 
   // Navigation state
   const [isNavOpen, setIsNavOpen] = useState(true);
@@ -243,14 +255,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
           </button>
 
           {/* Nav Icons */}
-          {[
-            { id: "office", icon: <Building2 size={20} />, path: "/" },
-            { id: "character", icon: <User size={20} />, path: "/?tab=character" },
-            { id: "overview", icon: <LineChart size={20} />, path: "/overview" },
-            { id: "news", icon: <Newspaper size={20} />, path: "/news" },
-            { id: "charts", icon: <BarChart2 size={20} />, path: "/charts" },
-            { id: "watchlist", icon: <Star size={20} />, path: "/watchlist" },
-          ].map((item) => {
+          {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button 
@@ -298,9 +303,10 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
 
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="text-[10px] text-[#555] mb-3 tracking-widest uppercase">Main Modules</div>
-          {renderNavButton({ id: "office", label: "Command Center", icon: <Building2 size={16} />, path: "/" })}
-          {renderNavButton({ id: "character", label: "Operators", icon: <User size={16} />, path: "/?tab=character" })}
+          {renderNavButton({ id: "office", label: "Command Center", icon: <Building2 size={16} />, path: "/dashboard" })}
+          {renderNavButton({ id: "character", label: "Operators", icon: <User size={16} />, path: "/dashboard?tab=character" })}
           {renderNavButton({ id: "overview", label: "Global Overview", icon: <LineChart size={16} />, path: "/overview" })}
+          {isOwner && renderNavButton({ id: "member", label: "Member Control", icon: <Users size={16} />, path: "/member" })}
           
           <div className="text-[10px] text-[#555] mt-6 mb-3 tracking-widest uppercase">Intelligence</div>
           {renderNavButton({ id: "news", label: "Threat Intel", icon: <Newspaper size={16} />, path: "/news" })}

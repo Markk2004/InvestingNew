@@ -6,8 +6,10 @@
 // ─────────────────────────────────────────────────────────────
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { NewsApiResponse } from "@/lib/types";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/lib/useAuth";
 
 interface HeaderProps {
   fetchedAt?: string;
@@ -26,6 +28,8 @@ export default function Header({
 }: HeaderProps) {
   const [clicked, setClicked] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { user, isOwner, logout } = useAuth();
+  const router = useRouter();
   const isCrimson = theme === "crimson";
 
   const handleRefreshClick = useCallback(() => {
@@ -206,6 +210,42 @@ export default function Header({
           >
             {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
           </button>
+
+          {/* Role Badge + User Info */}
+          {user && (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{
+                fontSize: "9px",
+                color: isOwner ? "#d4af37" : "rgba(132,204,22,0.7)",
+                fontFamily: "'IBM Plex Mono', monospace",
+                letterSpacing: "0.1em",
+                background: isOwner ? "rgba(212,175,55,0.05)" : "rgba(132,204,22,0.04)",
+                border: `1px solid ${isOwner ? "rgba(212,175,55,0.2)" : "rgba(132,204,22,0.15)"}`,
+                padding: "4px 10px",
+              }}>
+                {user.username} [{isOwner ? "OWNER" : "MEMBER"}]
+              </div>
+              <button
+                onClick={logout}
+                title="Logout"
+                style={{
+                  fontSize: "7px",
+                  padding: "5px 10px",
+                  background: "transparent",
+                  border: "1px solid rgba(239,68,68,0.3)",
+                  color: "rgba(239,68,68,0.6)",
+                  cursor: "pointer",
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  letterSpacing: "0.1em",
+                  transition: "all 0.2s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.7)"; e.currentTarget.style.color = "#f87171"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; e.currentTarget.style.color = "rgba(239,68,68,0.6)"; }}
+              >
+                LOGOUT
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

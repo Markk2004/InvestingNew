@@ -1,31 +1,61 @@
 "use client";
 // ─────────────────────────────────────────────────────────────
 //  AuthGuard — ป้องกัน routes ที่ต้อง login
-//  ใช้ห่อ component ที่ต้อง authenticated
+//  รองรับ role-based access: member | owner
+//
+//  Usage:
+//    <AuthGuard>...</AuthGuard>                   // ต้อง login
+//    <AuthGuard requiredRole="owner">...</AuthGuard> // ต้องเป็น owner
 // ─────────────────────────────────────────────────────────────
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isLoggedIn } from "@/lib/auth";
+import { isLoggedIn, getUser, UserRole } from "@/lib/auth";
 
 interface AuthGuardProps {
   children: React.ReactNode;
+  /** ถ้ากำหนด จะตรวจว่า user มี role นั้นหรือไม่ */
+  requiredRole?: UserRole;
+  /** redirect ไปไหนถ้าไม่มีสิทธิ์ (default: '/') */
+  redirectTo?: string;
 }
 
-export default function AuthGuard({ children }: AuthGuardProps) {
+export default function AuthGuard({
+  children,
+  requiredRole,
+  redirectTo = "/",
+}: AuthGuardProps) {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    // client-side check
-    if (isLoggedIn()) {
-      setAuthorized(true);
-    } else {
-      router.replace("/");
+    if (!isLoggedIn()) {
+      router.replace(redirectTo);
+      setChecking(false);
+      return;
     }
+
+    const user = getUser();
+
+    // ถ้าต้องการ role เฉพาะ
+    if (requiredRole) {
+      if (requiredRole === "owner" && user?.role !== "owner") {
+        // ไม่มีสิทธิ์ → redirect ไป dashboard แทน
+        router.replace("/dashboard");
+        setChecking(false);
+        return;
+      }
+      if (requiredRole === "member" && !user?.role) {
+        router.replace(redirectTo);
+        setChecking(false);
+        return;
+      }
+    }
+
+    setAuthorized(true);
     setChecking(false);
-  }, [router]);
+  }, [router, requiredRole, redirectTo]);
 
   if (checking) {
     return (

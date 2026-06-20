@@ -240,7 +240,7 @@ export default function NewsDashboardPage() {
       {/* ── Back to Office Button ──────────────────────────── */}
       <div className="fixed bottom-5 left-5 z-50">
         <Link
-          href="/"
+          href="/dashboard"
           id="back-to-office-btn"
           className="back-office-btn font-pixel flex items-center gap-2 px-3 py-2 hover:scale-105 active:scale-95 transition-transform"
           style={{

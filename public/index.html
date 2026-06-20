@@ -785,8 +785,8 @@
       <!-- ── LOGIN FORM ── -->
       <form id="form-login" class="space-y-4" onsubmit="handleLogin(event)" novalidate>
         <div>
-          <label class="auth-label" for="login-email">EMAIL_ADDRESS</label>
-          <input id="login-email" name="email" type="email" class="auth-input" placeholder="agent@darkinvest.io" autocomplete="email">
+          <label class="auth-label" for="login-username">AGENT_ID</label>
+          <input id="login-username" name="username" type="text" class="auth-input" placeholder="kairos_trader" autocomplete="username">
         </div>
         <div>
           <label class="auth-label" for="login-password">PASS_KEY</label>
@@ -801,20 +801,11 @@
 
       <!-- ── REGISTER FORM ── -->
       <form id="form-register" class="space-y-3 hidden" onsubmit="handleRegister(event)" novalidate>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="auth-label" for="reg-username">AGENT_ID</label>
-            <input id="reg-username" name="username" type="text" class="auth-input" placeholder="kairos_trader" autocomplete="username">
-          </div>
-          <div>
-            <label class="auth-label" for="reg-display">DISPLAY_NAME</label>
-            <input id="reg-display" name="displayName" type="text" class="auth-input" placeholder="Kairos">
-          </div>
-        </div>
         <div>
-          <label class="auth-label" for="reg-email">EMAIL_ADDRESS</label>
-          <input id="reg-email" name="email" type="email" class="auth-input" placeholder="agent@darkinvest.io" autocomplete="email">
+          <label class="auth-label" for="reg-username">AGENT_ID</label>
+          <input id="reg-username" name="username" type="text" class="auth-input" placeholder="kairos_trader" autocomplete="username">
         </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="auth-label" for="reg-password">PASS_KEY</label>
@@ -863,10 +854,12 @@
     function saveAuth(token, user) {
       localStorage.setItem(TOKEN_KEY, token);
       localStorage.setItem(USER_KEY, JSON.stringify(user));
+      document.cookie = TOKEN_KEY + "=" + token + "; path=/; max-age=" + (7 * 24 * 60 * 60) + "; SameSite=Lax";
     }
     function clearAuth() {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
+      document.cookie = TOKEN_KEY + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
     function isLoggedIn() {
       const t = getToken();
@@ -892,7 +885,7 @@
       const headerUser = document.getElementById('header-user');
       headerUser.classList.remove('hidden');
       if (user) {
-        document.getElementById('header-username').textContent = (user.displayName || user.username || 'AGENT').toUpperCase();
+        document.getElementById('header-username').textContent = (user.username || 'AGENT').toUpperCase();
       }
     }
 
@@ -948,7 +941,7 @@
     }
 
     function resetForms() {
-      ['login-email','login-password','reg-username','reg-display','reg-email','reg-password','reg-confirm']
+      ['login-username','login-password','reg-username','reg-password','reg-confirm']
         .forEach(function(id) {
           const el = document.getElementById(id);
           if (el) el.value = '';
@@ -990,11 +983,11 @@
     // ── Login ─────────────────────────────────────────────────
     async function handleLogin(e) {
       e.preventDefault();
-      const email    = document.getElementById('login-email').value.trim();
+      const username = document.getElementById('login-username').value.trim();
       const password = document.getElementById('login-password').value;
 
-      if (!email || !password) {
-        showAlert('กรุณากรอก Email และ Password', 'error'); return;
+      if (!username || !password) {
+        showAlert('กรุณากรอก Username และ Password', 'error'); return;
       }
 
       setLoading('btn-login', true, 'AUTHENTICATE →');
@@ -1004,7 +997,7 @@
         const res = await fetch(API_BASE + '/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ username, password })
         });
         const data = await res.json();
 
@@ -1033,12 +1026,10 @@
     async function handleRegister(e) {
       e.preventDefault();
       const username        = document.getElementById('reg-username').value.trim();
-      const displayName     = document.getElementById('reg-display').value.trim();
-      const email           = document.getElementById('reg-email').value.trim();
       const password        = document.getElementById('reg-password').value;
       const confirmPassword = document.getElementById('reg-confirm').value;
 
-      if (!username || !email || !password) {
+      if (!username || !password) {
         showAlert('กรุณากรอกข้อมูลให้ครบ', 'error'); return;
       }
       if (password !== confirmPassword) {
@@ -1055,7 +1046,7 @@
         const res = await fetch(API_BASE + '/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email, password, displayName: displayName || username })
+          body: JSON.stringify({ username, password })
         });
         const data = await res.json();
 

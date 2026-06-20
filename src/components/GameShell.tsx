@@ -11,7 +11,7 @@ import OfficeTab from "@/components/OfficeTab";
 import CharacterTab from "@/components/CharacterTab";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { useTheme } from "@/components/ThemeProvider";
-import { Building2, User, Newspaper, BarChart2, LineChart, Star, LogOut } from "lucide-react";
+import { Building2, User, Users, Newspaper, BarChart2, LineChart, Star, LogOut } from "lucide-react";
 import CyberHudDashboard from "@/components/CyberHudDashboard";
 import { clearAuth, getUser } from "@/lib/auth";
 
@@ -88,7 +88,7 @@ function LiveClock() {
 // ── Tab Button ─────────────────────────────────────────────────────────────────
 
 interface TabButtonProps {
-  id: Tab | "news" | "charts" | "overview" | "watchlist";
+  id: Tab | "news" | "charts" | "overview" | "watchlist" | "member";
   label: string;
   icon: React.ReactNode;
   active: boolean;
@@ -313,6 +313,7 @@ export default function GameShell() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("office");
   const [username, setUsername] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -322,9 +323,15 @@ export default function GameShell() {
       }
       // Load user info
       const user = getUser();
-      if (user) setUsername(user.displayName || user.username);
+      if (user) {
+        setUsername(user.username);
+        setUserRole(user.role || "");
+        if (user.role === "member") {
+          router.replace("/news");
+        }
+      }
     }
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     clearAuth();
@@ -399,22 +406,26 @@ export default function GameShell() {
 
         {/* Tab Navigation */}
         <nav style={{ display: "flex", gap: 4, alignItems: "center", flexShrink: 0 }}>
-          <TabButton
-            id="office"
-            icon={<Building2 size={13} />}
-            label="Office Overview"
-            active={activeTab === "office"}
-            onClick={() => setActiveTab("office")}
-            glowColor="#4fc3f7"
-          />
-          <TabButton
-            id="character"
-            icon={<User size={13} />}
-            label="Character"
-            active={activeTab === "character"}
-            onClick={() => setActiveTab("character")}
-            glowColor="#c084fc"
-          />
+          {userRole !== "member" && (
+            <TabButton
+              id="office"
+              icon={<Building2 size={13} />}
+              label="Office Overview"
+              active={activeTab === "office"}
+              onClick={() => setActiveTab("office")}
+              glowColor="#4fc3f7"
+            />
+          )}
+          {userRole !== "member" && (
+            <TabButton
+              id="character"
+              icon={<User size={13} />}
+              label="Character"
+              active={activeTab === "character"}
+              onClick={() => setActiveTab("character")}
+              glowColor="#c084fc"
+            />
+          )}
           <TabButton
             id="news"
             icon={<Newspaper size={13} />}
@@ -431,14 +442,16 @@ export default function GameShell() {
             onClick={() => router.push("/charts")}
             glowColor="#f43f5e"
           />
-          <TabButton
-            id="overview"
-            icon={<LineChart size={13} />}
-            label="Overview"
-            active={false}
-            onClick={() => router.push("/overview")}
-            glowColor="#4fc3f7"
-          />
+          {userRole !== "member" && (
+            <TabButton
+              id="overview"
+              icon={<LineChart size={13} />}
+              label="Overview"
+              active={false}
+              onClick={() => router.push("/overview")}
+              glowColor="#4fc3f7"
+            />
+          )}
           <WatchlistTabButton />
         </nav>
 

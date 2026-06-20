@@ -6,17 +6,16 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken, UserRole } from "@/lib/auth";
 import { RowDataPacket } from "mysql2";
 
 interface UserRow extends RowDataPacket {
   id: number;
   username: string;
-  email: string;
-  display_name: string | null;
   avatar_style: string;
   xp: number;
   tier: string;
+  role: UserRole;
   created_at: Date;
   last_login: Date | null;
 }
@@ -29,7 +28,7 @@ export async function GET(req: NextRequest) {
     }
 
     const token = authHeader.slice(7);
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
     if (!payload) {
       return NextResponse.json(
         { error: "Token หมดอายุหรือไม่ถูกต้อง" },
@@ -38,7 +37,7 @@ export async function GET(req: NextRequest) {
     }
 
     const [rows] = await pool.query<UserRow[]>(
-      `SELECT id, username, email, display_name, avatar_style, xp, tier, created_at, last_login
+      `SELECT id, username, avatar_style, xp, tier, role, created_at, last_login
        FROM users WHERE id = ? AND is_active = 1 LIMIT 1`,
       [payload.userId]
     );
@@ -51,10 +50,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       userId: user.id,
       username: user.username,
-      email: user.email,
-      displayName: user.display_name || user.username,
       avatarStyle: user.avatar_style,
       tier: user.tier,
+      role: user.role,
       xp: user.xp,
       createdAt: user.created_at,
       lastLogin: user.last_login,

@@ -18,18 +18,14 @@ type Tab = "login" | "register";
 
 interface FormState {
   username: string;
-  email: string;
   password: string;
   confirmPassword: string;
-  displayName: string;
 }
 
 const INITIAL_FORM: FormState = {
   username: "",
-  email: "",
   password: "",
   confirmPassword: "",
-  displayName: "",
 };
 
 export default function AuthModal({
@@ -87,8 +83,8 @@ export default function AuthModal({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email || !form.password) {
-      setError("กรุณากรอก Email และ Password");
+    if (!form.username || !form.password) {
+      setError("กรุณากรอก Username และ Password");
       return;
     }
     setLoading(true);
@@ -97,7 +93,7 @@ export default function AuthModal({
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+        body: JSON.stringify({ username: form.username, password: form.password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -105,10 +101,30 @@ export default function AuthModal({
         return;
       }
       saveAuth(data.token, data.user);
-      setSuccessMsg("เข้าสู่ระบบสำเร็จ! กำลังพาเข้าสู่ Office...");
+      setSuccessMsg("เข้าสู่ระบบสำเร็จ! กำลังพาเข้าสู่ระบบ...");
+      // เซ็ต cookie โดยตรงผ่าน document.cookie ก่อน redirect
+      // เพิ่ม max-age ให้ชัดเจนและ Secure ไม่จำเป็นสำหรับ localhost
+      document.cookie = `dh_auth_token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
       setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
+        const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get("redirect");
+        
+        if (data.user.role === "member") {
+          const allowedPages = ["/news", "/charts", "/watchlist"];
+          const isAllowed = allowedPages.some(page => redirectUrl?.startsWith(page));
+          if (redirectUrl && isAllowed) {
+            window.location.href = redirectUrl;
+          } else {
+            window.location.href = "/news";
+          }
+        } else {
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
+          } else {
+            window.location.href = "/dashboard";
+          }
+        }
+      }, 1200);
     } catch {
       setError("ไม่สามารถเชื่อมต่อกับ server ได้");
     } finally {
@@ -118,7 +134,7 @@ export default function AuthModal({
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.username || !form.email || !form.password) {
+    if (!form.username || !form.password) {
       setError("กรุณากรอกข้อมูลให้ครบ");
       return;
     }
@@ -138,9 +154,7 @@ export default function AuthModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: form.username,
-          email: form.email,
           password: form.password,
-          displayName: form.displayName || form.username,
         }),
       });
       const data = await res.json();
@@ -150,8 +164,27 @@ export default function AuthModal({
       }
       saveAuth(data.token, data.user);
       setSuccessMsg("สมัครสมาชิกสำเร็จ! ยินดีต้อนรับสู่ Kairos Tech...");
+      // เซ็ต cookie โดยตรงก่อน redirect
+      document.cookie = `dh_auth_token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
       setTimeout(() => {
-        router.push("/dashboard");
+        const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get("redirect");
+        
+        if (data.user.role === "member") {
+          const allowedPages = ["/news", "/charts", "/watchlist"];
+          const isAllowed = allowedPages.some(page => redirectUrl?.startsWith(page));
+          if (redirectUrl && isAllowed) {
+            window.location.href = redirectUrl;
+          } else {
+            window.location.href = "/news";
+          }
+        } else {
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
+          } else {
+            window.location.href = "/dashboard";
+          }
+        }
       }, 1200);
     } catch {
       setError("ไม่สามารถเชื่อมต่อกับ server ได้");
@@ -246,18 +279,18 @@ export default function AuthModal({
         {tab === "login" ? (
           <form className="auth-form" onSubmit={handleLogin} noValidate>
             <div className="auth-field">
-              <label className="auth-label" htmlFor="login-email">
-                EMAIL_ADDRESS
+              <label className="auth-label" htmlFor="login-username">
+                AGENT_ID
               </label>
               <input
-                id="login-email"
-                name="email"
-                type="email"
+                id="login-username"
+                name="username"
+                type="text"
                 className="auth-input"
-                placeholder="agent@darkinvest.io"
-                value={form.email}
+                placeholder="kairos_trader"
+                value={form.username}
                 onChange={handleChange}
-                autoComplete="email"
+                autoComplete="username"
                 disabled={loading}
               />
             </div>
@@ -305,55 +338,23 @@ export default function AuthModal({
           </form>
         ) : (
           <form className="auth-form" onSubmit={handleRegister} noValidate>
-            <div className="auth-fields-row">
-              <div className="auth-field">
-                <label className="auth-label" htmlFor="reg-username">
-                  AGENT_ID
-                </label>
-                <input
-                  id="reg-username"
-                  name="username"
-                  type="text"
-                  className="auth-input"
-                  placeholder="kairos_trader"
-                  value={form.username}
-                  onChange={handleChange}
-                  autoComplete="username"
-                  disabled={loading}
-                />
-              </div>
-              <div className="auth-field">
-                <label className="auth-label" htmlFor="reg-displayname">
-                  DISPLAY_NAME
-                </label>
-                <input
-                  id="reg-displayname"
-                  name="displayName"
-                  type="text"
-                  className="auth-input"
-                  placeholder="Kairos"
-                  value={form.displayName}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </div>
-            </div>
             <div className="auth-field">
-              <label className="auth-label" htmlFor="reg-email">
-                EMAIL_ADDRESS
+              <label className="auth-label" htmlFor="reg-username">
+                AGENT_ID
               </label>
               <input
-                id="reg-email"
-                name="email"
-                type="email"
+                id="reg-username"
+                name="username"
+                type="text"
                 className="auth-input"
-                placeholder="agent@darkinvest.io"
-                value={form.email}
+                placeholder="kairos_trader"
+                value={form.username}
                 onChange={handleChange}
-                autoComplete="email"
+                autoComplete="username"
                 disabled={loading}
               />
             </div>
+
             <div className="auth-fields-row">
               <div className="auth-field">
                 <label className="auth-label" htmlFor="reg-password">

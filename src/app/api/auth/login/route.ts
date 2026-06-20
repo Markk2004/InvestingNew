@@ -7,44 +7,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import pool from "@/lib/db";
-import { signToken } from "@/lib/auth";
+import { signToken, UserRole } from "@/lib/auth";
 import { RowDataPacket } from "mysql2";
 
 interface UserRow extends RowDataPacket {
   id: number;
   username: string;
-  email: string;
   password_hash: string;
-  display_name: string | null;
   avatar_style: string;
   xp: number;
   tier: string;
+  role: UserRole;
   is_active: number;
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password } = body;
+    const { username, password } = body;
 
     // ── Validation ──────────────────────────────────────────
-    if (!email || !password) {
+    if (!username || !password) {
       return NextResponse.json(
-        { error: "กรุณากรอก email และ password" },
+        { error: "กรุณากรอก username และ password" },
         { status: 400 }
       );
     }
 
     // ── Find user ────────────────────────────────────────────
     const [rows] = await pool.query<UserRow[]>(
-      `SELECT id, username, email, password_hash, display_name, avatar_style, xp, tier, is_active
-       FROM users WHERE email = ? LIMIT 1`,
-      [email.toLowerCase()]
+      `SELECT id, username, password_hash, avatar_style, xp, tier, role, is_active
+       FROM users WHERE username = ? LIMIT 1`,
+      [username]
     );
 
     if (rows.length === 0) {
       return NextResponse.json(
-        { error: "Email หรือ Password ไม่ถูกต้อง" },
+        { error: "Username หรือ Password ไม่ถูกต้อง" },
         { status: 401 }
       );
     }
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
       return NextResponse.json(
-        { error: "Email หรือ Password ไม่ถูกต้อง" },
+        { error: "Username หรือ Password ไม่ถูกต้อง" },
         { status: 401 }
       );
     }
@@ -73,12 +72,12 @@ export async function POST(req: NextRequest) {
       user.id,
     ]);
 
-    // ── Issue JWT ────────────────────────────────────────────
+    // ── Issue JWT (includes role) ─────────────────────────────
     const token = signToken({
       userId: user.id,
       username: user.username,
-      email: user.email,
       tier: user.tier,
+      role: user.role,
     });
 
     return NextResponse.json({
@@ -86,10 +85,9 @@ export async function POST(req: NextRequest) {
       user: {
         userId: user.id,
         username: user.username,
-        email: user.email,
-        displayName: user.display_name || user.username,
         avatarStyle: user.avatar_style,
         tier: user.tier,
+        role: user.role,
         xp: user.xp,
       },
     });

@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "sprites": "node scripts/generate-sprites.mjs"
+    "sprites": "node scripts/generate-sprites.mjs",
+    "db:migrate": "node scripts/run-migration.mjs",
+    "db:remove-displayname": "node scripts/run-remove-displayname.mjs",
+    "db:remove-email": "node scripts/run-remove-email.mjs",
+    "db:create-admin": "node scratch/create-owner.mjs",
+    "db:seed-owner": "node scripts/seed-owner.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
