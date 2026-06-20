@@ -1,13 +1,11 @@
 // ─────────────────────────────────────────────────────────────
-//  Home Page — /
-//  Kairos Tech Landing Page (เข้ามาที่นี่ก่อน ต้อง Login/Register)
-//  ถ้า logged in แล้วจะ redirect ไป /dashboard โดยอัตโนมัติ
+//  POST /api/auth/logout
+//  Clear session (client จะลบ token เอง แต่ route นี้ไว้สำหรับ
+//  future: revoke token in sessions table)
 // ─────────────────────────────────────────────────────────────
 
-"use client";
+import { NextResponse } from "next/server";
 
-import LandingPage from "@/components/LandingPage";
-
-export default function HomePage() {
-  return <LandingPage />;
+export async function POST() {
+  return NextResponse.json({ success: true, message: "Logged out" });
 }

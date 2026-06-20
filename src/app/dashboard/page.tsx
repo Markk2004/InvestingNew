@@ -1,13 +1,12 @@
 // ─────────────────────────────────────────────────────────────
-//  Home Page — /
-//  Kairos Tech Landing Page (เข้ามาที่นี่ก่อน ต้อง Login/Register)
-//  ถ้า logged in แล้วจะ redirect ไป /dashboard โดยอัตโนมัติ
+//  Dashboard Page — /dashboard
+//  Office View / GameShell — ต้อง login ก่อน
 // ─────────────────────────────────────────────────────────────
 
 "use client";
 
-import LandingPage from "@/components/LandingPage";
+import GameShell from "@/components/GameShell";
 
-export default function HomePage() {
-  return <LandingPage />;
+export default function DashboardPage() {
+  return <GameShell />;
 }

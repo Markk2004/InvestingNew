@@ -11,8 +11,9 @@ import OfficeTab from "@/components/OfficeTab";
 import CharacterTab from "@/components/CharacterTab";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { useTheme } from "@/components/ThemeProvider";
-import { Building2, User, Newspaper, BarChart2, LineChart, Star } from "lucide-react";
+import { Building2, User, Newspaper, BarChart2, LineChart, Star, LogOut } from "lucide-react";
 import CyberHudDashboard from "@/components/CyberHudDashboard";
+import { clearAuth, getUser } from "@/lib/auth";
 
 type Tab = "office" | "character";
 
@@ -311,15 +312,24 @@ function WatchlistTabButton() {
 export default function GameShell() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("office");
-  
+  const [username, setUsername] = useState<string>("");
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("tab") === "character") {
         setActiveTab("character");
       }
+      // Load user info
+      const user = getUser();
+      if (user) setUsername(user.displayName || user.username);
     }
   }, []);
+
+  const handleLogout = () => {
+    clearAuth();
+    router.replace("/");
+  };
 
   const { theme, toggleTheme } = useTheme();
   const isCrimson = theme === "crimson";
@@ -460,6 +470,22 @@ export default function GameShell() {
           <span style={{ color: "#22c55e", fontSize: 8, fontFamily: "monospace" }}>LIVE</span>
         </div>
 
+        {/* Username badge */}
+        {username && (
+          <div
+            style={{
+              display: "flex", alignItems: "center", gap: 4,
+              background: "#0a1628", border: "1px solid #1e3a5f",
+              padding: "2px 8px", flexShrink: 0,
+              fontSize: 7, fontFamily: "monospace", color: "#60a5fa",
+              letterSpacing: 1,
+            }}
+          >
+            <span style={{ color: "#475569" }}>AGENT:</span>
+            <span>{username.toUpperCase()}</span>
+          </div>
+        )}
+
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
@@ -477,6 +503,40 @@ export default function GameShell() {
           }}
         >
           {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
+        </button>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          title="Logout"
+          style={{
+            background: "transparent",
+            border: "1px solid rgba(239,68,68,0.3)",
+            color: "rgba(239,68,68,0.7)",
+            fontSize: 7,
+            padding: "5px 10px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            fontFamily: "monospace",
+            letterSpacing: 1,
+            transition: "all 0.2s",
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,68,68,0.8)";
+            (e.currentTarget as HTMLButtonElement).style.color = "#ef4444";
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.08)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,68,68,0.3)";
+            (e.currentTarget as HTMLButtonElement).style.color = "rgba(239,68,68,0.7)";
+            (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+          }}
+        >
+          <LogOut size={11} />
+          <span>LOGOUT</span>
         </button>
       </header>
 

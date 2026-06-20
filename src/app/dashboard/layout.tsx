@@ -1,13 +1,16 @@
 // ─────────────────────────────────────────────────────────────
-//  Home Page — /
-//  Kairos Tech Landing Page (เข้ามาที่นี่ก่อน ต้อง Login/Register)
-//  ถ้า logged in แล้วจะ redirect ไป /dashboard โดยอัตโนมัติ
+//  Dashboard Layout — /dashboard
+//  ห่อด้วย AuthGuard เพื่อป้องกัน unauthenticated access
 // ─────────────────────────────────────────────────────────────
 
 "use client";
 
-import LandingPage from "@/components/LandingPage";
+import AuthGuard from "@/components/AuthGuard";
 
-export default function HomePage() {
-  return <LandingPage />;
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <AuthGuard>{children}</AuthGuard>;
 }
