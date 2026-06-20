@@ -134,7 +134,6 @@ export default function MemberPage() {
         {/* ── HUD corners ── */}
         <div className="adm-corner adm-corner--tl" />
         <div className="adm-corner adm-corner--tr" />
-        <div className="adm-scanline" />
 
         {/* ── Header ── */}
         <header className="adm-header">

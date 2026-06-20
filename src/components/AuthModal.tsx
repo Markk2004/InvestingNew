@@ -212,9 +212,6 @@ export default function AuthModal({
         <div className="hud-corner hud-corner--bl" />
         <div className="hud-corner hud-corner--br" />
 
-        {/* ── Scanline ── */}
-        <div className="auth-scanline" />
-
         {/* ── Header ── */}
         <div className="auth-modal-header">
           <div className="auth-logo">

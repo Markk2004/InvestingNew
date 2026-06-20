@@ -20,6 +20,8 @@
   background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.85) 150%);
   z-index: 9999;
 }
+/* Disabled static CRT Scanline lines as requested */
+/*
 .lp-crt::after {
   content: " ";
   display: block; position: absolute; inset: 0;
@@ -27,6 +29,7 @@
   background-size: 100% 4px, 6px 100%;
   pointer-events: none;
 }
+*/
 .lp-scanline {
   width: 100%; height: 100px;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(132, 204, 22, 0.05) 10%, rgba(0, 0, 0, 0) 100%);
@@ -122,11 +125,11 @@
 .lp-hero-angel {
   position: absolute; top: 0; left: 0;
   width: 100%; max-width: 48rem; height: 90vh;
-  pointer-events: none; z-index: 0; overflow: hidden; opacity: 0.25;
+  pointer-events: none; z-index: 5; overflow: hidden; opacity: 0.25;
 }
 .lp-hero-angel-img {
   height: 100%; width: 100%;
-  background-image: url('/angel.png');
+  background-image: url('/angelremove.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: left center;
@@ -141,6 +144,13 @@
 }
 @media (min-width: 768px) { .lp-hero-right { display: block; } }
 
+.lp-astrolabe-container {
+  position: absolute; inset-y: 0; right: 0;
+  width: 55%; display: none;
+  z-index: 1; pointer-events: none;
+}
+@media (min-width: 768px) { .lp-astrolabe-container { display: block; } }
+
 .lp-hero-statue-wrapper {
   position: absolute;
   right: 5rem; top: 50%;
@@ -153,8 +163,6 @@
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
   opacity: 0.5; mix-blend-mode: screen;
-  mask-image: radial-gradient(circle at center, transparent 20%, black 55%);
-  -webkit-mask-image: radial-gradient(circle at center, transparent 20%, black 55%);
 }
 .lp-astro-core {
   position: absolute;
@@ -216,7 +224,7 @@
 .lp-statue-mask {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  background-image: url('/hero_statue.png');
+  background-image: url('/image-removebg-preview.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -226,7 +234,7 @@
 .lp-statue-blend {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  background-image: url('/hero_statue.png');
+  background-image: url('/image-removebg-preview.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

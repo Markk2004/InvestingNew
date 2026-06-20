@@ -62,8 +62,6 @@ export default function LandingPage() {
       <div className="lp-root">
         {/* ── CRT Overlay ── */}
         <div className="lp-crt" />
-        {/* ── Scanline ── */}
-        <div className="lp-scanline" />
 
         {/* ════════════════════════════
             HEADER
@@ -101,15 +99,9 @@ export default function LandingPage() {
               <div className="lp-hero-bg-img" />
             </div>
 
-            {/* Left angel */}
-            <div className="lp-hero-angel">
-              <div className="lp-hero-angel-img" />
-            </div>
-
-            {/* Right: Astrolabe + Statue */}
-            <div className="lp-hero-right">
+            {/* Astrolabe rings (independent layer behind angel and statue) */}
+            <div className="lp-astrolabe-container">
               <div className="lp-hero-statue-wrapper">
-                {/* Astrolabe rings */}
                 <div className="lp-astrolabe">
                   <div className="lp-astro-core">
                     <div className="lp-astro-dot" />
@@ -131,6 +123,17 @@ export default function LandingPage() {
                     <div className="lp-astro-star lp-astro-star--bl" />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Left angel */}
+            <div className="lp-hero-angel">
+              <div className="lp-hero-angel-img" />
+            </div>
+
+            {/* Right: Statue only */}
+            <div className="lp-hero-right">
+              <div className="lp-hero-statue-wrapper">
                 {/* Statue silhouette (opaque mask) */}
                 <div className="lp-statue-mask" />
                 {/* Statue blended */}
