@@ -6,7 +6,8 @@ export default function GlobalErrorHandler() {
   useEffect(() => {
     const logToBackend = async (data: any) => {
       try {
-        await fetch("http://localhost:8080/api/system/log", {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api";
+        await fetch(`${backendUrl}/system/log`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

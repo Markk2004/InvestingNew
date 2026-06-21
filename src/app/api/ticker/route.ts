@@ -158,7 +158,8 @@ export async function GET(request: Request) {
   } catch (error: any) {
     console.error("Error fetching ticker data:", error);
     try {
-      await fetch("http://localhost:8080/api/system/log", {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api";
+      await fetch(`${backendUrl}/system/log`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

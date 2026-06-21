@@ -161,7 +161,8 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
     try {
       // Simulate retro-scanning delay for cool visual effect
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      const res = await fetch("http://localhost:8080/api/system/diagnose");
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api";
+      const res = await fetch(`${backendUrl}/system/diagnose`);
       const data = await res.json();
       setDiagnoseReport(data);
     } catch (e) {
@@ -196,7 +197,8 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
   // 1b. Poll unread error logs to trigger Alert on Techie
   useEffect(() => {
     const checkLogs = () => {
-      fetch("http://localhost:8080/api/system/log/unread")
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api";
+      fetch(`${backendUrl}/system/log/unread`)
         .then((res) => res.json())
         .then((data) => {
           if (data && Array.isArray(data.logs)) {
@@ -222,7 +224,8 @@ export default function OfficeTab({ agents: agentsProp, spriteOverrides = {} }: 
 
   const handleResolveLogs = async () => {
     try {
-      await fetch("http://localhost:8080/api/system/log/read", { method: "POST" }); // Marks them as read on Laravel
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/api";
+      await fetch(`${backendUrl}/system/log/read`, { method: "POST" }); // Marks them as read on Laravel
       setUnreadLogs([]);
       setTechieModal(null);
     } catch (e) {
