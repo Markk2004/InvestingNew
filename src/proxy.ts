@@ -1,14 +1,10 @@
 // ─────────────────────────────────────────────────────────────
-//  Next.js Middleware — src/middleware.ts
+//  Next.js Proxy — src/proxy.ts
 //  Route protection ด้วย JWT + Role-based access control
 //
 //  Protected routes:
 //    /dashboard/*  → ต้อง login (member + owner)
 //    /member/*     → ต้องเป็น owner เท่านั้น
-//
-//  Public routes:
-//    /             → Landing page (redirect ถ้า logged in)
-//    /api/auth/*   → Auth endpoints (ไม่ต้อง token)
 // ─────────────────────────────────────────────────────────────
 
 import { NextRequest, NextResponse } from "next/server";
@@ -20,7 +16,7 @@ const PROTECTED_ROUTES = ["/dashboard", "/member", "/overview", "/news", "/chart
 // Routes เฉพาะ owner เท่านั้น
 const OWNER_ONLY_ROUTES = ["/member"];
 
-// Routes ที่ bypass middleware ทั้งหมด
+// Routes ที่ bypass proxy ทั้งหมด
 const PUBLIC_API_ROUTES = [
   "/api/auth/login",
   "/api/auth/register",
@@ -41,7 +37,7 @@ function getTokenFromRequest(req: NextRequest): string | null {
   return null;
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // ── Skip public API routes ───────────────────────────────────
@@ -97,6 +93,9 @@ export async function middleware(req: NextRequest) {
     request: { headers: requestHeaders },
   });
 }
+
+// Support both default and named export for Next.js 16 proxy convention
+export default proxy;
 
 export const config = {
   matcher: [
