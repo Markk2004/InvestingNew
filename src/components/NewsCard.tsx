@@ -27,6 +27,16 @@ const SENTIMENT_CONFIG = {
   neutral: { color: "#64748b",             label: "NEUTRAL ➡️" },
 };
 
+const ASSET_CONFIG: Record<string, { emoji: string; color: string; bg: string }> = {
+  "Gold":           { emoji: "🪙", color: "var(--pixel-yellow)",   bg: "rgba(255,215,64,0.08)" },
+  "Crude Oil":      { emoji: "🛢️", color: "var(--pixel-orange)",   bg: "rgba(255,171,64,0.08)" },
+  "USD (DXY)":      { emoji: "💵", color: "var(--pixel-green)",    bg: "rgba(105,255,71,0.08)" },
+  "US Stocks":      { emoji: "📈", color: "var(--pixel-blue)",     bg: "rgba(79,195,247,0.08)" },
+  "Crypto":         { emoji: "🪙", color: "#a855f7",               bg: "rgba(168,85,247,0.08)" },
+  "Bond Yields":    { emoji: "📊", color: "#64748b",               bg: "rgba(100,116,139,0.08)" },
+  "Global Markets": { emoji: "🌍", color: "#38bdf8",               bg: "rgba(56,189,248,0.08)" },
+};
+
 export default function NewsCard({ article, index }: NewsCardProps) {
   const level = getSeverityLevel(article.severityScore);
   const severity = SEVERITY_CONFIG[level];
@@ -141,6 +151,28 @@ export default function NewsCard({ article, index }: NewsCardProps) {
               </span>
             )}
           </div>
+          {article.assetImpact && article.assetImpact.length > 0 && (
+            <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+              {article.assetImpact.map((asset) => {
+                const conf = ASSET_CONFIG[asset] || { emoji: "💼", color: "#cbd5e1", bg: "rgba(203,213,225,0.08)" };
+                return (
+                  <span
+                    key={asset}
+                    className="font-pixel flex items-center gap-1 px-1.5 py-0.5"
+                    style={{
+                      fontSize: "9px",
+                      border: `1px solid ${conf.color}`,
+                      color: conf.color,
+                      background: conf.bg,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {conf.emoji} {asset.toUpperCase()}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Sentiment Badge */}

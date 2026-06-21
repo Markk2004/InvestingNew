@@ -34,6 +34,7 @@ export interface NewsItem {
   shortTermImpact?: string; // Optional short-term impact note in Thai
   longTermImpact?: string;  // Optional long-term impact note in Thai
   isPending?: boolean;      // True = waiting in queue, NOT yet analyzed by Gemini
+  assetImpact?: string[];   // Predefined asset classes directly impacted by this news
 }
 
 /**
