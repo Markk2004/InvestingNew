@@ -6,7 +6,6 @@ import { dirname, join } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Function to parse .env.local
 function loadEnv() {
   const envPath = join(__dirname, "..", ".env.local");
   if (!existsSync(envPath)) {
@@ -34,7 +33,7 @@ function loadEnv() {
 }
 
 async function runMigration() {
-  console.log("🔧 Running migration to remove display_name column...\n");
+  console.log("🔧 Running migration to create user_watchlists table...\n");
 
   const env = loadEnv();
   const host = env.MYSQL_HOST || "localhost";
@@ -53,14 +52,15 @@ async function runMigration() {
   });
 
   try {
-    const sqlPath = join(__dirname, "sql", "db-migration-remove-displayname.sql");
+    const sqlPath = join(__dirname, "sql", "db-migration-watchlist.sql");
     const sql = readFileSync(sqlPath, "utf-8");
 
-    // Clean comments and execute statements
-    const statements = sql
+    // Clean comments out entirely before splitting
+    const cleanSql = sql.replace(/--.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+    const statements = cleanSql
       .split(";")
       .map((s) => s.trim())
-      .filter((s) => s && !s.startsWith("--") && !s.startsWith("/*"));
+      .filter((s) => s.length > 0);
 
     for (const stmt of statements) {
       if (!stmt) continue;
@@ -68,18 +68,14 @@ async function runMigration() {
         await conn.execute(stmt);
         console.log("  ✓ " + stmt.slice(0, 60).replace(/\s+/g, " ") + "...");
       } catch (err) {
-        if (err.code === "ER_CANT_DROP_FIELD_OR_KEY") {
-          console.log("  ↳ Column 'display_name' already dropped — skipped");
-        } else {
-          console.warn("  ⚠ " + err.message);
-        }
+        console.error("  ⚠ Error executing statement:", err);
       }
     }
 
     console.log("\n✅ Migration complete!\n");
 
-    const [cols] = await conn.execute("DESCRIBE users");
-    console.log("📋 Current users table structure:");
+    const [cols] = await conn.execute("DESCRIBE user_watchlists");
+    console.log("📋 Current user_watchlists table structure:");
     console.table(
       cols.map((c) => ({
         Field: c.Field,

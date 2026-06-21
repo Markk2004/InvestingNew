@@ -11,7 +11,7 @@ import {
   type RawArticle,
   type NewsItem,
   type Sentiment,
-} from "./types";
+} from "../db/types";
 
 /** Shape expected back from Gemini for each article */
 interface GeminiArticleResult {

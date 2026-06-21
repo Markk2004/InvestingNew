@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════
    KAIROS TECH LANDING PAGE CSS
    ══════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&family=Grenze+Gotisch:wght@100..900&display=swap');
 
 
 .lp-root {
@@ -125,11 +125,11 @@
 .lp-hero-angel {
   position: absolute; top: 0; left: 0;
   width: 100%; max-width: 48rem; height: 90vh;
-  pointer-events: none; z-index: 5; overflow: hidden; opacity: 0.25;
+  pointer-events: none; z-index: 2; overflow: hidden; opacity: 0.25;
 }
 .lp-hero-angel-img {
   height: 100%; width: 100%;
-  background-image: url('/angelremove.png');
+  background-image: url('/images/hero/angelremove.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: left center;
@@ -224,7 +224,7 @@
 .lp-statue-mask {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  background-image: url('/image-removebg-preview.png');
+  background-image: url('/images/hero/hero_figure.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -234,7 +234,7 @@
 .lp-statue-blend {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  background-image: url('/image-removebg-preview.png');
+  background-image: url('/images/hero/hero_figure.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -253,7 +253,30 @@
   position: relative; z-index: 20;
 }
 .lp-hero-text { max-width: 36rem; padding: 3rem 0; }
-.lp-hero-title-wrap { position: relative; display: inline-block; margin-bottom: 2rem; }
+.lp-hero-title-new {
+  font-family: 'Grenze Gotisch', serif;
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 0;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+.lp-hero-blur-box {
+  position: relative;
+  padding: 2.2rem 2.5rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  max-width: 34rem;
+  display: inline-block;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.lp-hero-blur-box .lp-hero-title-new {
+  margin-bottom: 0;
+}
 .lp-hud-corner {
   position: absolute;
   width: 1rem; height: 1rem;
@@ -432,17 +455,17 @@
   transition: opacity 0.5s, transform 0.5s;
 }
 /* Feature images defined as CSS background classes */
-.lp-card-img--feat01 { background-image: url('/features_connect.png'); }
-.lp-card-img--feat02 { background-image: url('/features_remember.png'); }
-.lp-card-img--feat03 { background-image: url('/features_schedule.png'); }
-.lp-card-img--feat04 { background-image: url('/features_delegate.png'); }
-.lp-card-img--feat05 { background-image: url('/features_search.png'); }
-.lp-card-img--feat06 { background-image: url('/features_experiment.png'); }
+.lp-card-img--feat01 { background-image: url('/images/features/features_connect.png'); }
+.lp-card-img--feat02 { background-image: url('/images/features/features_remember.png'); }
+.lp-card-img--feat03 { background-image: url('/images/features/features_schedule.png'); }
+.lp-card-img--feat04 { background-image: url('/images/features/features_delegate.png'); }
+.lp-card-img--feat05 { background-image: url('/images/features/features_search.png'); }
+.lp-card-img--feat06 { background-image: url('/images/features/features_experiment.png'); }
 
 /* Bulletin images defined as CSS background classes */
-.lp-card-img--bulletin01 { background-image: url('/glitch_sliced.png'); }
-.lp-card-img--bulletin02 { background-image: url('/features_search.png'); }
-.lp-card-img--bulletin03 { background-image: url('/invest_head.png'); }
+.lp-card-img--bulletin01 { background-image: url('/images/office/glitch_sliced.png'); }
+.lp-card-img--bulletin02 { background-image: url('/images/features/features_search.png'); }
+.lp-card-img--bulletin03 { background-image: url('/images/office/invest_head.png'); }
 
 .lp-card-img--cover { object-fit: cover; padding: 0; }
 .lp-feature-card:hover .lp-card-img { opacity: 1; transform: scale(1.05); }
@@ -572,7 +595,7 @@
 .lp-di-img {
   width: 100%;
   aspect-ratio: 9 / 16;
-  background-image: url('/invest_head.png');
+  background-image: url('/images/office/invest_head.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

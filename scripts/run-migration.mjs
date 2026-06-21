@@ -28,7 +28,7 @@ async function runMigration() {
 
   try {
     const sql = readFileSync(
-      join(__dirname, "db-migration-roles.sql"),
+      join(__dirname, "sql", "db-migration-roles.sql"),
       "utf-8"
     );
 

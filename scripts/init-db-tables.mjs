@@ -55,7 +55,7 @@ async function runInit() {
     console.log("✅ Connected successfully!");
 
     // Read db-init.sql
-    const initSqlPath = join(process.cwd(), "scripts", "db-init.sql");
+    const initSqlPath = join(process.cwd(), "scripts", "sql", "db-init.sql");
     if (!existsSync(initSqlPath)) {
       console.error(`❌ init script not found at: ${initSqlPath}`);
       return;

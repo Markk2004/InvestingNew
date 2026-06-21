@@ -7,7 +7,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import Parser from "rss-parser";
-import type { RawArticle } from "./types";
+import type { RawArticle } from "../db/types";
 
 /** Fields we care about from each RSS entry */
 interface RssEntry {

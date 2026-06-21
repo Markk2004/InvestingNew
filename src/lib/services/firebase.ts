@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import * as admin from "firebase-admin";
-import type { NewsItem } from "./types";
+import type { NewsItem } from "../db/types";
 
 export class FirebaseDb {
   private db: admin.firestore.Firestore | null;

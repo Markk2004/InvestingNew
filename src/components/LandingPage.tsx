@@ -144,34 +144,14 @@ export default function LandingPage() {
             {/* Hero content */}
             <div className="lp-hero-content">
               <div className="lp-hero-text">
-                <div className="lp-hero-title-wrap">
-                  <div className="lp-hud-corner lp-hud-corner--tl" />
-                  <div className="lp-hud-corner lp-hud-corner--br" />
-                  <h1 className="lp-hero-title">
-                    Kairos<br />
-                    <span>Tech</span>
-                  </h1>
-                  <p className="lp-hero-subtitle">Geometric Tech Display</p>
-                </div>
-
-                {/* CTA Box */}
-                <div className="lp-cta-box">
+                <div className="lp-hero-blur-box">
                   <div className="lp-cta-corner lp-cta-corner--tl" />
                   <div className="lp-cta-corner lp-cta-corner--tr" />
                   <div className="lp-cta-corner lp-cta-corner--bl" />
                   <div className="lp-cta-corner lp-cta-corner--br" />
-                  <p className="lp-cta-desc">
-                    ระบบวิเคราะห์ตลาดหุ้น US แบบเรียลไทม์ ด้วย AI สไตล์ Gothic Office
-                    เชื่อมต่อ Watchlist, News Terminal และ Screener ไว้ในที่เดียว
-                  </p>
-                  <div className="lp-cta-btns">
-                    <button onClick={openRegister} className="lp-cta-primary">
-                      เข้าร่วมฟรี →
-                    </button>
-                    <button onClick={openLogin} className="lp-cta-secondary">
-                      Sign In
-                    </button>
-                  </div>
+                  <h1 className="lp-hero-title-new">
+                    It's never too late to learn.
+                  </h1>
                 </div>
               </div>
             </div>
@@ -180,7 +160,7 @@ export default function LandingPage() {
             <div className="lp-smoke">
               <div className="lp-smoke-gradient" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/smoke_dark.png" alt="" className="lp-smoke-img" />
+              <img src="/images/hero/smoke_dark.png" alt="" className="lp-smoke-img" />
             </div>
           </section>
 
@@ -204,42 +184,42 @@ export default function LandingPage() {
                 {[
                   {
                     num: "#01",
-                    img: "/features_connect.png",
+                    img: "/images/features/features_connect.png",
                     title: "Market Radar",
                     tag: "Live Feed & Alerts",
                     desc: "เชื่อมต่อทุกกระแสการลงทุน สตรีมราคาหุ้นและแจ้งเตือนข่าวสารด่วนแบบเรียลไทม์ผ่าน Telegram, Discord และ Email",
                   },
                   {
                     num: "#02",
-                    img: "/features_remember.png",
+                    img: "/images/features/features_remember.png",
                     title: "Data Vault",
                     tag: "Historical Analysis",
                     desc: "บันทึกทุกความเคลื่อนไหวใน Watchlist ของคุณ วิเคราะห์พฤติกรรมราคาในอดีตและเรียนรู้สไตล์การลงทุน",
                   },
                   {
                     num: "#03",
-                    img: "/features_schedule.png",
+                    img: "/images/features/features_schedule.png",
                     title: "Briefing",
                     tag: "Focused Automation",
                     desc: "ตั้งเวลาสรุปข่าวสารรายวันก่อนตลาดเปิด ดึงข้อมูลปฏิทินเศรษฐกิจ แจ้งเตือนวันประกาศงบการเงินโดยอัตโนมัติ",
                   },
                   {
                     num: "#04",
-                    img: "/features_delegate.png",
+                    img: "/images/features/features_delegate.png",
                     title: "Screener",
                     tag: "Deep Sector Scanning",
                     desc: "กระจายคำสั่งบอทย่อย (Subagents) เพื่อสแกนเจาะลึกในแต่ละเซกเตอร์ คัดกรองหุ้นตามเงื่อนไขทางเทคนิคและปัจจัยพื้นฐาน",
                   },
                   {
                     num: "#05",
-                    img: "/features_search.png",
+                    img: "/images/features/features_search.png",
                     title: "Sentiment",
                     tag: "Global News Index",
                     desc: "กวาดข่าวสารการเงินจากหน้าเว็บและโซเชียลทั่วโลก วิเคราะห์อารมณ์ตลาด (Market Sentiment) แบบเรียลไทม์",
                   },
                   {
                     num: "#06",
-                    img: "/features_experiment.png",
+                    img: "/images/features/features_experiment.png",
                     title: "Backtest",
                     tag: "Isolated Sandboxing",
                     desc: "สนามจำลองเทรดไร้ความเสี่ยง (Paper Trading) ทดสอบกลยุทธ์การลงทุนย้อนหลังด้วยข้อมูลจริง",

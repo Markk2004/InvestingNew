@@ -52,7 +52,7 @@ async function runMigration() {
   });
 
   try {
-    const sqlPath = join(__dirname, "db-migration-remove-email.sql");
+    const sqlPath = join(__dirname, "sql", "db-migration-remove-email.sql");
     const sql = readFileSync(sqlPath, "utf-8");
 
     const statements = sql

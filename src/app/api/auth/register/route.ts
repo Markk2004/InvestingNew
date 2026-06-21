@@ -88,8 +88,23 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (err) {
+  } catch (err: any) {
     console.error("[register] error:", err);
+    const isDbError = err && (
+      err.code === "ECONNREFUSED" ||
+      err.code === "ETIMEDOUT" ||
+      err.code === "PROTOCOL_CONNECTION_LOST" ||
+      (err.message && (
+        err.message.toLowerCase().includes("connect") ||
+        err.message.toLowerCase().includes("mysql")
+      ))
+    );
+    if (isDbError) {
+      return NextResponse.json(
+        { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบว่าได้เปิด MySQL ใน XAMPP Control Panel แล้ว" },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
       { error: "เกิดข้อผิดพลาดภายในระบบ กรุณาลองใหม่" },
       { status: 500 }
