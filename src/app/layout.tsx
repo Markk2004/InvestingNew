@@ -37,7 +37,6 @@ import { ChartManagerProvider } from "@/components/FloatingChartManager";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import CrimsonBackground from "@/components/CrimsonBackground";
 import GlobalNewsPoller from "@/components/GlobalNewsPoller";
-import DbStatusAlert from "@/components/DbStatusAlert";
 
 export default function RootLayout({
   children,
@@ -51,7 +50,6 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-[var(--color-bg-page)]">
         <ThemeProvider>
-          <DbStatusAlert />
           <GlobalNewsPoller />
           <CrimsonBackground />
           <GlobalErrorHandler />
