@@ -137,26 +137,7 @@ export default function CyberSidebar({ activeSubTab, onSubTabChange }: CyberSide
           <span className="text-[10px] tracking-wider text-[var(--color-accent-primary)] font-bold">SECURE</span>
         </div>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="w-full py-3 px-4 rounded text-[11px] font-semibold tracking-widest uppercase transition-all flex justify-center items-center gap-2"
-          style={{
-            background: "rgba(255, 255, 255, 0.03)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            color: "#aaa"
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-            e.currentTarget.style.color = "#fff";
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
-            e.currentTarget.style.color = "#aaa";
-          }}
-        >
-          Disable Tactical Mode
-        </button>
+
       </div>
     </aside>
   );

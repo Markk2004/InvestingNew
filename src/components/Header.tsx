@@ -141,33 +141,6 @@ export default function Header({
             </button>
           )}
 
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            title="Toggle Theme"
-            className="font-pixel transition-transform active:scale-90 hover:scale-105"
-            style={isCrimson ? {
-              fontSize: "7px",
-              padding: "6px 12px",
-              background: "rgba(255, 255, 255, 0.04)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              boxShadow: "0 0 12px rgba(255, 0, 60, 0.25)",
-              color: "#cbd5e1",
-              borderRadius: "6px",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            } : {
-              fontSize: "7px",
-              padding: "6px 12px",
-              background: "transparent",
-              border: "2px solid var(--color-accent-primary)",
-              color: "var(--color-accent-primary)",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-          >
-            {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
-          </button>
 
           {/* Role Badge + User Info */}
           {user && (

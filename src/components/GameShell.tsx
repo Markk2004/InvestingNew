@@ -481,24 +481,7 @@ export default function GameShell() {
           </div>
         )}
 
-        {/* Theme Toggle Button */}
-        <button
-          onClick={toggleTheme}
-          title="Toggle Theme"
-          className="font-pixel transition-transform active:scale-90 hover:scale-105"
-          style={{
-            fontSize: "7px",
-            padding: "6px 12px",
-            background: isCrimson ? "var(--color-bg-card)" : "transparent",
-            border: "2px solid var(--color-accent-primary)",
-            color: "var(--color-accent-primary)",
-            cursor: "pointer",
-            transition: "all 0.15s ease",
-            marginLeft: "8px",
-          }}
-        >
-          {isCrimson ? "[ 🔴 CRIMSON ]" : "[ 🎮 NORMAL ]"}
-        </button>
+
 
         {/* Logout Button */}
         <button
