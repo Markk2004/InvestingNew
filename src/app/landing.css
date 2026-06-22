@@ -677,3 +677,26 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Mobile Auth Buttons */
+.lp-hero-auth-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .lp-header-auth {
+    display: none !important;
+  }
+  .lp-hero-auth-mobile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    width: 100%;
+  }
+  .lp-btn-ghost--mobile, .lp-btn-outline--mobile {
+    font-size: 0.8rem;
+    padding: 0.6rem 1.5rem;
+  }
+}

@@ -152,6 +152,16 @@ export default function LandingPage() {
                   <h1 className="lp-hero-title-new">
                     It's never too late to learn.
                   </h1>
+
+                  {/* Mobile Auth Buttons */}
+                  <div className="lp-hero-auth-mobile">
+                    <button onClick={openLogin} className="lp-btn-ghost lp-btn-ghost--mobile">
+                      Sign In
+                    </button>
+                    <button onClick={openRegister} className="lp-btn-outline lp-btn-outline--mobile">
+                      Sign Up
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
