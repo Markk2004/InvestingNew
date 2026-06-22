@@ -683,9 +683,22 @@
   display: none;
 }
 
+.lp-title-mobile {
+  display: none;
+}
+.lp-title-desktop {
+  display: block;
+}
+
 @media (max-width: 768px) {
   .lp-header-auth {
     display: none !important;
+  }
+  .lp-title-mobile {
+    display: block;
+  }
+  .lp-title-desktop {
+    display: none;
   }
   .lp-hero-auth-mobile {
     display: flex;

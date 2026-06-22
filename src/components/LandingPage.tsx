@@ -149,8 +149,11 @@ export default function LandingPage() {
                   <div className="lp-cta-corner lp-cta-corner--tr" />
                   <div className="lp-cta-corner lp-cta-corner--bl" />
                   <div className="lp-cta-corner lp-cta-corner--br" />
-                  <h1 className="lp-hero-title-new">
+                  <h1 className="lp-hero-title-new lp-title-desktop">
                     It's never too late to learn.
+                  </h1>
+                  <h1 className="lp-hero-title-new lp-title-mobile">
+                    Welcome KairosTech
                   </h1>
 
                   {/* Mobile Auth Buttons */}
