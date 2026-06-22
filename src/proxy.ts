@@ -3,7 +3,7 @@
 //  Route protection ด้วย JWT + Role-based access control
 //
 //  Protected routes:
-//    /dashboard/*  → ต้อง login (member + owner)
+//    /monitor/*    → ต้อง login (member + owner)
 //    /member/*     → ต้องเป็น owner เท่านั้น
 // ─────────────────────────────────────────────────────────────
 
@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
 // Routes ที่ต้องการ authentication
-const PROTECTED_ROUTES = ["/dashboard", "/member", "/overview", "/news", "/charts", "/watchlist"];
+const PROTECTED_ROUTES = ["/monitor", "/member", "/overview", "/news", "/charts", "/watchlist"];
 
 // Routes เฉพาะ owner เท่านั้น
 const OWNER_ONLY_ROUTES = ["/member"];
@@ -80,7 +80,7 @@ export async function proxy(req: NextRequest) {
   );
   if (needsOwner && payload.role !== "owner") {
     // Redirect member ที่พยายามเข้า /member ไป dashboard แทน
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/monitor", req.url));
   }
 
   // ── Pass user info ผ่าน request headers ─────────────────────

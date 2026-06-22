@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     }
 
     const [rows] = await pool.query<UserRow[]>(
-      `SELECT id, username, avatar_style, xp, tier, role, created_at, last_login
+      `SELECT id, username, avatar_style, xp, tier, role, telegram_name, created_at, last_login
        FROM users WHERE id = ? AND is_active = 1 LIMIT 1`,
       [payload.userId]
     );
@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
       tier: user.tier,
       role: user.role,
       xp: user.xp,
+      telegramName: user.telegram_name,
       createdAt: user.created_at,
       lastLogin: user.last_login,
     });
@@ -78,5 +79,44 @@ export async function GET(req: NextRequest) {
       { error: "เกิดข้อผิดพลาดภายในระบบ" },
       { status: 500 }
     );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.slice(7);
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json(
+        { error: "Token หมดอายุหรือไม่ถูกต้อง" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const { telegramName } = body;
+
+    // We only allow updating telegramName for now
+    if (telegramName === undefined) {
+      return NextResponse.json(
+        { error: "No update fields provided" },
+        { status: 400 }
+      );
+    }
+
+    await pool.query(
+      "UPDATE users SET telegram_name = ? WHERE id = ?",
+      [telegramName || null, payload.userId]
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[me PATCH] error:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

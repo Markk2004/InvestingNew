@@ -42,7 +42,7 @@ export default function AuthGuard({
     if (requiredRole) {
       if (requiredRole === "owner" && user?.role !== "owner") {
         // ไม่มีสิทธิ์ → redirect ไป dashboard แทน
-        router.replace("/dashboard");
+        router.replace("/monitor");
         setChecking(false);
         return;
       }

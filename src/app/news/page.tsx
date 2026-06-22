@@ -15,9 +15,10 @@ import MarketGauge from "@/components/MarketGauge";
 import NewsGrid from "@/components/NewsGrid";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import ErrorBanner from "@/components/ErrorBanner";
-import CyberHudDashboard from "@/components/CyberHudDashboard";
+import ResponsiveDashboard from "@/components/ResponsiveDashboard";
 import { useTheme } from "@/components/ThemeProvider";
 import ExposureChart from "@/components/ExposureChart";
+import MobileNewsDashboard from "@/components/mobile/MobileNewsDashboard";
 
 // ── SWR fetcher ──────────────────────────────────────────────
 
@@ -240,7 +241,7 @@ export default function NewsDashboardPage() {
       {/* ── Back to Office Button ──────────────────────────── */}
       <div className="fixed bottom-5 left-5 z-50">
         <Link
-          href="/dashboard"
+          href="/monitor"
           id="back-to-office-btn"
           className="back-office-btn font-pixel flex items-center gap-2 px-3 py-2 hover:scale-105 active:scale-95 transition-transform"
           style={{
@@ -474,7 +475,7 @@ export default function NewsDashboardPage() {
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard 
+      <ResponsiveDashboard 
         activeTab="news" 
         setActiveTab={() => {}}
         headerProps={{
@@ -485,8 +486,17 @@ export default function NewsDashboardPage() {
           usage: data?.usage
         }}
       >
-        {renderContent()}
-      </CyberHudDashboard>
+        <div className="block md:hidden h-full">
+          {data ? (
+            <MobileNewsDashboard articles={data.articles} averageSeverity={data.averageSeverity} />
+          ) : (
+            <LoadingSkeleton />
+          )}
+        </div>
+        <div className="hidden md:block">
+          {renderContent()}
+        </div>
+      </ResponsiveDashboard>
     );
   }
 

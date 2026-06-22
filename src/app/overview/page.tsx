@@ -9,10 +9,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import USMarketListPanel from "@/components/overview/USMarketListPanel";
 import SectorPerformancePanel from "@/components/overview/SectorPerformancePanel";
+import MobileMarketList from "@/components/mobile/MobileMarketList";
 import MarketTicker from "@/components/MarketTicker";
 import { useTheme } from "@/components/ThemeProvider";
 import { Star, BarChart2, TrendingUp } from "lucide-react";
-import CyberHudDashboard from "@/components/CyberHudDashboard";
+import ResponsiveDashboard from "@/components/ResponsiveDashboard";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -54,40 +55,48 @@ export default function OverviewPage() {
   const isCrimson = theme === "crimson";
 
   const renderContent = () => (
-    <main
-      style={{
-        flex: 1,
-        overflow: "hidden",
-        padding: "16px 20px 12px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
-      }}
-    >
-      {/* Horizontal split for Market List & Sector Performance */}
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 overflow-y-auto lg:overflow-hidden min-h-0">
-        {/* Left Column: US Market List */}
-        <div className="flex-1 lg:flex-[3] flex flex-col overflow-hidden min-h-[400px] lg:min-h-0">
-          <USMarketListPanel />
-        </div>
-
-        {/* Right Column: Sector Performance Tierlist */}
-        <div className="flex-1 lg:flex-[2] flex flex-col overflow-hidden min-h-[300px] lg:min-h-0">
-          <SectorPerformancePanel />
-        </div>
+    <>
+      {/* MOBILE CONTENT */}
+      <div className="block md:hidden flex-1 overflow-hidden">
+        <MobileMarketList />
       </div>
-    </main>
+
+      {/* DESKTOP CONTENT */}
+      <main
+        className="hidden md:flex"
+        style={{
+          flex: 1,
+          overflow: "hidden",
+          padding: "16px 20px 12px",
+          flexDirection: "column",
+          gap: 12,
+        }}
+      >
+        {/* Horizontal split for Market List & Sector Performance */}
+        <div className="flex flex-col lg:flex-row gap-4 flex-1 overflow-y-auto lg:overflow-hidden min-h-0">
+          {/* Left Column: US Market List */}
+          <div className="flex-1 lg:flex-[3] flex flex-col overflow-hidden min-h-[400px] lg:min-h-0">
+            <USMarketListPanel />
+          </div>
+
+          {/* Right Column: Sector Performance Tierlist */}
+          <div className="flex-1 lg:flex-[2] flex flex-col overflow-hidden min-h-[300px] lg:min-h-0">
+            <SectorPerformancePanel />
+          </div>
+        </div>
+      </main>
+    </>
   );
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard
+      <ResponsiveDashboard
         activeTab="overview"
         setActiveTab={() => {}}
         contentClassName="flex-1 overflow-hidden p-6 relative flex flex-col h-full"
       >
         {renderContent()}
-      </CyberHudDashboard>
+      </ResponsiveDashboard>
     );
   }
 
@@ -106,6 +115,7 @@ export default function OverviewPage() {
     >
       {/* ── HEADER ── */}
       <header
+        className="hide-scrollbar"
         style={{
           height: 48,
           flexShrink: 0,
@@ -117,6 +127,7 @@ export default function OverviewPage() {
           gap: 10,
           boxShadow: "0 2px 20px rgba(0,0,0,0.5)",
           zIndex: 100,
+          overflowX: "auto",
         }}
       >
         {/* Back */}

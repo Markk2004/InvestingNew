@@ -249,9 +249,8 @@ export default function USMarketListPanel() {
 
       {/* Column Headers */}
       <div
+        className="grid grid-cols-[14px_80px_1fr_70px_70px] md:grid-cols-[14px_110px_1fr_100px_90px_90px_80px]"
         style={{
-          display: "grid",
-          gridTemplateColumns: "14px 110px 1fr 100px 90px 90px 80px",
           gap: 0,
           padding: "8px 12px",
           borderBottom: isCrimson ? "1px solid var(--color-border-subtle)" : "1px solid #0d2040",
@@ -267,8 +266,8 @@ export default function USMarketListPanel() {
         >
           SYM {renderSortIcon("symbol")}
         </div>
-        <div style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", letterSpacing: 0.5 }}>NAME</div>
-        <div style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", letterSpacing: 0.5, textAlign: "center" }}>TREND</div>
+        <div className="hidden md:block" style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", letterSpacing: 0.5 }}>NAME</div>
+        <div className="hidden md:block" style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", letterSpacing: 0.5, textAlign: "center" }}>TREND</div>
         <div
           onClick={() => handleSort("price")}
           style={{ color: "#52759e", fontSize: 10, fontFamily: "monospace", cursor: "pointer", textAlign: "right", letterSpacing: 0.5, userSelect: "none", display: "flex", gap: 2, justifyContent: "flex-end" }}
@@ -304,9 +303,8 @@ export default function USMarketListPanel() {
             return (
               <div
                 key={stock.symbol}
+                className="grid grid-cols-[14px_80px_1fr_70px_70px] md:grid-cols-[14px_110px_1fr_100px_90px_90px_80px]"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "14px 110px 1fr 100px 90px 90px 80px",
                   gap: 0,
                   alignItems: "center",
                   padding: "8px 12px",
@@ -349,6 +347,7 @@ export default function USMarketListPanel() {
 
                 {/* Name */}
                 <div
+                  className="hidden md:block"
                   style={{
                     color: "#94a3b8",
                     fontSize: 11,
@@ -364,7 +363,7 @@ export default function USMarketListPanel() {
                 </div>
 
                 {/* Sparkline */}
-                <div style={{ display: "flex", justifyContent: "center" }}>
+                <div className="hidden md:flex" style={{ justifyContent: "center" }}>
                   <Sparkline closes={sparkCloses} width={80} height={26} />
                 </div>
 

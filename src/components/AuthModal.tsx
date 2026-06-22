@@ -20,12 +20,14 @@ interface FormState {
   username: string;
   password: string;
   confirmPassword: string;
+  telegramName: string;
 }
 
 const INITIAL_FORM: FormState = {
   username: "",
   password: "",
   confirmPassword: "",
+  telegramName: "",
 };
 
 export default function AuthModal({
@@ -121,7 +123,7 @@ export default function AuthModal({
           if (redirectUrl) {
             window.location.href = redirectUrl;
           } else {
-            window.location.href = "/dashboard";
+            window.location.href = "/monitor";
           }
         }
       }, 1200);
@@ -134,8 +136,8 @@ export default function AuthModal({
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.username || !form.password) {
-      setError("กรุณากรอกข้อมูลให้ครบ");
+    if (!form.username || !form.password || !form.telegramName) {
+      setError("กรุณากรอกข้อมูลให้ครบ (รวมถึง Telegram Name)");
       return;
     }
     if (form.password !== form.confirmPassword) {
@@ -155,6 +157,7 @@ export default function AuthModal({
         body: JSON.stringify({
           username: form.username,
           password: form.password,
+          telegramName: form.telegramName,
         }),
       });
       const data = await res.json();
@@ -182,7 +185,7 @@ export default function AuthModal({
           if (redirectUrl) {
             window.location.href = redirectUrl;
           } else {
-            window.location.href = "/dashboard";
+            window.location.href = "/monitor";
           }
         }
       }, 1200);
@@ -348,6 +351,23 @@ export default function AuthModal({
                 value={form.username}
                 onChange={handleChange}
                 autoComplete="username"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="reg-telegram">
+                TELEGRAM NAME*
+              </label>
+              <input
+                id="reg-telegram"
+                name="telegramName"
+                type="text"
+                className="auth-input"
+                placeholder="@your_telegram"
+                value={form.telegramName}
+                onChange={handleChange}
+                autoComplete="off"
                 disabled={loading}
               />
             </div>

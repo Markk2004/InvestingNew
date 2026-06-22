@@ -42,8 +42,8 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
   const { isOwner } = useAuth();
 
   const navItems = [
-    isOwner ? { id: "office", icon: <Building2 size={20} />, path: "/dashboard" } : null,
-    isOwner ? { id: "character", icon: <User size={20} />, path: "/dashboard?tab=character" } : null,
+    isOwner ? { id: "office", icon: <Building2 size={20} />, path: "/monitor" } : null,
+    isOwner ? { id: "character", icon: <User size={20} />, path: "/monitor?tab=character" } : null,
     { id: "overview", icon: <LineChart size={20} />, path: "/overview" },
     isOwner ? { id: "member", icon: <Users size={20} />, path: "/member" } : null,
     { id: "news", icon: <Newspaper size={20} />, path: "/news" },
@@ -232,7 +232,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
       
       {/* COLLAPSED LEFT SIDEBAR (SCI-FI FUI) */}
       {!isNavOpen && (
-        <aside className="relative h-full w-[80px] bg-[#050508] flex flex-col items-center pt-5 z-20 shrink-0" 
+        <aside className="relative h-full w-[60px] md:w-[80px] bg-[#050508] flex flex-col items-center pt-5 z-20 shrink-0" 
           style={{ borderLeft: "1px solid var(--color-accent-primary)", boxShadow: "inset 15px 0 25px -10px rgba(255,0,60,0.6)" }}
         >
           {/* SVG Background Routing */}
@@ -285,7 +285,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
 
       {/* EXPANDED LEFT SIDEBAR: Nav & Status */}
       {isNavOpen && (
-        <aside className="h-full flex flex-col border-r border-[rgba(255,255,255,0.05)] bg-[rgba(10,10,12,0.8)] backdrop-blur-md z-20 relative w-[280px] shrink-0">
+        <aside className="h-full flex flex-col border-r border-[rgba(255,255,255,0.05)] bg-[rgba(10,10,12,0.95)] backdrop-blur-md z-40 absolute md:relative w-[280px] shrink-0 left-0">
         <div className="p-6 border-b border-[rgba(255,255,255,0.05)] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <ShieldAlert size={28} className="text-[var(--color-accent-primary)]" />
@@ -304,8 +304,8 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
 
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="text-[10px] text-[#555] mb-3 tracking-widest uppercase">{isOwner ? "Main Modules" : "Modules"}</div>
-          {isOwner && renderNavButton({ id: "office", label: "Command Center", icon: <Building2 size={16} />, path: "/dashboard" })}
-          {isOwner && renderNavButton({ id: "character", label: "Operators", icon: <User size={16} />, path: "/dashboard?tab=character" })}
+          {isOwner && renderNavButton({ id: "office", label: "Command Center", icon: <Building2 size={16} />, path: "/monitor" })}
+          {isOwner && renderNavButton({ id: "character", label: "Operators", icon: <User size={16} />, path: "/monitor?tab=character" })}
           {renderNavButton({ id: "overview", label: "Global Overview", icon: <LineChart size={16} />, path: "/overview" })}
           {isOwner && renderNavButton({ id: "member", label: "Member Control", icon: <Users size={16} />, path: "/member" })}
           
@@ -383,7 +383,7 @@ export default function CyberHudDashboard({ activeTab, setActiveTab, children, h
 
       {/* RIGHT SIDEBAR: Chatbox */}
       <aside 
-        className={`h-full border-l border-[rgba(255,255,255,0.05)] bg-[rgba(10,10,12,0.9)] backdrop-blur-md flex flex-col z-20 transition-all duration-300 ${isChatOpen ? 'relative w-[320px] translate-x-0' : 'fixed right-0 w-[320px] translate-x-full'}`}
+        className={`h-full border-l border-[rgba(255,255,255,0.05)] bg-[rgba(10,10,12,0.95)] backdrop-blur-md flex flex-col z-40 transition-all duration-300 ${isChatOpen ? 'absolute md:relative right-0 w-[320px] max-w-[85vw] translate-x-0' : 'fixed right-0 w-[320px] translate-x-full'}`}
         style={!isChatOpen ? { visibility: 'hidden' } : {}}
       >
         <div className="p-4 border-b border-[rgba(255,255,255,0.05)] flex items-center justify-between">

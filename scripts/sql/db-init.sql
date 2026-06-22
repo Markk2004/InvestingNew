@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   username      VARCHAR(50)   UNIQUE NOT NULL COMMENT 'Unique display name',
   password_hash VARCHAR(255)  NOT NULL        COMMENT 'bcrypt hashed password',
   avatar_style  VARCHAR(50)   DEFAULT 'default',
+  telegram_name VARCHAR(100)  DEFAULT NULL    COMMENT 'Telegram handle',
   xp            INT           DEFAULT 0       COMMENT 'Experience points for gamification',
   tier          ENUM('FREE', 'PLUS', 'SUPER', 'ULTRA') DEFAULT 'FREE',
   role          ENUM('member', 'owner') NOT NULL DEFAULT 'member' COMMENT 'member = สมาชิก, owner = เจ้าของระบบ',

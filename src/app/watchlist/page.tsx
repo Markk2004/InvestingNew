@@ -11,7 +11,7 @@ import MarketTicker from "@/components/MarketTicker";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { LineChart, BarChart2 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
-import CyberHudDashboard from "@/components/CyberHudDashboard";
+import ResponsiveDashboard from "@/components/ResponsiveDashboard";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -58,13 +58,13 @@ export default function WatchlistPage() {
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard
+      <ResponsiveDashboard
         activeTab="watchlist"
         setActiveTab={() => {}}
         contentClassName="flex-1 overflow-hidden p-6 relative flex flex-col h-full"
       >
         {renderContent()}
-      </CyberHudDashboard>
+      </ResponsiveDashboard>
     );
   }
 

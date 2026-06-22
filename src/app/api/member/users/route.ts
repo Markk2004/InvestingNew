@@ -13,6 +13,7 @@ interface UserRow extends RowDataPacket {
   username: string;
   tier: string;
   role: UserRole;
+  telegram_name: string | null;
   xp: number;
   is_active: number;
   created_at: Date;
@@ -39,10 +40,49 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const [rows] = await pool.query<UserRow[]>(
-      `SELECT id, username, tier, role, xp, is_active, created_at, last_login
-       FROM users ORDER BY created_at DESC`
+    const { searchParams } = new URL(req.url);
+    const limit = parseInt(searchParams.get("limit") || "50", 10);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    const search = searchParams.get("search") || "";
+    const filter = searchParams.get("filter") || "all";
+
+    let whereClause = "WHERE 1=1";
+    const values: unknown[] = [];
+
+    if (search) {
+      whereClause += " AND (username LIKE ? OR telegram_name LIKE ?)";
+      const likeQuery = `%${search}%`;
+      values.push(likeQuery, likeQuery);
+    }
+
+    if (filter === "active") {
+      whereClause += " AND is_active = 1";
+    } else if (filter === "suspended") {
+      whereClause += " AND is_active = 0";
+    } else if (filter === "owner") {
+      whereClause += " AND role = 'owner'";
+    } else if (filter === "member") {
+      whereClause += " AND role = 'member'";
+    }
+
+    // Get total count
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM users ${whereClause}`,
+      values
     );
+    const total = countRows[0].total as number;
+
+    // Get data
+    const query = `
+      SELECT id, username, tier, role, telegram_name, xp, is_active, created_at, last_login
+      FROM users
+      ${whereClause}
+      ORDER BY created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+    values.push(limit, offset);
+
+    const [rows] = await pool.query<UserRow[]>(query, values);
 
     return NextResponse.json({
       users: rows.map((u) => ({
@@ -50,12 +90,14 @@ export async function GET(req: NextRequest) {
         username: u.username,
         tier: u.tier,
         role: u.role,
+        telegramName: u.telegram_name,
         xp: u.xp,
         isActive: Boolean(u.is_active),
         createdAt: u.created_at,
         lastLogin: u.last_login,
       })),
-      total: rows.length,
+      total,
+      hasMore: offset + rows.length < total,
     });
   } catch (err) {
     console.error("[member/users GET] error:", err);

@@ -72,6 +72,15 @@ body {
   overflow-x: hidden;
 }
 
+/* Utility to hide scrollbar but keep scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Pixel font class */
 .font-pixel {
   font-family: var(--font-pixel), "Press Start 2P", monospace;

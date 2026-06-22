@@ -156,25 +156,6 @@ export default function Header({
               }}>
                 {user.username} [{isOwner ? "OWNER" : "MEMBER"}]
               </div>
-              <button
-                onClick={logout}
-                title="Logout"
-                style={{
-                  fontSize: "7px",
-                  padding: "5px 10px",
-                  background: "transparent",
-                  border: "1px solid rgba(239,68,68,0.3)",
-                  color: "rgba(239,68,68,0.6)",
-                  cursor: "pointer",
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  letterSpacing: "0.1em",
-                  transition: "all 0.2s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.7)"; e.currentTarget.style.color = "#f87171"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; e.currentTarget.style.color = "rgba(239,68,68,0.6)"; }}
-              >
-                LOGOUT
-              </button>
             </div>
           )}
         </div>

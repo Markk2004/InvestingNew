@@ -11,8 +11,11 @@ import useSWR from "swr";
 import { useChartManager } from "@/components/FloatingChartManager";
 import { useTheme } from "@/components/ThemeProvider";
 import MarketTicker from "@/components/MarketTicker";
+import { AdvancedRealTimeChart } from "react-ts-tradingview-widgets";
 import { LineChart, Star } from "lucide-react";
-import CyberHudDashboard from "@/components/CyberHudDashboard";
+import ResponsiveDashboard from "@/components/ResponsiveDashboard";
+import MobileHudDashboard from "@/components/mobile/MobileHudDashboard";
+import { getTradingViewSymbol } from "@/lib/stocks";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const SWR_CONFIG = {
@@ -60,6 +63,17 @@ function ChartsInner() {
   const isCrimson = theme === "crimson";
   const { openChart, hasWindows, windows } = useChartManager();
 
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
+
   // ── Background News Poller ──────────────────────────────────
   // Keeps news analysis active and sends Telegram alerts even when the user is on the chart page
   const { data } = useSWR("/api/news?page=1", fetcher, SWR_CONFIG);
@@ -69,7 +83,11 @@ function ChartsInner() {
   // Auto-open symbols from ?open= query param
   useEffect(() => {
     const openParam = searchParams.get("open");
-    if (!openParam || openParam === lastProcessedOpen.current) return;
+    if (!openParam) {
+      lastProcessedOpen.current = null;
+      return;
+    }
+    if (openParam === lastProcessedOpen.current) return;
 
     lastProcessedOpen.current = openParam;
 
@@ -82,79 +100,87 @@ function ChartsInner() {
     router.replace("/charts", { scroll: false });
   }, [searchParams, openChart, router]);
 
-  const renderContent = () => (
-      <main
-        style={{
-          flex: 1,
-          position: "relative",
-          overflow: "hidden",
-          background: isCrimson ? "transparent" : "var(--color-bg-page-gradient)",
-        }}
-      >
-        {/* Empty state */}
-        {!hasWindows && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 16,
-              pointerEvents: "none",
-            }}
-          >
-            <div style={{ fontSize: 64, opacity: 0.1, filter: "grayscale(1)" }}>
-              📊
-            </div>
-            <div
-              style={{
-                textAlign: "center",
-                color: "#1e3a5f",
-                fontFamily: "monospace",
-                lineHeight: 2,
-              }}
-            >
-              <div style={{ fontSize: 11, letterSpacing: 2 }}>NO CHARTS OPEN</div>
-              <div style={{ fontSize: 8 }}>
-                Go to{" "}
-                <span style={{ color: "#4fc3f7" }}>📈 Overview</span> or{" "}
-                <span style={{ color: "#fbbf24" }}>⭐ Watchlist</span>
-              </div>
-              <div style={{ fontSize: 8 }}>
-                and click a stock to open it here
-              </div>
-            </div>
-          </div>
-        )}
+  const openParam = searchParams.get("open");
 
-        {/* Grid dots background */}
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return <div className="h-screen w-screen bg-[#050508]" />;
+  }
+
+  // --- CONTENT ---
+  const renderDesktopContent = () => (
+    <main
+      style={{
+        flex: 1,
+        position: "relative",
+        overflow: "hidden",
+        background: isCrimson ? "transparent" : "var(--color-bg-page-gradient)",
+      }}
+    >
+      {/* Empty state */}
+      {!hasWindows && (
         <div
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: "radial-gradient(circle, #0d2040 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-            opacity: 0.3,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 16,
             pointerEvents: "none",
-            zIndex: 0,
           }}
-        />
+        >
+          <div style={{ fontSize: 64, opacity: 0.1, filter: "grayscale(1)" }}>
+            📊
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              color: "#1e3a5f",
+              fontFamily: "monospace",
+              lineHeight: 2,
+            }}
+          >
+            <div style={{ fontSize: 11, letterSpacing: 2 }}>NO CHARTS OPEN</div>
+            <div style={{ fontSize: 8 }}>
+              Go to{" "}
+              <span style={{ color: "#4fc3f7" }}>📈 Overview</span> or{" "}
+              <span style={{ color: "#fbbf24" }}>⭐ Watchlist</span>
+            </div>
+            <div style={{ fontSize: 8 }}>
+              and click a stock to open it here
+            </div>
+          </div>
+        </div>
+      )}
 
-        {/* Floating chart windows + control toolbar are rendered globally by ChartManagerProvider */}
-      </main>
+      {/* Grid dots background */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "radial-gradient(circle, #0d2040 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          opacity: 0.3,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
+      {/* Floating chart windows + control toolbar are rendered globally by ChartManagerProvider */}
+    </main>
   );
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard
+      <ResponsiveDashboard
         activeTab="charts"
         setActiveTab={() => {}}
         contentClassName="flex-1 overflow-hidden p-6 relative flex flex-col h-full"
       >
-        {renderContent()}
-      </CyberHudDashboard>
+        {renderDesktopContent()}
+      </ResponsiveDashboard>
     );
   }
 
@@ -165,7 +191,7 @@ function ChartsInner() {
         flexDirection: "column",
         height: "100vh",
         width: "100vw",
-        background: isCrimson ? "transparent" : "var(--color-bg-page)",
+        background: "var(--color-bg-page)",
         overflow: "hidden",
         color: "white",
         fontFamily: "var(--font-mono)",
@@ -342,7 +368,7 @@ function ChartsInner() {
 
         </header>
 
-      {renderContent()}
+      {renderDesktopContent()}
 
       {/* ── FOOTER TICKER ── */}
       <footer

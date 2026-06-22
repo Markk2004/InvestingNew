@@ -12,10 +12,10 @@ import CharacterTab from "@/components/CharacterTab";
 import { useWatchlist } from "@/lib/useWatchlist";
 import { useTheme } from "@/components/ThemeProvider";
 import { Building2, User, Users, Newspaper, BarChart2, LineChart, Star, LogOut } from "lucide-react";
-import CyberHudDashboard from "@/components/CyberHudDashboard";
+import ResponsiveDashboard from "@/components/ResponsiveDashboard";
 import { clearAuth, getUser } from "@/lib/auth";
 
-type Tab = "office" | "character";
+type Tab = "office" | "character" | string;
 
 
 // ── Pixel Company Logo (inline SVG) ───────────────────────────────────────────
@@ -349,14 +349,14 @@ export default function GameShell() {
 
   if (isCrimson) {
     return (
-      <CyberHudDashboard activeTab={activeTab} setActiveTab={setActiveTab}>
+      <ResponsiveDashboard activeTab={activeTab} setActiveTab={setActiveTab}>
         <main style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
           {activeTab === "office" && <OfficeTab spriteOverrides={spriteOverrides} />}
           {activeTab === "character" && (
             <CharacterTab spriteOverrides={spriteOverrides} setSpriteOverrides={setSpriteOverrides} />
           )}
         </main>
-      </CyberHudDashboard>
+      </ResponsiveDashboard>
     );
   }
 

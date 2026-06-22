@@ -27,7 +27,7 @@ export default function LandingPage() {
       if (user?.role === "member") {
         router.replace("/news");
       } else {
-        router.replace("/dashboard");
+        router.replace("/monitor");
       }
     }
   }, [router]);

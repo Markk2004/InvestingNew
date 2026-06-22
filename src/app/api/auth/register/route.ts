@@ -14,12 +14,12 @@ import { RowDataPacket, ResultSetHeader } from "mysql2";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, password } = body;
+    const { username, password, telegramName } = body;
 
     // ── Validation ──────────────────────────────────────────
-    if (!username || !password) {
+    if (!username || !password || !telegramName) {
       return NextResponse.json(
-        { error: "กรุณากรอก username และ password" },
+        { error: "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (username, password, telegram name)" },
         { status: 400 }
       );
     }
@@ -60,9 +60,9 @@ export async function POST(req: NextRequest) {
 
     // ── Insert user ──────────────────────────────────────────
     const [result] = await pool.query<ResultSetHeader>(
-      `INSERT INTO users (username, password_hash, role, last_login)
-       VALUES (?, ?, ?, NOW())`,
-      [username, passwordHash, role]
+      `INSERT INTO users (username, password_hash, role, telegram_name, last_login)
+       VALUES (?, ?, ?, ?, NOW())`,
+      [username, passwordHash, role, telegramName]
     );
 
     const userId = result.insertId;

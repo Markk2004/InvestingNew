@@ -4,10 +4,11 @@
 //  FloatingChartWindow — Draggable / Resizable TradingView Window
 // ─────────────────────────────────────────────────────────────
 
-import { useRef, useCallback, useState, memo } from "react";
+import { useRef, useCallback, useState, memo, useEffect } from "react";
 import useSWR from "swr";
 import { AdvancedRealTimeChart } from "react-ts-tradingview-widgets";
 import { getTradingViewSymbol } from "@/lib/stocks";
+import { useRouter } from "next/navigation";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -173,12 +174,20 @@ export default function FloatingChartWindow({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const prevStateRef = useRef<{
     x: number;
     y: number;
     width: number;
     height: number;
   } | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // ── Drag — Direct DOM mutation during drag, React state saved on mouseup ──
   const handleDragMouseDown = useCallback(
@@ -278,18 +287,19 @@ export default function FloatingChartWindow({
   const titleColor = "#4fc3f7";
   // Resolve correct exchange prefix (e.g. NYSE:JPM or NASDAQ:AAPL)
   const tvSymbol = getTradingViewSymbol(win.symbol);
+  const router = useRouter();
 
   return (
     <div
       ref={containerRef}
-      onMouseDown={() => onFocus(win.id)}
+      onMouseDown={() => !isMobile && onFocus(win.id)}
       style={{
-        position: "absolute",
-        left: win.x,
-        top: win.y,
-        width: win.width,
-        height: win.minimized ? 44 : win.height,
-        zIndex: win.zIndex,
+        position: isMobile ? "fixed" : "absolute",
+        left: isMobile ? 0 : win.x,
+        top: isMobile ? 0 : win.y,
+        width: isMobile ? "100%" : win.width,
+        height: isMobile ? "100%" : (win.minimized ? 44 : win.height),
+        zIndex: isMobile ? 99999 : win.zIndex,
         display: "flex",
         visibility: win.closed ? "hidden" : "visible",
         opacity: win.closed ? 0 : 1,
@@ -298,64 +308,88 @@ export default function FloatingChartWindow({
         flexDirection: "column",
         background: "var(--color-bg-header)",
         backdropFilter: "blur(12px)",
-        border: `2px solid var(--color-border-normal)`,
-        boxShadow: `0 0 0 1px var(--color-border-subtle), 0 8px 40px rgba(0,0,0,0.8), 0 0 20px var(--color-accent-primary)`,
-        borderRadius: "var(--radius, 2px)",
+        border: isMobile ? "none" : `2px solid var(--color-border-normal)`,
+        boxShadow: isMobile ? "none" : `0 0 0 1px var(--color-border-subtle), 0 8px 40px rgba(0,0,0,0.8), 0 0 20px var(--color-accent-primary)`,
+        borderRadius: isMobile ? 0 : "var(--radius, 2px)",
         overflow: "hidden",
         transition: "box-shadow 0.15s ease",
-        minWidth: MIN_W,
-        minHeight: win.minimized ? 44 : MIN_H,
+        minWidth: isMobile ? 0 : MIN_W,
+        minHeight: isMobile ? 0 : (win.minimized ? 44 : MIN_H),
         userSelect: "none",
       }}
     >
       {/* ── Title Bar ───────────────────────────────────────────────────── */}
       <div
-        onMouseDown={handleDragMouseDown}
+        onMouseDown={isMobile ? undefined : handleDragMouseDown}
         style={{
-          height: 44,
+          height: isMobile ? 48 : 44,
           flexShrink: 0,
           background: "var(--color-bg-page-gradient)",
           backgroundColor: "var(--color-bg-page)",
           borderBottom: `1px solid var(--color-border-normal)`,
           display: "flex",
           alignItems: "center",
-          padding: "0 10px",
-          cursor: isMaximized ? "default" : "grab",
+          padding: isMobile ? "0 16px" : "0 10px",
+          cursor: (isMaximized || isMobile) ? "default" : "grab",
           gap: 8,
         }}
       >
-        {/* macOS traffic-light buttons */}
-        <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+        {isMobile ? (
           <button
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={() => onClose(win.id)}
-            style={trafficBtn("#ff5f57")}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#7a0000")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "transparent")}
-            title="Close"
-          >×</button>
+            onClick={() => {
+              onClose(win.id);
+              router.back();
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 12,
+              fontWeight: "bold",
+              color: "var(--color-accent-primary)",
+              fontFamily: "var(--font-mono)",
+              background: "rgba(255,0,60,0.1)",
+              border: "none",
+              padding: "4px 12px",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+          >
+            ◀ BACK
+          </button>
+        ) : (
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+            <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={() => onClose(win.id)}
+              style={trafficBtn("#ff5f57")}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#7a0000")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "transparent")}
+              title="Close"
+            >×</button>
 
-          <button
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={() => onUpdate(win.id, { minimized: !win.minimized })}
-            style={trafficBtn("#febc2e")}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#7a4400")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "transparent")}
-            title="Minimize"
-          >−</button>
+            <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={() => onUpdate(win.id, { minimized: !win.minimized })}
+              style={trafficBtn("#febc2e")}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#7a4400")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "transparent")}
+              title="Minimize"
+            >−</button>
 
-          <button
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={handleMaximize}
-            style={trafficBtn("#28c840")}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#004400")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "transparent")}
-            title="Maximize"
-          >+</button>
-        </div>
+            <button
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={handleMaximize}
+              style={trafficBtn("#28c840")}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#004400")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "transparent")}
+              title="Maximize"
+            >+</button>
+          </div>
+        )}
 
         <div style={{ width: 1, height: 20, background: "#1e3a5f", flexShrink: 0 }} />
-        <span style={{ fontSize: 14, flexShrink: 0 }}>📈</span>
+        {!isMobile && <span style={{ fontSize: 14, flexShrink: 0 }}>📈</span>}
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
@@ -406,7 +440,7 @@ export default function FloatingChartWindow({
       </div>
 
       {/* ── Resize Handle ────────────────────────────────────────────────── */}
-      {!win.minimized && !isMaximized && (
+      {!win.minimized && !isMaximized && !isMobile && (
         <div
           onMouseDown={handleResizeMouseDown}
           style={{
