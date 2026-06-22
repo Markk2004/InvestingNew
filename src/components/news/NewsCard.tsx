@@ -23,22 +23,29 @@ export function NewsCard({ article }: { article: NewsItem }) {
       rel="noopener noreferrer"
       className="block mx-4 mb-3 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0a0a0f]/40 p-4 transition-colors hover:bg-[rgba(255,255,255,0.05)]"
     >
-      <div className="flex justify-between items-start gap-2 mb-2">
+      <div className="flex justify-between items-start gap-3 mb-2">
         <h3 className="text-[15px] leading-snug font-semibold text-white flex-1">
           {article.title}
         </h3>
-        {/* Severity Badge */}
+        {/* Severity Badge like PC */}
         {article.severityScore > 0 && (
           <div 
-            className="flex-shrink-0 flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border"
+            className="flex-shrink-0 flex flex-col items-center justify-center rounded-md font-mono"
             style={{ 
-              borderColor: `${severityColor}40`, 
+              minWidth: "44px",
+              height: "44px",
+              border: `1px solid ${severityColor}60`,
               backgroundColor: `${severityColor}15`, 
-              color: severityColor 
+              boxShadow: `0 0 8px ${severityColor}30`,
+              marginTop: "2px"
             }}
           >
-            <AlertTriangle size={10} />
-            {severityLabel}
+            <span style={{ fontSize: "18px", fontWeight: "bold", color: severityColor, lineHeight: 1 }}>
+              {article.severityScore}
+            </span>
+            <span style={{ fontSize: "8px", fontWeight: "bold", color: severityColor, marginTop: 2, letterSpacing: 0.5 }}>
+              {severityLabel.toUpperCase()}
+            </span>
           </div>
         )}
       </div>

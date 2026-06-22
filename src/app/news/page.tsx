@@ -486,14 +486,14 @@ export default function NewsDashboardPage() {
           usage: data?.usage
         }}
       >
-        <div className="block md:hidden h-full">
+        <div className="block xl:hidden h-full">
           {data ? (
             <MobileNewsDashboard articles={data.articles} averageSeverity={data.averageSeverity} />
           ) : (
             <LoadingSkeleton />
           )}
         </div>
-        <div className="hidden md:block">
+        <div className="hidden xl:block h-full w-full">
           {renderContent()}
         </div>
       </ResponsiveDashboard>

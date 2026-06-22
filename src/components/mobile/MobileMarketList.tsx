@@ -22,7 +22,6 @@ export default function MobileMarketList() {
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [loadingQuotes, setLoadingQuotes] = useState(true);
   const [search, setSearch] = useState("");
-  const [showPromo, setShowPromo] = useState(true);
   const [activeSubTab, setActiveSubTab] = useState<"market" | "sector">("market");
 
   // Mock sparklines
@@ -98,29 +97,7 @@ export default function MobileMarketList() {
         </div>
       ) : (
         <>
-          {/* PROMO BANNER */}
-          {showPromo && (
-            <div className="px-4 py-3 shrink-0">
-              <div className="relative rounded-xl bg-gradient-to-r from-[rgba(255,0,60,0.15)] to-[rgba(10,10,15,0.8)] border border-[rgba(255,0,60,0.3)] p-4 flex justify-between items-center overflow-hidden">
-                <div className="absolute right-[-20px] top-[-20px] opacity-10">
-                  <Calendar size={100} />
-                </div>
-                <div className="relative z-10">
-                  <h2 className="text-[var(--color-accent-primary)] font-bold mb-1 font-mono tracking-wide">ECONOMIC CALENDAR</h2>
-                  <p className="text-[#888] text-xs mb-3 font-mono">Earnings reports & key metrics</p>
-                  <button className="bg-[var(--color-accent-primary)] text-black text-xs font-bold px-4 py-1.5 rounded-full">
-                    ดูเพิ่มเติม
-                  </button>
-                </div>
-                <button 
-                  onClick={() => setShowPromo(false)}
-                  className="absolute top-2 right-2 text-[#555] hover:text-white"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          )}
+
 
           {/* SEARCH BAR (Top) */}
           <div className="p-3 shrink-0 border-b border-[rgba(255,255,255,0.05)] bg-[#050508]">

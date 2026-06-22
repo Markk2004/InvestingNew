@@ -21,8 +21,8 @@ export default function ResponsiveDashboard(props: ResponsiveDashboardProps) {
   useEffect(() => {
     setMounted(true);
     const checkIsMobile = () => {
-      // 768px is the typical 'md' breakpoint in Tailwind
-      setIsMobile(window.innerWidth < 768);
+      // 1280px (xl) breakpoint to cover Mobile + ALL iPads (portrait & landscape)
+      setIsMobile(window.innerWidth < 1280);
     };
     
     checkIsMobile();

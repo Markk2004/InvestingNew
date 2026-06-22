@@ -57,13 +57,13 @@ export default function OverviewPage() {
   const renderContent = () => (
     <>
       {/* MOBILE CONTENT */}
-      <div className="block md:hidden flex-1 overflow-hidden">
+      <div className="block xl:hidden flex-1 overflow-hidden">
         <MobileMarketList />
       </div>
 
       {/* DESKTOP CONTENT */}
       <main
-        className="hidden md:flex"
+        className="hidden xl:flex"
         style={{
           flex: 1,
           overflow: "hidden",
