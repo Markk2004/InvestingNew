@@ -483,129 +483,29 @@ export default function MemberPage() {
               <span>LOADING USERS...</span>
             </div>
           ) : (
-            <table className="adm-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>USER</th>
-                  <th>TELEGRAM</th>
-                  <th>ROLE</th>
-                  <th>XP</th>
-                  <th>STATUS</th>
-                  <th>LAST_LOGIN</th>
-                  <th>ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr
-                    key={u.userId}
-                    className={`adm-row ${u.userId === user?.userId ? "adm-row--self" : ""} ${!u.isActive ? "adm-row--suspended" : ""}`}
-                  >
-                    <td className="adm-cell--id">#{u.userId}</td>
-                    <td className="adm-cell--user">
-                      <span className="adm-username">{u.username}</span>
-                      {u.userId === user?.userId && (
-                        <span className="adm-self-badge">YOU</span>
-                      )}
-                    </td>
-                    <td className="adm-cell--telegram">
-                      {u.telegramName ? <span className="adm-telegram-name">{u.telegramName}</span> : <span className="adm-telegram-none">—</span>}
-                    </td>
-                    <td>
-                      {u.userId === user?.userId ? (
-                        <span className={`adm-role-pill adm-role-pill--${u.role}`}>
-                          {u.role.toUpperCase()}
-                        </span>
-                      ) : (
-                        <select
-                          className="adm-select"
-                          value={editingRoles[u.userId] ?? u.role}
-                          disabled={updating === u.userId}
-                          onChange={(e) => {
-                            const newRole = e.target.value as UserRole;
-                            setEditingRoles(prev => ({ ...prev, [u.userId]: newRole }));
-                          }}
-                        >
-                          <option value="member">MEMBER</option>
-                          <option value="owner">OWNER</option>
-                        </select>
-                      )}
-                    </td>
-                    <td className="adm-cell--xp">{u.xp.toLocaleString()}</td>
-                    <td>
-                      <span
-                        className={`adm-status-pill ${u.isActive ? "adm-status-pill--active" : "adm-status-pill--suspended"}`}
-                      >
-                        {u.isActive ? "ACTIVE" : "SUSPENDED"}
-                      </span>
-                    </td>
-                    <td className="adm-cell--date">{formatDate(u.lastLogin)}</td>
-                    <td className="adm-cell--actions">
-                      {editingRoles[u.userId] !== undefined && editingRoles[u.userId] !== u.role ? (
-                        <>
-                          <button
-                            className="adm-action-btn adm-action-btn--activate"
-                            disabled={updating === u.userId}
-                            onClick={() => {
-                              updateUser(u.userId, { role: editingRoles[u.userId] });
-                              setEditingRoles(prev => {
-                                const next = { ...prev };
-                                delete next[u.userId];
-                                return next;
-                              });
-                            }}
-                          >
-                            ACCEPT
-                          </button>
-                          <button
-                            className="adm-action-btn adm-action-btn--suspend"
-                            disabled={updating === u.userId}
-                            onClick={() => {
-                              setEditingRoles(prev => {
-                                const next = { ...prev };
-                                delete next[u.userId];
-                                return next;
-                              });
-                            }}
-                          >
-                            CANCEL
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          {/* Toggle Active */}
-                          {u.userId !== user?.userId && (
-                            <button
-                              className={`adm-action-btn ${u.isActive ? "adm-action-btn--suspend" : "adm-action-btn--activate"}`}
-                              disabled={updating === u.userId}
-                              onClick={() =>
-                                updateUser(u.userId, { isActive: !u.isActive })
-                              }
-                            >
-                              {u.isActive ? "SUSPEND" : "ACTIVATE"}
-                            </button>
-                          )}
-                          {/* Delete User */}
-                          {u.userId !== user?.userId && (
-                            <button
-                              className="adm-action-btn adm-action-btn--delete"
-                              disabled={updating === u.userId}
-                              onClick={() => deleteUser(u.userId, u.username)}
-                            >
-                              DELETE
-                            </button>
-                          )}
-                        </>
-                      )}
-                      {updating === u.userId && (
-                        <span className="adm-updating">...</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+              {users.map((u) => (
+                <MobileUserCard
+                  key={u.userId}
+                  u={u}
+                  isSelf={u.userId === user?.userId}
+                  editingRole={editingRoles[u.userId]}
+                  setEditingRole={(role: string) => setEditingRoles(p => ({...p, [u.userId]: role as UserRole}))}
+                  cancelEditing={() => setEditingRoles(p => { const n = {...p}; delete n[u.userId]; return n; })}
+                  onUpdateRole={() => {
+                    updateUser(u.userId, { role: editingRoles[u.userId] });
+                    setEditingRoles(p => { const n = {...p}; delete n[u.userId]; return n; });
+                  }}
+                  onToggleActive={() => updateUser(u.userId, { isActive: !u.isActive })}
+                  onDelete={() => deleteUser(u.userId, u.username)}
+                  updating={updating === u.userId}
+                  formatDate={formatDate}
+                />
+              ))}
+              {users.length === 0 && !loading && (
+                <div className="col-span-full text-center text-xs text-white/30 py-10">NO OPERATIVES FOUND</div>
+              )}
+            </div>
           )}
         </div>
 

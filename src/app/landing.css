@@ -353,14 +353,6 @@
   height: 8rem; pointer-events: none; z-index: 30;
   display: flex; align-items: flex-end;
 }
-@media (min-width: 768px) {
-  .lp-smoke {
-    height: 14rem;
-  }
-  .lp-smoke-img {
-    display: block;
-  }
-}
 .lp-smoke-gradient {
   position: absolute; inset: 0;
   background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.6) 60%, #000);
@@ -374,6 +366,14 @@
   mix-blend-mode: screen;
   mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 80%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 80%, transparent 100%);
+}
+@media (min-width: 768px) {
+  .lp-smoke {
+    height: 14rem;
+  }
+  .lp-smoke-img {
+    display: block;
+  }
 }
 
 /* Sections */

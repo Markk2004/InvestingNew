@@ -208,6 +208,13 @@ export default function AuthModal({
       aria-modal="true"
       aria-label="Authentication"
     >
+      {/* ── Smoke bottom for Modal ── */}
+      <div className="auth-smoke">
+        <div className="auth-smoke-gradient" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/hero/smoke_dark.png" alt="" className="auth-smoke-img" />
+      </div>
+
       <div className="auth-modal-box">
         {/* ── HUD corners ── */}
         <div className="hud-corner hud-corner--tl" />
@@ -470,10 +477,36 @@ export default function AuthModal({
           padding: 2rem;
           overflow: hidden;
           animation: slideUp 0.25s ease;
+          z-index: 10;
         }
         @keyframes slideUp {
           from { transform: translateY(20px); opacity: 0; }
           to   { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ── Smoke ── */
+        .auth-smoke {
+          position: absolute; bottom: 0; left: 0; right: 0;
+          height: 8rem; pointer-events: none; z-index: 1;
+          display: flex; align-items: flex-end;
+        }
+        @media (min-width: 768px) {
+          .auth-smoke { height: 14rem; }
+          .auth-smoke-img { display: block !important; }
+        }
+        .auth-smoke-gradient {
+          position: absolute; inset: 0;
+          background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.6) 60%, #000);
+        }
+        .auth-smoke-img {
+          display: none;
+          position: absolute; inset: 0;
+          width: 100%; height: 100%;
+          object-fit: cover;
+          opacity: 0.6;
+          mix-blend-mode: screen;
+          mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 80%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 80%, transparent 100%);
         }
 
         /* ── HUD Corners ── */
