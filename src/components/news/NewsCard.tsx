@@ -84,10 +84,36 @@ export function NewsCard({ article }: { article: NewsItem }) {
         </div>
       )}
       
-      {/* Analysis summary if available */}
-      {article.summary && (
-        <div className="mt-3 text-[13px] text-[#aaaaaa] line-clamp-2 leading-relaxed">
-          {article.summary}
+      {/* Pure Facts */}
+      {(article.summary_en || article.summary) && (
+        <div className="mt-3 text-[13px] text-[#cccccc] leading-relaxed">
+          {article.summary_en || article.summary}
+        </div>
+      )}
+
+      {/* AI Insights Gold/Orange Box */}
+      {article.market_analysis && (
+        <div 
+          className="mt-3 p-3 border rounded-lg font-mono"
+          style={{
+            borderColor: "rgba(251, 191, 36, 0.3)",
+            background: "linear-gradient(135deg, rgba(251, 191, 36, 0.03) 0%, rgba(245, 158, 11, 0.05) 100%)",
+            boxShadow: "0 0 8px rgba(251, 191, 36, 0.1)",
+            borderStyle: "dashed",
+          }}
+        >
+          <div className="text-[10px] font-pixel text-[#fbbf24] mb-1.5 flex items-center gap-1">
+            <span>✨</span> AI INSIGHTS
+          </div>
+          <p
+            style={{
+              fontSize: "12px",
+              color: "#fef08a",
+              lineHeight: "1.5",
+            }}
+          >
+            {article.market_analysis}
+          </p>
         </div>
       )}
     </a>

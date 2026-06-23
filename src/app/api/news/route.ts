@@ -8,6 +8,7 @@ import type { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest): Promise<Response> {
+  console.log("=> REACHED /api/news GET route!");
   const fetchedAt = new Date().toISOString();
   const forceRefresh = req.nextUrl.searchParams.get("force") === "true";
   const processQueue = req.nextUrl.searchParams.get("process_queue") === "true";
@@ -23,6 +24,8 @@ export async function GET(req: NextRequest): Promise<Response> {
   if (processQueue) queryParams.append("process_queue", "true");
   if (page !== "1") queryParams.append("page", page);
   if (isCron) queryParams.append("cron", "true");
+  const category = req.nextUrl.searchParams.get("category");
+  if (category) queryParams.append("category", category);
   const qs = queryParams.toString();
   
   const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/api'}/news${qs ? '?' + qs : ''}`;

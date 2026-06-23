@@ -190,19 +190,47 @@ export default function NewsCard({ article, index }: NewsCardProps) {
         </div>
       </div>
 
-      {/* ── Summary ─────────────────────────────────────── */}
-      <div className="px-4 py-3 flex-1">
-        <p
-          style={{
-            fontSize: "14px",
-            color: "#e2e8f0",
-            lineHeight: 1.7,
-            fontFamily: "var(--font-mono), monospace",
-          }}
-        >
-          {article.summary}
-        </p>
+      {/* ── Summary & AI Insights ─────────────────────────── */}
+      <div className="px-4 py-3 flex-1 flex flex-col gap-3">
+        {(article.summary_en || article.summary) && (
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#cbd5e1",
+              lineHeight: 1.7,
+              fontFamily: "var(--font-mono), monospace",
+            }}
+          >
+            {article.summary_en || article.summary}
+          </p>
+        )}
 
+        {article.market_analysis && (
+          <div 
+            className="p-3 border font-mono rounded-lg transition-all hover:scale-[1.01]"
+            style={{
+              borderColor: "rgba(251, 191, 36, 0.4)",
+              background: "linear-gradient(135deg, rgba(251, 191, 36, 0.04) 0%, rgba(245, 158, 11, 0.07) 100%)",
+              boxShadow: "0 0 10px rgba(251, 191, 36, 0.15), inset 0 0 0 1px rgba(251, 191, 36, 0.05)",
+              borderStyle: "dashed",
+            }}
+          >
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <span className="text-[10px] font-pixel tracking-wider text-[#fbbf24] animate-pulse">
+                ✨ AI INSIGHTS
+              </span>
+            </div>
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#fef08a",
+                lineHeight: "1.6",
+              }}
+            >
+              {article.market_analysis}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ── Card Footer (Keywords & Source Link) ──────────── */}

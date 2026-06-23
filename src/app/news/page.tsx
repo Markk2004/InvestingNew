@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import type { NewsApiResponse } from "@/lib/types";
@@ -19,6 +19,7 @@ import ResponsiveDashboard from "@/components/ResponsiveDashboard";
 import { useTheme } from "@/components/ThemeProvider";
 import ExposureChart from "@/components/ExposureChart";
 import MobileNewsDashboard from "@/components/mobile/MobileNewsDashboard";
+import { NewsHeader, NewsSubTabs } from "@/components/news/NewsHeader";
 
 // ── SWR fetcher ──────────────────────────────────────────────
 
@@ -50,6 +51,8 @@ export default function NewsDashboardPage() {
   const [formattedDate, setFormattedDate] = useState<string>("");
 
   const [page, setPage] = useState<number>(1);
+  const [activeCategory, setActiveCategory] = useState<'general' | 'market'>('general');
+  const [activeSubTab, setActiveSubTab] = useState<string>('ไฮไลต์');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,7 +73,30 @@ export default function NewsDashboardPage() {
     isLoading,
     isValidating,
     mutate,
-  } = useSWR<NewsApiResponse>(`/api/news?page=${page}`, fetcher, SWR_CONFIG);
+  } = useSWR<NewsApiResponse>(
+    `/api/news?page=${page}&category=${activeCategory}`,
+    fetcher,
+    SWR_CONFIG
+  );
+
+  const filteredArticles = useMemo(() => {
+    if (!data?.articles) return [];
+    switch (activeSubTab) {
+      case "ไฮไลต์":
+        const highlights = data.articles.filter((a) => a.severityScore >= 7);
+        return highlights.length > 0 ? highlights : data.articles;
+      case "หัวข้อ":
+        return data.articles;
+      case "ข่าวด่วน":
+        return data.articles.filter((a) => a.severityScore >= 8 || a.isPending);
+      case "ข้อมูลเชิงลึก":
+        return data.articles.filter((a) => !!a.market_analysis || (a.summary && a.summary.includes("AI Analysis")));
+      case "รายการเฝ้าดู":
+        return data.articles.filter((a) => a.assetImpact && a.assetImpact.length > 0);
+      default:
+        return data.articles;
+    }
+  }, [data?.articles, activeSubTab]);
 
   const showToast = useCallback((message: string, type: ToastType = "success") => {
     const id = Date.now() + Math.random();
@@ -105,7 +131,7 @@ export default function NewsDashboardPage() {
     setPage(1);
     try {
       const result = await mutate(
-        fetcher("/api/news?force=true&page=1"),
+        fetcher(`/api/news?force=true&page=1&category=${activeCategory}`),
         { revalidate: false }
       );
 
@@ -146,7 +172,7 @@ export default function NewsDashboardPage() {
     setIsProcessingQueue(true);
     showToast("⚡ กำลังส่งวิเคราะห์คิวถัดไป (ครั้งละ 6 ข่าว)...", "success");
     try {
-      const response = await fetch("/api/news?process_queue=true&limit=6");
+      const response = await fetch(`/api/news?process_queue=true&limit=6&category=${activeCategory}`);
       const result = await response.json();
       await mutate();
       if (result?.error) {
@@ -271,6 +297,12 @@ export default function NewsDashboardPage() {
         {data && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
+            {/* ── Capsule Toggle & Sub Tabs (Desktop) ────────── */}
+            <div className="flex flex-col items-center gap-4 bg-[#0a0a0f]/60 p-4 border border-[rgba(255,255,255,0.05)] rounded-2xl shadow-[0_0_24px_rgba(79,195,247,0.05)]">
+              <NewsHeader activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+              <NewsSubTabs activeTab={activeSubTab} setActiveTab={setActiveSubTab} />
+            </div>
+
             {/* ── Top Row: Gauge + Stats ─────────────────── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="lg:col-span-1">
@@ -346,7 +378,7 @@ export default function NewsDashboardPage() {
             )}
 
             {/* ── News Grid (Analyzed only) ─────────────── */}
-            <NewsGrid articles={data.articles} />
+            <NewsGrid articles={filteredArticles} />
 
             {/* ── Pagination UI ───────────────────────────── */}
             {data.totalPages && data.totalPages > 1 && (
@@ -488,7 +520,14 @@ export default function NewsDashboardPage() {
       >
         <div className="block xl:hidden h-full">
           {data ? (
-            <MobileNewsDashboard articles={data.articles} averageSeverity={data.averageSeverity} />
+            <MobileNewsDashboard 
+              articles={data.articles} 
+              averageSeverity={data.averageSeverity} 
+              activeCategory={activeCategory}
+              setActiveCategory={setActiveCategory}
+              activeSubTab={activeSubTab}
+              setActiveSubTab={setActiveSubTab}
+            />
           ) : (
             <LoadingSkeleton />
           )}

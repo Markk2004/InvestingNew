@@ -29,6 +29,8 @@ export interface NewsItem {
   source: string;
   severityScore: number;   // 1–10 (0 if analysis failed)
   summary: string;          // Thai summary from Gemini
+  summary_en?: string;      // English fact summary
+  market_analysis?: string; // Market analysis from Gemini
   keywords: string[];       // Key entities/topics extracted by Gemini
   sentiment: Sentiment;     // Market direction: bullish | bearish | neutral
   shortTermImpact?: string; // Optional short-term impact note in Thai
