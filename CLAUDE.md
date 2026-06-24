@@ -140,3 +140,9 @@ pixeltrade/
 
 **ลำดับ Phase การพัฒนา:**
 1. Setup → 2. Backend Core → 3. Chart → 4. Scanner → 5. Office Scene → 6. Terminal + Character
+
+---
+
+## 8. Communication Style (กฎการสื่อสารของ AI)
+*   **During Task Execution (ระหว่างทำงาน):** Use English for all intermediate explanations, queries, and descriptions.
+*   **Task Summary (เมื่อจบงาน):** Provide the final summary of the task in Thai (ภาษาไทย).
